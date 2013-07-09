@@ -7,15 +7,18 @@ DNA sequencing is moving into clinical applications. We need tools to determine 
 Chanjo provides this functionality in a more intuitive way than dealing with BED-intervals.
 
 ## Main features
-* Generate coverage directly from BAM alignments. Fit's right into your genomics pipeline.
-* Specify 
+| Feature            | Description   |
+| ------------------ | ------------- |
+| BAM support        | Generate coverage directly from BAM alignments. Fit's right into your genomics pipeline. |
+| Just what you need | Limit calculations to a list of genes of interest. |
 
 ## Installation
-
-## Where to get help
+- [ ] Automatic pip install support
 
 ## Contributor list
+Robin Andeer
 
 ## Credits, Inspiration, Alternatives
 
 ## License
+MIT
