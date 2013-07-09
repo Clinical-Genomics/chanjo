@@ -9,8 +9,11 @@ import collections
 
 class ElementAdaptor(object):
   """docstring for ElementAdaptor"""
-  def __init__(self):
+  def __init__(self, db_path):
     super(ElementAdaptor, self).__init__()
+
+    # Set up connection to database
+    self.connect(db_path)
 
     self.classes = None
 
@@ -35,7 +38,7 @@ class ElementAdaptor(object):
     else:
       # Otherwise make sure we have an iterable
       if not isinstance(elem_ids, collections.Iterable):
-        print "Input must be ID string or list of IDs."
+        print("Input must be ID string or list of IDs.")
         return None
 
     elements = range(0,len(elem_ids))

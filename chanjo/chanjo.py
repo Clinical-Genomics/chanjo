@@ -9,14 +9,11 @@
   add in modular functionality that can be switched out to support multiple
   "backends".
 
-  A description which can be long and explain the complete
-  functionality of this module even with indented code examples.
-  Class/Function however should not be documented here.
-
   :copyright: 2013 by Robin Andeer, see AUTHORS for more details
   :license: MIT, see LICENSE for more details
 """
 
+from __future__ import print_function
 import collections
 from interval import Interval, IntervalSet
 
@@ -42,53 +39,19 @@ class Analyzer(object):
       from chanjo.sqlite import ElementAdaptor
 
       analyzer = Analyzer()
-      analyzer.setAdaptors(CoverageAdaptor(), ElementAdaptor())
+      bam_path = "/path/to/file.bam"
+      cov_path = "/path/to/database.db"
+      analyzer.setAdaptors(CoverageAdaptor(bam_path), ElementAdaptor(cov_path))
     """
     # Customizable adaptors
     self.coverageAdaptor = coverageAdaptor
     self.elementAdaptor = elementAdaptor
 
-    # Shortcuts to the import methods
-    self.importElements = self.elementAdaptor.connect
-
-    # Shortcut to getting an elements by ID
+    # Shortcut to getting elements by ID
     self.get = self.elementAdaptor.get
 
-    # Shortcut to getting an elements by ID
-    self.getCoverage = self.coverageAdaptor.intervals
-
-  def calculateCoverage(self, genes, cutoff=50):
-    """
-    Public: Calculate and annotate coverage for a list of genes and related
-            transcripts and exons.
-    ----------
-    :param genes:  [iterable] A list of gene IDs
-    :param cutoff: [int] The read depth level to use for coverage completeness
-                   (Default: 50)
-
-    Usage:
-      genes = ["EGFR", "GIT1"]
-      analyzer.calculateCoverage(genes, 10)
-      > 'Done and done ... and I mean done.'
-    """
-
-    for count, gene_id in enumerate(genes):
-
-      if count%100 == 0:
-        print count
-
-      # Calculate and persist coverage for the gene
-      gene = self.elementCoverage("gene", gene_id, cutoff)
-
-      # for tx_child in gene.transcripts:
-      #   # Calculate and persist coverage for each transcript
-      #   tx = self.elementCoverage("transcript", tx_child.id, cutoff)
-
-      # for ex in gene.exons:
-      #   # Calculate and persist coverage for each exon
-      #   self.elementCoverage("exon", ex.id, cutoff)
-
-    print "Done and done ... and I mean done."
+    # Shortcut to getting coverage for intervals
+    self.intervals = self.coverageAdaptor.intervals
 
   def elementCoverage(self, elem_class, elem_id, cutoff=50):
     """
@@ -96,8 +59,8 @@ class Analyzer(object):
     ----------
     :param elem_class: [str] The class of element, e.g. "gene"
     :param elem_id:    [str] The unique element id
-    :param cutoff:     [int] The read depth level to use for coverage completeness
-                       (Default: 50)
+    :param cutoff:     [int] The read depth level to use for coverage
+                       completeness (Default: 50)
 
     Usage:
       analyzer.elementCoverage("gene", "EGFR", 50)
@@ -109,8 +72,8 @@ class Analyzer(object):
       cov, comp = self.coverage(element.chrom, element.simpleIntervals(),
                                 cutoff=cutoff)
     else:
-      # Exon (already satisfies interval demands)
-      cov, comp = self.coverage(element.chrom, element, cutoff=cutoff)
+      # Exon only a single interval
+      cov, comp = self.coverage(element.chrom, (element,), cutoff)
 
     # Update the element with the calculated coverage information
     element.coverage = cov
@@ -123,104 +86,74 @@ class Analyzer(object):
     return element
 
   def coverage(self, chrom, intervals, cutoff=50):
-    """
-    Public: Calculates coverage across *non-overlapping* intervals.
-    ----------
-    :param chrom:     [str] The chromosome related to the intervals
-    :param intervals: [iterable] A list of `Interval`-like classes. Must have
-                      start and end attributes.
-    :param cutoff:    [int] The read depth level to use for coverage completeness
-                      (Default: 50)
-    :returns:         [tuple] The mean read depth and the % coverage at the
-                      given cutoff
-
-    Usage:
-      gene = analyzer.get("gene", "SDF4")
-      analyzer.coverage(gene.chrom, gene.simpleIntervals(), 10)
-      [out] => (7.605809128630705, 0.5253112033195021)
-    """
-    # The chromosome ID must be submitted as a string
-    chrom = str(chrom)
-
-    # If you only supply one interval
-    if not isinstance(intervals, collections.Iterable):
-      # Just make iterable
-      intervals = (intervals,)
-
-    # Always need to know the number of bases across the intervals
-    baseCount = 0.
-
-    # Preallocate result lists
-    readCounts = [None]*len(intervals)
-    passedCounts = list(readCounts)
-    for count, interval in enumerate(intervals):
-      # Assumes no overlap between them
-      # Add the length of the current interval
-      baseCount += interval.end - interval.start
-      # Add the accumulated read depth and the number of passed bases
-      (readCounts[count],
-       passedCounts[count]) = self.readPassedCount(chrom, interval.start,
-                                                   interval.end, cutoff)
-
-    # Return mean read depth and % covered at cutoff
-    return (sum(readCounts) / baseCount,
-            sum(passedCounts) / baseCount)
-
-  def readPassedCount(self, chrom, start, end, cutoff=50):
-    """
-    Public: Calculates the read count and positions passing a cutoff.
-    ----------
-    :param chrom:  [str] The chromosome for the interval
-    :param start:  [int] The start position of the interval
-    :param end:    [int] The end position of the interval
-    :param cutoff: [int] The cutoff for accepting a position (Default: 50)
-    :returns:      [int, int] The sum of read depth across the interval, the
-                   sum of positions passing the cutoff. 
-
-    Usage:
-      analyzer.readPassedCount("17", 134839488, 134933418, cutoff=10)
-      [out] => (234961, 93929)
-    """
-    chrom = str(chrom)
-    intervals = self.getCoverage(chrom, start, end, cutoff)
+    # Initialize
+    baseCount = 0
     readCount = 0
     passedCount = 0
 
     for interval in intervals:
-      length = interval.end - interval.start
-      depth = interval.value
-      readCount += depth * length
 
-      # Count all bases as passed if at least equal to the cutoff
-      if depth >= cutoff:
-        passedCount += length
+      baseCount += (end - start)
+      bgIntervals = self.intervals(chrom, start, end, cutoff)
 
-    # Return accumulated read depth
-    return readCount, passedCount
+      # Pick up the iterator and go through one position at a time
+      for interval in bgIntervals:
+        bases = interval.end - interval.start
+
+        # Add the number of overlapping reads
+        readCount += (bases * interval.value)
+
+        # Add the position if it passes `cutoff`
+        if interval.value >= cutoff:
+          passedCount += bases
+
+    return (readCount / float(baseCount),
+            passedCount / float(baseCount))
 
   def levels(self, element, intervals=None, save=True):
+    """
+    Save coverage as discrete levels to be vizualized across genes.
+    """
+    # It's possible to "reuse" BEDGraph covereage intrevals.
     if not intervals:
       # Assume gene
-      intervals = self.getCoverage(element.chrom, element.intervals.lower_bound,
-                                   element.intervals.upper_bound)
+      intervals = self.getCoverage(element.chrom,
+                                   element.intervals.lower_bound(),
+                                   element.intervals.upper_bound())
 
-    levels = [IntervalSet(), IntervalSet(), IntervalSet()]
+    # Four coverage levels are used, `IntervalSet` will automatically merge
+    # the calculated level intervals.
+    levels = [IntervalSet(), IntervalSet(), IntervalSet(), IntervalSet()]
     for interval in intervals:
       readDepth = interval.value
-      if readDepth < 50:
-        if readDepth > 10:
-          levels[0].add(Interval(start, end))
-        elif readDepth > 0:
-          levels[1].add(Interval(start, end))
-        else:
-          levels[2].add(Interval(start, end))
+
+      if readDepth > 50:
+        levels[3].add(Interval(interval.start, interval.end))
+      elif readDepth > 10:
+        levels[2].add(Interval(interval.start, interval.end))
+      elif readDepth > 0:
+        levels[1].add(Interval(interval.start, interval.end))
+      else:
+        levels[0].add(Interval(interval.start, interval.end))
 
     for count, level in enumerate(levels):
+      # Stringify the merged intervals to be able to store them in SQL database
       intervals = ",".join(["{0}-{1}".format(ival.lower_bound, ival.upper_bound)
-                            for ival in level])
+                            for ival in level.intervals])
+
+      # Place the stringified intervals under the correct attribute
       if count == 0:
-        element.intervals_10_50x = intervals
+        element.intervals_0x = intervals
       elif count == 1:
         element.intervals_1_10x = intervals
+      elif count == 2:
+        element.intervals_10_50x = intervals
       else:
-        element.intervals_0x = intervals
+        element.intervals_50x = intervals
+
+    if save:
+      # Persist changes
+      element.save()
+
+    # Enable chaining
+    return element

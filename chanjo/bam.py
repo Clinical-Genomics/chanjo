@@ -4,9 +4,8 @@
   bam.module
   ~~~~~~~~~~~~~
 
-  A description which can be long and explain the complete
-  functionality of this module even with indented code examples.
-  Class/Function however should not be documented here.
+  Responsible for returning BEDGraph intervals given start, end coordinates on
+  a specified chromosome.
 
   :copyright: 2013 by Robin Andeer, see AUTHORS for more details
   :license: license_name, see LICENSE for more details
@@ -32,7 +31,7 @@ class CoverageAdaptor(pysam.Samfile):
   def __init__(self, bam_path):
     super(CoverageAdaptor, self).__init__(bam_path, "rb")
 
-  def intervals(self, chrom, start, end, maxDepth=""):
+  def intervals(self, chrom, start, end, maxDepth=float("inf")):
     """
     Public: Generates BEDGraph intervals of equal coverage between start and end
     on the given chromosome.
@@ -49,7 +48,7 @@ class CoverageAdaptor(pysam.Samfile):
       """
 
     # An empty string is evaluated larger than any integer
-    iterator = self.pileup(chrom, start, end)
+    iterator = self.pileup(str(chrom), start, end)
 
     lastDepth = None
     lastStart = None
@@ -117,16 +116,15 @@ class CoverageAdaptor(pysam.Samfile):
       else:
         reportedDepth = lastDepth
 
-      self._intervals[self.count] = Interval(chrom, lastStart, currentPos - 1,
-                                    reportedDepth)
+      self._intervals[self.count] = Interval(lastStart, currentPos - 1,
+                                             reportedDepth)
     else:
       print("Positions with 0 reads: {}".format(currentPos))
 
 class Interval(object):
   """docstring for Interval"""
-  def __init__(self, chrom, start, end, value=None):
+  def __init__(self, start, end, value=None, chrom=None):
     super(Interval, self).__init__()
-    self.chrom = chrom
     self.start = start
     self.end = end
     self.value = value

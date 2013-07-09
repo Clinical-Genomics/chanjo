@@ -95,7 +95,7 @@ class Importer(object):
                         self.adaptor.set("transcript", (tx_id, chrom, strand,
                                                         gene_id))
                     else:
-                        print tx_id
+                        print(tx_id)
 
         self.path = path
 
