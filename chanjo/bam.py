@@ -47,6 +47,9 @@ class CoverageAdaptor(pysam.Samfile):
                 <chanjo.bam.Interval instance at 0x10f2ea4d0>]
       """
 
+    # Start positions are 0 based in the genomics world
+    start -= 1
+
     # An empty string is evaluated larger than any integer
     iterator = self.pileup(str(chrom), start, end)
 
@@ -68,7 +71,7 @@ class CoverageAdaptor(pysam.Samfile):
       # Pilup came up empty for the interval
       return []
 
-    # Preallocate an array and hope you have enough space
+    # Preallocate an array and hope we have enough space
     self._intervals = [None]*50*(end - start)
     # Pointer for the array
     self.count = 0
@@ -96,7 +99,7 @@ class CoverageAdaptor(pysam.Samfile):
         self.count += 1
 
     # Stuff the last interval into the array
-    self._persistCoverage(chrom, lastStart, col.pos + 1, lastDepth, maxDepth)
+    self._persistCoverage(chrom, lastStart, col.pos, lastDepth, maxDepth)
     # `count` now is the number of intervals that was created
     self.count += 1
 
@@ -116,7 +119,7 @@ class CoverageAdaptor(pysam.Samfile):
       else:
         reportedDepth = lastDepth
 
-      self._intervals[self.count] = Interval(lastStart, currentPos - 1,
+      self._intervals[self.count] = Interval(lastStart, currentPos,
                                              reportedDepth)
     else:
       print("Positions with 0 reads: {}".format(currentPos))

@@ -4,8 +4,8 @@
   chanjo.module
   ~~~~~~~~~~~~~
 
-  The clue and control center of the `chanjo` system.
-  Works in some ways similar to Ember.js in the way you add in adaptors to
+  The clue and control hub of the `chanjo` package.
+  Borrows many structural ideas from Ember.js in the way you add in adaptors to
   add in modular functionality that can be switched out to support multiple
   "backends".
 
