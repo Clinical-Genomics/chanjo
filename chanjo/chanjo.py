@@ -93,8 +93,10 @@ class Analyzer(object):
 
     for interval in intervals:
 
-      baseCount += (end - start)
-      bgIntervals = self.intervals(chrom, start, end, cutoff)
+      # We need the number of bases and we are using 1-based positions
+      # This should be defined universally as either 0,1-based or 1,1-based.
+      baseCount += interval.end - (interval.start-1)
+      bgIntervals = self.intervals(chrom, interval.start, interval.end)
 
       # Pick up the iterator and go through one position at a time
       for interval in bgIntervals:
