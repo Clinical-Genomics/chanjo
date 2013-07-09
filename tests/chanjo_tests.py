@@ -1,25 +1,30 @@
 from nose.tools import *
-from chanjo.chanjo import Chanjo
-from chanjo.bigBed import CoverageAdaptor
-from chanjo.ccds import ElementAdaptor
+from chanjo.chanjo import Analyzer
+from chanjo.sqlite import ElementAdaptor
+from chanjo.bam import CoverageAdaptor
 
 
 class TestClass:
-    def __init__(self):
-        self.chanjo = Chanjo()
+  def __init__(self):
+    self.chanjo = Analyzer()
 
-        self.coverage = CoverageAdaptor()
-        self.elements = ElementAdaptor()
+    elem_path = "tests/data/_CCDS.elements.full.db"
+    bam_path = "tests/data/align.bam"
 
-        #setattr(self, "{}s".format(element.lower()), self.dfs[element])
+    self.chanjo.setAdaptors(CoverageAdaptor(bam_path), ElementAdaptor())
+    self.chanjo.importElements(elem_path)
 
-    def setUp(self):
-        print "SETUP!"
-        # Load in all the CCDS annotations
-        self.chanjo.importAnnotations("tests/data/CCDS.current.txt")
+    self.genes = ("GIT1", "EGFR", "RHO")
 
-    def tearDown(self):
-        print "TEAR DOWN!"
+    #setattr(self, "{}s".format(element.lower()), self.dfs[element])
 
-    def test_open(self):
-        assert_equal(self.test.path, "tests/data/CCDS.current.txt")
+  def setUp(self):
+    print "SETUP!"
+
+  def tearDown(self):
+    print "TEAR DOWN!"
+
+  def test_elementCoverage(self):
+    genes = [self.chanjo.elementCoverage("gene", gene_id, 10) for gene_id in self.genes]
+
+    assert_equal(self.test.path, "tests/data/CCDS.current.txt")
