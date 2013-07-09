@@ -1,5 +1,4 @@
 ![Chanjo Avatar](https://raw.github.com/robinandeer/chanjo2/master/assets/chanjo_logo.png)
-=======
 
 ## What is it?
 DNA sequencing is moving into clinical applications. We need tools to determine coverage for clinically relevant abstractions such as genes, transcripts, and exons.
@@ -19,6 +18,8 @@ It will also be possible to set an upper limit for what read depths will be cons
 | ------------------ | ------------- |
 | BAM support        | Generate coverage directly from BAM alignments. Fit's right into your genomics pipeline. |
 | Just what you need | Limit calculations to a list of genes of interest. |
+| % coverage         | The bredth of coverage at sufficient coverage is treated as important as depth of coverage. |
+| Test report export | Simple output that can be parsed to generate a genetic test report. |
 
 ## Installation
 - [ ] Automatic pip install support
