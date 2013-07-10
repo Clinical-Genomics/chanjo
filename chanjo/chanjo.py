@@ -112,7 +112,7 @@ class Analyzer(object):
     for interval in intervals:
       # We need the number of bases and we are using 1-based positions
       # This should be defined universally as either 0,1-based or 1,1-based.
-      totBaseCount += interval.end - (interval.start-1)
+      totBaseCount += len(interval)
 
       # Two BEDGraph intervals could overlap
       bgCount -= 1

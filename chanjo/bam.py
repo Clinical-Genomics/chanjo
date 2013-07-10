@@ -38,8 +38,7 @@ class CoverageAdaptor(pysam.Samfile):
     """
 
     try:
-      # Start positions are 0 based in the genomics world
-      firstPos = intervals[0].start - 1
+      firstPos = intervals[0].start
       endPos = intervals[-1].end
     except ValueError:
       return (0, 0)
@@ -49,8 +48,7 @@ class CoverageAdaptor(pysam.Samfile):
     # An empty string is evaluated larger than any integer
     iterator = self.pileup(str(chrom), firstPos, endPos, callback=counter)
 
-    baseCount = float(sum((interval.end - interval.start
-                           for interval in intervals)))
+    baseCount = float(sum((len(interval) for interval in intervals)))
 
     return counter.readCount / baseCount, counter.passedCount / baseCount
 
@@ -69,9 +67,9 @@ class CoverageAdaptor(pysam.Samfile):
       [out] => [<chanjo.bam.Interval instance at 0x10f2ea518>,
                 <chanjo.bam.Interval instance at 0x10f2ea4d0>]
     """
-    # Start positions are 0 based in the genomics world
-    firstPos = intervals[0].start - 1
-    endPos = intervals[-1].end
+    firstPos = intervals[0].start
+    # Pysam uses only 0-based positions
+    endPos = intervals[-1].end - 1
 
     # Preallocate an array with enough space (worst case scenario)
     self._intervals = [None]*(endPos-firstPos)
@@ -83,7 +81,7 @@ class CoverageAdaptor(pysam.Samfile):
 
     for interval in intervals:
       # Move the iterator to the start of the interval
-      lastStart, lastDepth = self._move2start(interval.start - 1)
+      lastStart, lastDepth = self._move2start(interval.start)
 
       # Pick up the iterator
       for col in self.iterator:
@@ -144,18 +142,24 @@ class CoverageAdaptor(pysam.Samfile):
       print("Positions with 0 reads: {}".format(currentPos))
 
 class Interval(object):
-  """docstring for Interval"""
+  """
+  Interval
+  Input start is 0-based and input end is 1-based like range().
+  """
   def __init__(self, start, end, value=None, chrom=None):
     super(Interval, self).__init__()
     self.start = start
     self.end = end
     self.value = value
+    self.chrom = chrom
 
   def __len__(self):
+    # We are counting the number of positions in the interval
     return self.end - self.start
 
   def __str__(self):
-    return "({0} - {1}]".format(self.start, self.end)
+    # This is the BED standard definition of an interval
+    return "({0}, {1}]".format(self.start, self.end)
 
 class Counter(object):
   def __init__(self, intervals, maxDepth=50):
