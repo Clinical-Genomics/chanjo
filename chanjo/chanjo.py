@@ -53,7 +53,7 @@ class Analyzer(object):
     # Shortcut to getting coverage for intervals
     self.intervals = self.coverageAdaptor.intervals
 
-  def elementCoverage(self, elem_class, elem_id, cutoff=50):
+  def annotate(self, elem_class, elem_id, cutoff=50):
     """
     Public: Calculate and persist coverage for a single element.
     ----------
@@ -63,14 +63,14 @@ class Analyzer(object):
                        completeness (Default: 50)
 
     Usage:
-      analyzer.elementCoverage("gene", "EGFR", 50)
+      analyzer.annotate("gene", "EGFR", 50)
       [out] => <chanjo.sqlite2.Gene at 0x1041c4c10>
     """
     # For some reason, unicode string doesn't work
     element = self.get(elem_class, str(elem_id))
     if elem_class == "gene" or elem_class == "transcript":
       cov, comp = self.coverage(element.chrom, element.simpleIntervals(),
-                                cutoff=cutoff)
+                                cutoff)
     else:
       # Exon only a single interval
       cov, comp = self.coverage(element.chrom, (element,), cutoff)
@@ -85,32 +85,58 @@ class Analyzer(object):
 
     return element
 
-  def coverage(self, chrom, intervals, cutoff=50):
+  def coverage(self, chrom, intervals, cutoff=50, bgIntervals=None):
+    """
+    Doesn't handle overlapping intervals
+    """
     # Initialize
-    baseCount = 0
+    totBaseCount = 0
     readCount = 0
     passedCount = 0
 
-    for interval in intervals:
+    # Make sure at least one interval was submitted
+    try:
+      firstPos = intervals[0].start
+      lastPos = intervals[-1].end
+    except IndexError:
+      # No intervals were submitted
+      return (0, 0)
 
+    if bgIntervals is None:
+      # Get BEDGraph intervals covering all input intervals
+      # Minimizes the number of times we have to fetch BEDGraph intervals
+      bgIntervals = self.intervals(chrom, intervals)
+
+    bgCount = 1
+
+    for interval in intervals:
       # We need the number of bases and we are using 1-based positions
       # This should be defined universally as either 0,1-based or 1,1-based.
-      baseCount += interval.end - (interval.start-1)
-      bgIntervals = self.intervals(chrom, interval.start, interval.end)
+      totBaseCount += interval.end - (interval.start-1)
 
-      # Pick up the iterator and go through one position at a time
-      for interval in bgIntervals:
-        bases = interval.end - interval.start
+      # Two BEDGraph intervals could overlap
+      bgCount -= 1
+
+      # Continue until we moved passed the current BEDGraph interval
+      while bgCount < len(bgIntervals) and bgIntervals[bgCount].start <= interval.end:
+
+        # Test overlap between BEDGraph interval and current input interval
+        if interval.end < bgIntervals[bgCount].end:
+          bgBases = interval.end - bgIntervals[bgCount].start
+        else:
+          bgBases = bgIntervals[bgCount].end - bgIntervals[bgCount].start
 
         # Add the number of overlapping reads
-        readCount += (bases * interval.value)
+        readCount += (bgBases * bgIntervals[bgCount].value)
 
         # Add the position if it passes `cutoff`
-        if interval.value >= cutoff:
-          passedCount += bases
+        if bgIntervals[bgCount].value >= cutoff:
+          passedCount += bgBases
 
-    return (readCount / float(baseCount),
-            passedCount / float(baseCount))
+        bgCount += 1
+
+    return (readCount / float(totBaseCount),
+            passedCount / float(totBaseCount))
 
   def levels(self, element, intervals=None, save=True):
     """

@@ -12,10 +12,10 @@ class ElementAdaptor(object):
   def __init__(self, db_path):
     super(ElementAdaptor, self).__init__()
 
+    self.classes = None
+
     # Set up connection to database
     self.connect(db_path)
-
-    self.classes = None
 
   def connect(self, path, new=False):
     # get a database connection object
@@ -143,8 +143,15 @@ class ElementAdaptor(object):
     class Gene(Model):
       db = self.db
       transcripts = OneToMany("Transcript")
-      exons = OneToMany("Exon")
       _intervals = None
+      _exons = None
+
+      @property
+      def exons(self):
+        if self._exons is None:
+          self._exons = Query(model=Exon).filter(gene_id=self.id).order_by("start")
+
+        return self._exons
 
       @property
       def exonLength(self):
@@ -180,7 +187,7 @@ class ElementAdaptor(object):
         if not self._exons:
           query = Query(model=Transcript_Exon)
           self._exons = [combo.exon for combo in
-                         query.filter(transcript_id=self.id)]
+                         query.filter(transcript_id=self.id).order_by("start")]
 
         return self._exons        
 
