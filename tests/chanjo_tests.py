@@ -34,5 +34,5 @@ class TestClass:
     assert_equal(comp_s, 8/float(10))
 
     cov_m, comp_m = self.chanjo.coverage(chrom, self.multi_intervals, 5)
-    assert_equal(cov_m, (32+53)/float(5+10))
-    assert_equal(comp_m, (5+9)/float(5+10))
+    assert_equal(cov_m, (32+63)/float(5+10))
+    assert_equal(comp_m, (5+8)/float(5+10))

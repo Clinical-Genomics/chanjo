@@ -90,53 +90,26 @@ class Analyzer(object):
     Doesn't handle overlapping intervals
     """
     # Initialize
-    totBaseCount = 0
+    totBaseCount = float(sum([len(interval) for interval in intervals]))
     readCount = 0
     passedCount = 0
-
-    # Make sure at least one interval was submitted
-    try:
-      firstPos = intervals[0].start
-      lastPos = intervals[-1].end
-    except IndexError:
-      # No intervals were submitted
-      return (0, 0)
 
     if bgIntervals is None:
       # Get BEDGraph intervals covering all input intervals
       # Minimizes the number of times we have to fetch BEDGraph intervals
       bgIntervals = self.intervals(chrom, intervals)
 
-    bgCount = 1
+    for bgInterval in bgIntervals:
+      bgBases = len(bgInterval)
 
-    for interval in intervals:
-      # We need the number of bases and we are using 1-based positions
-      # This should be defined universally as either 0,1-based or 1,1-based.
-      totBaseCount += len(interval)
+      # Add the number of overlapping reads
+      readCount += (bgBases * bgInterval.value)
 
-      # Two BEDGraph intervals could overlap
-      bgCount -= 1
+      # Add the position if it passes `cutoff`
+      if bgInterval.value >= cutoff:
+        passedCount += bgBases
 
-      # Continue until we moved passed the current BEDGraph interval
-      while bgCount < len(bgIntervals) and bgIntervals[bgCount].start <= interval.end:
-
-        # Test overlap between BEDGraph interval and current input interval
-        if interval.end < bgIntervals[bgCount].end:
-          bgBases = interval.end - bgIntervals[bgCount].start
-        else:
-          bgBases = bgIntervals[bgCount].end - bgIntervals[bgCount].start
-
-        # Add the number of overlapping reads
-        readCount += (bgBases * bgIntervals[bgCount].value)
-
-        # Add the position if it passes `cutoff`
-        if bgIntervals[bgCount].value >= cutoff:
-          passedCount += bgBases
-
-        bgCount += 1
-
-    return (readCount / float(totBaseCount),
-            passedCount / float(totBaseCount))
+    return (readCount / totBaseCount), (passedCount / totBaseCount)
 
   def levels(self, element, intervals=None, save=True):
     """
