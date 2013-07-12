@@ -4,18 +4,24 @@ from autumn.model import Model
 from autumn.db.relations import ForeignKey, OneToMany
 from autumn.db.query import Query
 from interval import Interval, IntervalSet
+from bam import Interval as Ival
 import collections
+import os
 
 
 class ElementAdaptor(object):
   """docstring for ElementAdaptor"""
-  def __init__(self, db_path):
+  def __init__(self, db_path, new=False):
     super(ElementAdaptor, self).__init__()
 
     self.classes = None
 
-    # Set up connection to database
-    self.connect(db_path)
+    if not os.path.isfile(db_path) or new:
+      # Prepare new database
+      self.connect(db_path, new=True)
+    else:
+      # Set up connection to database
+      self.connect(db_path)
 
   def connect(self, path, new=False):
     # get a database connection object
@@ -174,7 +180,11 @@ class ElementAdaptor(object):
         return self._intervals
 
       def simpleIntervals(self):
-        return [SimpleInterval(i.lower_bound, i.upper_bound)
+        return [Ival(i.lower_bound, i.upper_bound)
+                for i in self.intervals]
+
+      def simpleSpliceIntervals(self):
+        return [Ival(i.lower_bound-2, i.upper_bound+2)
                 for i in self.intervals]
 
     class Transcript(Model):
@@ -216,6 +226,14 @@ class ElementAdaptor(object):
         return self.end - self.start
 
       @property
+      def spiceStart(self):
+        return self.start - 2
+
+      @property
+      def spiceEnd(self):
+        return self.end + 2
+
+      @property
       def transcripts(self):
         if not self._transcripts:
           query = Query(model=Transcript_Exon)
@@ -242,9 +260,3 @@ class ElementAdaptor(object):
       "exon": Exon,
       "transcript_exon": Transcript_Exon
     }  
-
-# Very simple interval struct
-class SimpleInterval:
-  def __init__(self, start, end):
-    self.start = start
-    self.end = end

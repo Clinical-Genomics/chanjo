@@ -5,7 +5,7 @@ import os
 class TestClass:
   def __init__(self):
     self.adaptor = ElementAdaptor()
-    path = "tests/data/_CCDS.elements.full.db"
+    path = "tests/data/_CCDS.elements.levels.db"
     self.adaptor.connect(path)
 
   def setUp(self):

@@ -53,7 +53,7 @@ class Analyzer(object):
     # Shortcut to getting coverage for intervals
     self.intervals = self.coverageAdaptor.intervals
 
-  def annotate(self, elem_class, elem_id, cutoff=50):
+  def annotate(self, elem_class, elem_id, cutoff=50, levels=False):
     """
     Public: Calculate and persist coverage for a single element.
     ----------
@@ -69,23 +69,27 @@ class Analyzer(object):
     # For some reason, unicode string doesn't work
     element = self.get(elem_class, str(elem_id))
     if elem_class == "gene" or elem_class == "transcript":
-      cov, comp = self.coverage(element.chrom, element.simpleIntervals(),
-                                cutoff)
+      cov, comp, str_levels = self.coverage(element.chrom,
+                                            element.simpleIntervals(),
+                                            cutoff, levels=levels)
     else:
       # Exon only a single interval
-      cov, comp = self.coverage(element.chrom, (element,), cutoff)
+      cov, comp, str_levels = self.coverage(element.chrom, (element,), cutoff,  
+                                            levels=levels)
 
     # Update the element with the calculated coverage information
     element.coverage = cov
     element.completeness = comp
     element.cutoff = cutoff
+    element.levels = str_levels
 
     # Persist the changes
     element.save()
 
     return element
 
-  def coverage(self, chrom, intervals, cutoff=50, bgIntervals=None):
+  def coverage(self, chrom, intervals, cutoff=50, bgIntervals=None,
+               levels=False):
     """
     Doesn't handle overlapping intervals
     """
@@ -109,52 +113,63 @@ class Analyzer(object):
       if bgInterval.value >= cutoff:
         passedCount += bgBases
 
-    return (readCount / totBaseCount), (passedCount / totBaseCount)
+    # Also calculate levels if requested
+    str_levels = None
+    if levels:
+      str_levels = self.levels(bgIntervals)
 
-  def levels(self, element, intervals=None, save=True):
+    return (readCount / totBaseCount), (passedCount / totBaseCount), str_levels
+
+  def levels(self, intervals):
     """
-    Save coverage as discrete levels to be vizualized across genes.
+    Public: Generates a string representation of discrete coverage levels;
+    ok, soso, warn, err. These can be saved to a SQL database and later be
+    parsed to vizualize coverage dynamically.
+
+    :param intervals: [iterable] A list of BEDGraph `Interval`s
+    :returns:         [str] String representation of the discrete levels
     """
-    # It's possible to "reuse" BEDGraph covereage intrevals.
-    if not intervals:
-      # Assume gene
-      intervals = self.getCoverage(element.chrom,
-                                   element.intervals.lower_bound(),
-                                   element.intervals.upper_bound())
+    # Initialize/Reset
+    self.lastStart = None
+    self.lastLevel = None
 
-    # Four coverage levels are used, `IntervalSet` will automatically merge
-    # the calculated level intervals.
-    levels = [IntervalSet(), IntervalSet(), IntervalSet(), IntervalSet()]
-    for interval in intervals:
-      readDepth = interval.value
+    # List comprehend level intervals (or None)
+    levels = [self._setLevel(interval) for interval in intervals]
 
-      if readDepth > 50:
-        levels[3].add(Interval(interval.start, interval.end))
-      elif readDepth > 10:
-        levels[2].add(Interval(interval.start, interval.end))
-      elif readDepth > 0:
-        levels[1].add(Interval(interval.start, interval.end))
-      else:
-        levels[0].add(Interval(interval.start, interval.end))
+    # First filter out `None` items from the list. Then concat the rest of the
+    # items separated by a comma.
+    return ",".join(filter(None, levels))
 
-    for count, level in enumerate(levels):
-      # Stringify the merged intervals to be able to store them in SQL database
-      intervals = ",".join(["{0}-{1}".format(ival.lower_bound, ival.upper_bound)
-                            for ival in level.intervals])
+  def _setLevel(self, interval):
+    """
+    Private: Determines what level an interval belongs to accoding to
+    read depth.
 
-      # Place the stringified intervals under the correct attribute
-      if count == 0:
-        element.intervals_0x = intervals
-      elif count == 1:
-        element.intervals_1_10x = intervals
-      elif count == 2:
-        element.intervals_10_50x = intervals
-      else:
-        element.intervals_50x = intervals
+    :param interval: [obj] BEDGraph `Interval`
+    :returns:        [str/None] String used by `.levels()` or `None` if level
+                     hasn't changed.
+    """
 
-    if save:
-      # Persist changes
-      element.save()
+    # Determine what level the interval belongs to
+    if interval.value > 19:
+      currLevel = "ok"
+    elif interval.value > 9:
+      currLevel = "soso"
+    elif interval.value > 1:
+      currLevel = "warn"
+    else:
+      currLevel = "err"
 
-    # Enable chaining
-    return element
+    # Check if the level has changed
+    if currLevel != self.lastLevel:
+      # Yes: begin new level interval
+      self.lastStart = interval.start
+      self.lastLevel = currLevel
+
+      # Return the start pos of the new interval and level
+      return "{0}-{1}".format(interval.start, currLevel)
+
+    else:
+      # Return `None` if the level hasn't changed
+      return None
+    

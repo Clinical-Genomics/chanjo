@@ -70,9 +70,10 @@ class Importer(object):
 
                     # Add the exon ranges as immutable tuples to the gene
                     for ex_ival in exon_ivals:
-                        # Convert to UCSC standard 0-based start position
-                        ex_start = ex_ival[0] - 1
-                        ex_end = ex_ival[1]
+                        # Convert to UCSC standard 0-based/1-based positions
+                        # CCDS used 0-based, 0-based (pythonic)
+                        ex_start = ex_ival[0]
+                        ex_end = ex_ival[1] + 1
 
                         exon_id = "{0}-{1}-{2}".format(chrom, ex_start, ex_end)
                         existingExon = self.adaptor.get("exon", exon_id)

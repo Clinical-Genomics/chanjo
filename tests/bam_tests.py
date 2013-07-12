@@ -12,6 +12,8 @@ class CoverageAdaptorClass:
     # Test interval with multiple reads
     self.mono_intervals = [Interval(0, 30)]
     self.poly_intervals = [Interval(10, 20), Interval(30, 35)]
+    self.partly_outside_intervals = [Interval(35, 45), Interval(60, 70)]
+    self.outside_intervals = [Interval(60, 70)]
 
   def tearDown(self):
     print "TEAR DOWN!"
@@ -68,6 +70,25 @@ class CoverageAdaptorClass:
     assert_equal(interval3.end, 35)
     assert_equal(len(interval3), 2)
     assert_equal(interval3.value, 4)
+
+    # Test intervals outside reads
+    intervals = self.adaptor.intervals("chr1", self.partly_outside_intervals)
+    assert_equal(len(intervals), 2)
+
+    # Test first interval
+    assert_equal(intervals[0].start, 35)
+    assert_equal(intervals[0].end, 37)
+    assert_equal(len(intervals[0]), 2)
+    assert_equal(intervals[0].value, 4)
+
+    # Test sec/last interval
+    assert_equal(intervals[-1].start, 37)
+    assert_equal(intervals[-1].end, 39)
+    assert_equal(len(intervals[-1]), 2)
+    assert_equal(intervals[-1].value, 3)
+
+    intervals = self.adaptor.intervals("chr1", self.outside_intervals)
+    assert_equal(len(intervals), 0)
 
 class TestInterval:
   def setUp(self):

@@ -67,9 +67,13 @@ class CoverageAdaptor(pysam.Samfile):
       [out] => [<chanjo.bam.Interval instance at 0x10f2ea518>,
                 <chanjo.bam.Interval instance at 0x10f2ea4d0>]
     """
-    firstPos = intervals[0].start
-    # Pysam uses only 0-based positions
-    endPos = intervals[-1].end - 1
+    try:
+      firstPos = intervals[0].start
+      # Pysam uses only 0-based positions
+      endPos = intervals[-1].end - 1
+    except IndexError:
+      # No intervals sent
+      return []
 
     # Preallocate an array with enough space (worst case scenario)
     self._intervals = [None]*(endPos-firstPos)
@@ -103,13 +107,12 @@ class CoverageAdaptor(pysam.Samfile):
           lastDepth = col.n
           lastStart = col.pos
 
-          # Move the save pointer one step forward
-          self.count += 1
-
-      # Stuff the last interval into the array
-      self._persistCoverage(chrom, lastStart, col.pos, lastDepth, maxDepth)
-      # `count` now is the number of intervals that was created
-      self.count += 1
+      try:
+        # Stuff the last interval into the array
+        self._persistCoverage(chrom, lastStart, col.pos, lastDepth, maxDepth)
+      except UnboundLocalError:
+        # This means pileup didn't find any reads across the intervals
+        return []
 
     # Return the subset of the list actually containing calculated intervals
     return self._intervals[:self.count]
@@ -122,6 +125,9 @@ class CoverageAdaptor(pysam.Samfile):
       else:
         # Return the position and read depth
         return col.pos, col.n
+
+    # If the iterator is exhausted
+    return -1, -1
 
   def _persistCoverage(self, chrom, lastStart, currentPos, lastDepth, maxDepth):
     """
@@ -138,6 +144,10 @@ class CoverageAdaptor(pysam.Samfile):
 
       self._intervals[self.count] = Interval(lastStart, currentPos,
                                              reportedDepth)
+
+      # Move the save pointer one step forward
+      self.count += 1
+
     else:
       print("Positions with 0 reads: {}".format(currentPos))
 
