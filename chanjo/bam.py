@@ -149,7 +149,7 @@ class CoverageAdaptor(pysam.Samfile):
       self.count += 1
 
     else:
-      print("Positions with 0 reads: {}".format(currentPos))
+      print("Positions with 0 reads: {position}".format(position=currentPos))
 
 class Interval(object):
   """
@@ -169,7 +169,7 @@ class Interval(object):
 
   def __str__(self):
     # This is the BED standard definition of an interval
-    return "({0}, {1}]".format(self.start, self.end)
+    return "({start}, {end}]".format(start=self.start, end=self.end)
 
 class Counter(object):
   def __init__(self, intervals, maxDepth=50):

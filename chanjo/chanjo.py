@@ -167,7 +167,7 @@ class Analyzer(object):
       self.lastLevel = currLevel
 
       # Return the start pos of the new interval and level
-      return "{0}-{1}".format(interval.start, currLevel)
+      return "{start}-{level}".format(start=interval.start, level=currLevel)
 
     else:
       # Return `None` if the level hasn't changed

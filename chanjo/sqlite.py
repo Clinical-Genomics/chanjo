@@ -85,8 +85,8 @@ class ElementAdaptor(object):
       strand TEXT,
       coverage REAL,
       completeness REAL,
-      cutoff INT{0}{1}
-    );""".format(comma, gs_cols)
+      cutoff INT{comma}{columns}
+    );""".format(comma=comma, columns=gs_cols)
 
     if len(tx_cols) == 0:
       comma = ""
@@ -103,8 +103,8 @@ class ElementAdaptor(object):
       coverage REAL,
       completeness REAL,
       cutoff INT,
-      FOREIGN KEY (gene_id) REFERENCES gene(id){0}{1}
-    );""".format(comma, tx_cols)
+      FOREIGN KEY (gene_id) REFERENCES gene(id){comma}{columns}
+    );""".format(comma=comma, columns=tx_cols)
     
     if len(ex_cols) == 0:
       comma = ""
@@ -123,8 +123,8 @@ class ElementAdaptor(object):
       coverage REAL,
       completeness REAL,
       cutoff INT,
-      FOREIGN KEY (gene_id) REFERENCES gene(id){0}{1}
-    );""".format(comma, ex_cols)
+      FOREIGN KEY (gene_id) REFERENCES gene(id){comma}{columns}
+    );""".format(comma=comma, columns=ex_cols)
 
     _transcripts_exons_sql = """
     DROP TABLE IF EXISTS transcripts_exons;
