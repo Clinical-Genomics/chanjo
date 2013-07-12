@@ -53,21 +53,25 @@ class Analyzer(object):
     # Shortcut to getting coverage for intervals
     self.intervals = self.coverageAdaptor.intervals
 
-  def annotate(self, elem_class, elem_id, cutoff=50, levels=False):
+  def annotate(self, options):
     """
-    Public: Calculate and persist coverage for a single element.
+    Public: Calculate coverage for a single element.
     ----------
-    :param elem_class: [str] The class of element, e.g. "gene"
-    :param elem_id:    [str] The unique element id
+    :param elem_class: [str] The type of element
+    :param element:    [object] The element object to annotate
     :param cutoff:     [int] The read depth level to use for coverage
                        completeness (Default: 50)
 
     Usage:
-      analyzer.annotate("gene", "EGFR", 50)
+      gene = analyzer.get("gene", gene_id)
+      analyzer.annotate("gene", gene, 50)
       [out] => <chanjo.sqlite2.Gene at 0x1041c4c10>
     """
-    # For some reason, unicode string doesn't work
-    element = self.get(elem_class, str(elem_id))
+    elem_class = options[0]
+    element = options[1]
+    cutoff = options[2]
+    levels = options[3]
+
     if elem_class == "gene" or elem_class == "transcript":
       cov, comp, str_levels = self.coverage(element.chrom,
                                             element.simpleIntervals(),
@@ -82,11 +86,6 @@ class Analyzer(object):
     element.completeness = comp
     element.cutoff = cutoff
     element.levels = str_levels
-
-    # Persist the changes
-    element.save()
-
-    return element
 
   def coverage(self, chrom, intervals, cutoff=50, bgIntervals=None,
                levels=False):
