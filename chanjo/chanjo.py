@@ -115,9 +115,17 @@ class Analyzer(object):
     # Also calculate levels if requested
     str_levels = None
     if levels:
-      str_levels = self.levels(bgIntervals)
+      str_levels = self.allLevels(bgIntervals)
 
     return (readCount / totBaseCount), (passedCount / totBaseCount), str_levels
+
+  def allLevels(self, intervals):
+    levels = ["{start}-{end}-{depth}".format(start=interval.start,
+                                             end=interval.end,
+                                             depth=interval.value)
+              for interval in intervals if interval.value < 10]
+
+    return ",".join(levels)
 
   def levels(self, intervals):
     """
@@ -148,6 +156,16 @@ class Analyzer(object):
     :returns:        [str/None] String used by `.levels()` or `None` if level
                      hasn't changed.
     """
+
+    # score = interval.value / 5
+
+    # self.score2level = {
+    #   1: None,
+    #   2: 10,
+    #   3: 15,
+    #   4: 20,
+    #   5: 25
+    # }
 
     # Determine what level the interval belongs to
     if interval.value > 19:
