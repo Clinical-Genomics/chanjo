@@ -31,6 +31,7 @@ class Analyzer(object):
     """
     Public: Plugs in the required adaptors and sets up a few shortcuts.
     ----------
+
     :param coverageAdaptor: [object] A class instance of a Coverage Adaptor
     :param elementAdaptor: [object] A class instance of a Element Adaptor
 
@@ -53,7 +54,7 @@ class Analyzer(object):
     # Shortcut to getting coverage for intervals
     self.intervals = self.coverageAdaptor.intervals
 
-  def annotate(self, options):
+  def annotate(self, elem, cutoff=50, levels=False):
     """
     Public: Calculate coverage for a single element.
     ----------
@@ -67,30 +68,35 @@ class Analyzer(object):
       analyzer.annotate("gene", gene, 50)
       [out] => <chanjo.sqlite2.Gene at 0x1041c4c10>
     """
-    elem_class = options[0]
-    element = options[1]
-    cutoff = options[2]
-    levels = options[3]
 
-    if elem_class == "gene" or elem_class == "transcript":
-      cov, comp, str_levels = self.coverage(element.chrom,
-                                            element.simpleIntervals(),
-                                            cutoff, levels=levels)
-    else:
-      # Exon only a single interval
-      cov, comp, str_levels = self.coverage(element.chrom, (element,), cutoff,  
-                                            levels=levels)
+    cov, comp, str_levels = self.coverage(elem.chrom, elem.simpleIntervals(),
+                                          cutoff, levels)
 
     # Update the element with the calculated coverage information
-    element.coverage = cov
-    element.completeness = comp
-    element.cutoff = cutoff
-    element.levels = str_levels
+    elem.coverage = cov
+    elem.completeness = comp
+    elem.cutoff = cutoff
+    elem.levels = str_levels
 
-  def coverage(self, chrom, intervals, cutoff=50, bgIntervals=None,
-               levels=False):
+  def coverage(self, chrom, intervals, cutoff=50, levels=False,
+               bgIntervals=None):
     """
-    Doesn't handle overlapping intervals
+    Public: Calculates both X and % coverage for a given set of intervals.
+    This is accompished using a single method since the bottleneck will be
+    reading coverage from a file rather than calculating coverage.
+
+    N.B. Doesn't handle overlapping intervals.
+    ----------
+
+    :param chrom:       [string] The chromosome id for the intervals
+    :param intervals:   [iterable] List of `Interval` objects
+    :param cutoff:      [int] The cutoff to calculate X coverage (Default: 50)
+    :param levels:      [bool] Whether to return string representation of
+                        coverage across the intervals (Default: False)
+    :param bgIntervals: [iterable] List of BEDGraph intervals instead of
+                        generating them dynamically
+    :returns:           [float, float, str] X coverage, % coverage, BEDGraph
+                        intervals as string
     """
     # Initialize
     totBaseCount = float(sum([len(interval) for interval in intervals]))
@@ -120,10 +126,18 @@ class Analyzer(object):
     return (readCount / totBaseCount), (passedCount / totBaseCount), str_levels
 
   def allLevels(self, intervals):
+    """
+    Public: Generates BEDGraph intervals as string representation that can be
+    persisted in a SQL database.
+    ----------
+
+    :param intervals: [iterable] List of `Interval` objects
+    :returns:         [str] String representation of BEDGraph intervals
+    """
     levels = ["{start}-{end}-{depth}".format(start=interval.start,
                                              end=interval.end,
                                              depth=interval.value)
-              for interval in intervals if interval.value < 10]
+              for interval in intervals]
 
     return ",".join(levels)
 
@@ -132,6 +146,7 @@ class Analyzer(object):
     Public: Generates a string representation of discrete coverage levels;
     ok, soso, warn, err. These can be saved to a SQL database and later be
     parsed to vizualize coverage dynamically.
+    ----------
 
     :param intervals: [iterable] A list of BEDGraph `Interval`s
     :returns:         [str] String representation of the discrete levels
@@ -151,6 +166,7 @@ class Analyzer(object):
     """
     Private: Determines what level an interval belongs to accoding to
     read depth.
+    ----------
 
     :param interval: [obj] BEDGraph `Interval`
     :returns:        [str/None] String used by `.levels()` or `None` if level

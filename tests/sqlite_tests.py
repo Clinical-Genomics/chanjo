@@ -4,9 +4,8 @@ import os
 
 class TestClass:
   def __init__(self):
-    self.adaptor = ElementAdaptor()
-    path = "tests/data/_CCDS.elements.levels.db"
-    self.adaptor.connect(path)
+    path = "tests/data/CCDS.db"
+    self.adaptor = ElementAdaptor(path)
 
   def setUp(self):
     print "SETUP!"
@@ -35,18 +34,19 @@ class TestClass:
     # The correct strand
     assert_equal(tx.strand, "+")
 
-    ex = self.adaptor.get("exon", "19-13051354-13051467")
+    ex = self.adaptor.get("exon", "X-21996077-21996232")
     # The correct chromosome
-    assert_equal(ex.chrom, "19")
+    assert_equal(ex.chrom, "X")
     # The correct parent gene_id
-    assert_equal(ex.gene.id, "CALR")
+    assert_equal(len(ex.genes), 1)
+    assert_equal(ex.genes[0].id, "SMS")
     # The correct number of parent transcripts
-    assert_equal(len(ex.transcripts), 1)
+    assert_equal(len(ex.transcripts), 2)
     # The correct strand
     assert_equal(ex.strand, "+")
 
     # Test getting multiple IDs
-    genes = self.adaptor.get("genes", ("GIT1", "EGFR"))
-    assert_equal(len(genes, 2))
+    genes = self.adaptor.get("gene", ("GIT1", "EGFR"))
+    assert_equal(len(genes), 2)
     assert_equal(genes[1].chrom, "7")
     assert_equal(genes[1].strand, "+")
