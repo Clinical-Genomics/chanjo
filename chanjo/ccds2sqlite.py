@@ -43,6 +43,15 @@ class Importer(object):
                     # Transcript ID => unique for each row by definition
                     tx_id = row[4]
 
+                    # Generate exon intervals
+                    # 1. Split the string based list of exons by comma.
+                    # 2-4. See _limits.
+                    # 5. Converst to Interval
+                    #=> Now we have a list of lists
+                    exon_ivals = [self._limits(i) for i in row[9].split(",")]
+
+                    tx_start = exon_ivals[0][0]
+
                     # =====================
                     #     GENE objects
                     # =====================
@@ -57,17 +66,16 @@ class Importer(object):
                             chrom = row[0]
                             strand = row[6]
                             # Gene has id, chrom, strand
-                            self.adaptor.set("gene", (gene_id, chrom, strand))
+                            self.adaptor.set("gene", (gene_id, chrom, strand,
+                                                      tx_start))
+                        else:
+                            # Make sure to get the correct gene start position
+                            existingGene.start = tx_start
+                            existingGene.save()
 
                     # =====================
                     #     EXON objects
                     # =====================
-                    # 1. Split the string based list of exons by comma.
-                    # 2-4. See _limits.
-                    # 5. Converst to Interval
-                    #=> Now we have a list of lists
-                    exon_ivals = [self._limits(i) for i in row[9].split(",")]
-
                     # Add the exon ranges as immutable tuples to the gene
                     for ex_ival in exon_ivals:
                         # Convert to UCSC standard 0-based/1-based positions

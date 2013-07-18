@@ -83,6 +83,7 @@ class ElementAdaptor(object):
       id TEXT PRIMARY KEY,
       chrom TEXT,
       strand TEXT,
+      start INT,
       coverage REAL,
       completeness REAL,
       cutoff INT{comma}{columns}
