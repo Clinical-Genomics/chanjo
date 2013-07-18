@@ -2,22 +2,35 @@ import autumn
 from autumn.util import AutoConn
 from autumn.model import Model
 from autumn.db.relations import ForeignKey, OneToMany
-from autumn.db.query import Query
 from interval import Interval, IntervalSet
+from bam import Interval as Ival
 import collections
+import os
 
 
 class ElementAdaptor(object):
   """docstring for ElementAdaptor"""
-  def __init__(self, db_path):
+  def __init__(self, db_path, new=False):
     super(ElementAdaptor, self).__init__()
 
     self.classes = None
 
-    # Set up connection to database
-    self.connect(db_path)
+    if not os.path.isfile(db_path) or new:
+      # Prepare new database
+      self.connect(db_path, new=True)
+    else:
+      # Set up connection to database
+      self.connect(db_path)
 
   def connect(self, path, new=False):
+    """
+    Public: Opens a connection to an existing or new SQLite database file.
+    ----------
+
+    :param path: [str] The path to the SQLite database file
+    :param new:  [bool] You are opening a connection to a novel database?
+                 (Default: False)
+    """
     # get a database connection object
     # Doesn't have to exist in the first place!
     self.db = AutoConn(path)
@@ -44,14 +57,7 @@ class ElementAdaptor(object):
     elements = range(0,len(elem_ids))
     for count, elem_id in enumerate(elem_ids):
 
-      elements[count] = self.classes[elem_class].get(elem_id)
-
-      # if elements[count]:
-      #   # Custom many-to-many relationships
-      #   if elem_class == "transcript":
-      #     elements[count].exons = self._convertTxEx(transcript_id=elem_id)
-      #   elif elem_class == "exon":
-      #     elements[count].transcripts = self._convertTxEx(exon_id=elem_id)
+      elements[count] = self.getClass(elem_class).get(elem_id)
 
     # Return a single element if that was requested
     if singleElement:
@@ -61,7 +67,10 @@ class ElementAdaptor(object):
       return elements
 
   def set(self, elem_class, elem_tuple):
-    self.classes[elem_class](*elem_tuple).save()
+      self.getClass(elem_class)(*elem_tuple).save()
+
+  def getClass(self, elem_class):
+    return self.classes[elem_class]
 
   def setup(self, gs_cols="", tx_cols="", ex_cols=""):
     # code to create the database tsable
@@ -77,10 +86,11 @@ class ElementAdaptor(object):
       id TEXT PRIMARY KEY,
       chrom TEXT,
       strand TEXT,
+      start INT,
       coverage REAL,
       completeness REAL,
-      cutoff INT{0}{1}
-    );""".format(comma, gs_cols)
+      cutoff INT{comma}{columns}
+    );""".format(comma=comma, columns=gs_cols)
 
     if len(tx_cols) == 0:
       comma = ""
@@ -97,8 +107,8 @@ class ElementAdaptor(object):
       coverage REAL,
       completeness REAL,
       cutoff INT,
-      FOREIGN KEY (gene_id) REFERENCES gene(id){0}{1}
-    );""".format(comma, tx_cols)
+      FOREIGN KEY (gene_id) REFERENCES gene(id){comma}{columns}
+    );""".format(comma=comma, columns=tx_cols)
     
     if len(ex_cols) == 0:
       comma = ""
@@ -111,14 +121,22 @@ class ElementAdaptor(object):
       id TEXT PRIMARY KEY,
       chrom TEXT,
       strand TEXT,
-      gene_id TEXT,
       start INT,
       end INT,
       coverage REAL,
       completeness REAL,
-      cutoff INT,
-      FOREIGN KEY (gene_id) REFERENCES gene(id){0}{1}
-    );""".format(comma, ex_cols)
+      cutoff INT{comma}{columns}
+    );""".format(comma=comma, columns=ex_cols)
+
+    _genes_exons_sql = """
+    DROP TABLE IF EXISTS gene_exons;
+    CREATE TABLE gene_exons (
+      gene_id TEXT,
+      exon_id TEXT,
+      PRIMARY KEY (gene_id, exon_id),
+      FOREIGN KEY (gene_id) REFERENCES gene(id),
+      FOREIGN KEY (exon_id) REFERENCES exons(id)
+    );"""
 
     _transcripts_exons_sql = """
     DROP TABLE IF EXISTS transcripts_exons;
@@ -134,6 +152,7 @@ class ElementAdaptor(object):
     autumn.util.create_table(self.db, _genes_sql)
     autumn.util.create_table(self.db, _transcripts_sql)
     autumn.util.create_table(self.db, _exons_sql)
+    autumn.util.create_table(self.db, _genes_exons_sql)
     autumn.util.create_table(self.db, _transcripts_exons_sql)
 
     self._defaultORM()
@@ -148,8 +167,8 @@ class ElementAdaptor(object):
 
       @property
       def exons(self):
-        if self._exons is None:
-          self._exons = Query(model=Exon).filter(gene_id=self.id).order_by("start")
+        if not self._exons:
+          self._exons = [combo.exon for combo in Gene_Exon.get(gene_id=self.id)]
 
         return self._exons
 
@@ -174,7 +193,11 @@ class ElementAdaptor(object):
         return self._intervals
 
       def simpleIntervals(self):
-        return [SimpleInterval(i.lower_bound, i.upper_bound)
+        return [Ival(i.lower_bound, i.upper_bound)
+                for i in self.intervals]
+
+      def simpleSpliceIntervals(self):
+        return [Ival(i.lower_bound-2, i.upper_bound+2)
                 for i in self.intervals]
 
     class Transcript(Model):
@@ -185,11 +208,10 @@ class ElementAdaptor(object):
       @property
       def exons(self):
         if not self._exons:
-          query = Query(model=Transcript_Exon)
           self._exons = [combo.exon for combo in
-                         query.filter(transcript_id=self.id).order_by("start")]
+                         Transcript_Exon.get(transcript_id=self.id)]
 
-        return self._exons        
+        return self._exons
 
       @property
       def exonLength(self):
@@ -211,21 +233,44 @@ class ElementAdaptor(object):
       db = self.db
       gene = ForeignKey(Gene)
       _transcripts = None
+      _genes = None
 
       def __len__(self):
         return self.end - self.start
 
       @property
+      def spiceStart(self):
+        return self.start - 2
+
+      @property
+      def spiceEnd(self):
+        return self.end + 2
+
+      @property
       def transcripts(self):
         if not self._transcripts:
-          query = Query(model=Transcript_Exon)
           self._transcripts = [combo.transcript for combo in
-                               query.filter(exon_id=self.id)]
+                               Transcript_Exon.get(exon_id=self.id)]
 
         return self._transcripts
 
+      @property
+      def genes(self):
+        if not self._genes:
+          self._genes = [combo.gene for combo in Gene_Exon.get(exon_id=self.id)]
+
+        return self._genes
+
       class Meta:
         table = "exons"
+
+    class Gene_Exon(Model):
+      db = self.db
+      gene = ForeignKey(Gene, field="gene_id")
+      exon = ForeignKey(Exon, field="exon_id")
+
+      class Meta:
+        table = "gene_exons"
 
     class Transcript_Exon(Model):
       db = self.db
@@ -240,11 +285,6 @@ class ElementAdaptor(object):
       "gene": Gene,
       "transcript": Transcript,
       "exon": Exon,
+      "gene_exon": Gene_Exon,
       "transcript_exon": Transcript_Exon
     }  
-
-# Very simple interval struct
-class SimpleInterval:
-  def __init__(self, start, end):
-    self.start = start
-    self.end = end

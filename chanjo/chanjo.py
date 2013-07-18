@@ -31,6 +31,7 @@ class Analyzer(object):
     """
     Public: Plugs in the required adaptors and sets up a few shortcuts.
     ----------
+
     :param coverageAdaptor: [object] A class instance of a Coverage Adaptor
     :param elementAdaptor: [object] A class instance of a Element Adaptor
 
@@ -53,135 +54,155 @@ class Analyzer(object):
     # Shortcut to getting coverage for intervals
     self.intervals = self.coverageAdaptor.intervals
 
-  def annotate(self, elem_class, elem_id, cutoff=50):
+  def annotate(self, elem, cutoff=50, levels=False):
     """
-    Public: Calculate and persist coverage for a single element.
+    Public: Calculate coverage for a single element.
     ----------
-    :param elem_class: [str] The class of element, e.g. "gene"
-    :param elem_id:    [str] The unique element id
+    :param elem_class: [str] The type of element
+    :param element:    [object] The element object to annotate
     :param cutoff:     [int] The read depth level to use for coverage
                        completeness (Default: 50)
 
     Usage:
-      analyzer.annotate("gene", "EGFR", 50)
+      gene = analyzer.get("gene", gene_id)
+      analyzer.annotate("gene", gene, 50)
       [out] => <chanjo.sqlite2.Gene at 0x1041c4c10>
     """
-    # For some reason, unicode string doesn't work
-    element = self.get(elem_class, str(elem_id))
-    if elem_class == "gene" or elem_class == "transcript":
-      cov, comp = self.coverage(element.chrom, element.simpleIntervals(),
-                                cutoff)
-    else:
-      # Exon only a single interval
-      cov, comp = self.coverage(element.chrom, (element,), cutoff)
+
+    cov, comp, str_levels = self.coverage(elem.chrom, elem.simpleIntervals(),
+                                          cutoff, levels)
 
     # Update the element with the calculated coverage information
-    element.coverage = cov
-    element.completeness = comp
-    element.cutoff = cutoff
+    elem.coverage = cov
+    elem.completeness = comp
+    elem.cutoff = cutoff
+    elem.levels = str_levels
 
-    # Persist the changes
-    element.save()
-
-    return element
-
-  def coverage(self, chrom, intervals, cutoff=50, bgIntervals=None):
+  def coverage(self, chrom, intervals, cutoff=50, levels=False,
+               bgIntervals=None):
     """
-    Doesn't handle overlapping intervals
+    Public: Calculates both coverage and completeness for a given set of
+    intervals. This is accompished using a single method since the bottleneck
+    will be reading coverage from a file rather than calculating coverage.
+
+    N.B. Doesn't handle overlapping intervals.
+    ----------
+
+    :param chrom:       [string] The chromosome id for the intervals
+    :param intervals:   [iterable] List of `Interval` objects
+    :param cutoff:      [int] The cutoff to calculate completeness (Default: 50)
+    :param levels:      [bool] Whether to return string representation of
+                        coverage across the intervals (Default: False)
+    :param bgIntervals: [iterable] List of BEDGraph intervals instead of
+                        generating them dynamically
+    :returns:           [float, float, str] coverage, completeness, BEDGraph
+                        intervals as string
     """
     # Initialize
-    totBaseCount = 0
+    totBaseCount = float(sum([len(interval) for interval in intervals]))
     readCount = 0
     passedCount = 0
-
-    # Make sure at least one interval was submitted
-    try:
-      firstPos = intervals[0].start
-      lastPos = intervals[-1].end
-    except IndexError:
-      # No intervals were submitted
-      return (0, 0)
 
     if bgIntervals is None:
       # Get BEDGraph intervals covering all input intervals
       # Minimizes the number of times we have to fetch BEDGraph intervals
       bgIntervals = self.intervals(chrom, intervals)
 
-    bgCount = 1
+    for bgInterval in bgIntervals:
+      bgBases = len(bgInterval)
 
-    for interval in intervals:
-      # We need the number of bases and we are using 1-based positions
-      # This should be defined universally as either 0,1-based or 1,1-based.
-      totBaseCount += interval.end - (interval.start-1)
+      # Add the number of overlapping reads
+      readCount += (bgBases * bgInterval.value)
 
-      # Two BEDGraph intervals could overlap
-      bgCount -= 1
+      # Add the position if it passes `cutoff`
+      if bgInterval.value >= cutoff:
+        passedCount += bgBases
 
-      # Continue until we moved passed the current BEDGraph interval
-      while bgCount < len(bgIntervals) and bgIntervals[bgCount].start <= interval.end:
+    # Also calculate levels if requested
+    str_levels = None
+    if levels:
+      str_levels = self.allLevels(bgIntervals)
 
-        # Test overlap between BEDGraph interval and current input interval
-        if interval.end < bgIntervals[bgCount].end:
-          bgBases = interval.end - bgIntervals[bgCount].start
-        else:
-          bgBases = bgIntervals[bgCount].end - bgIntervals[bgCount].start
+    return (readCount / totBaseCount), (passedCount / totBaseCount), str_levels
 
-        # Add the number of overlapping reads
-        readCount += (bgBases * bgIntervals[bgCount].value)
-
-        # Add the position if it passes `cutoff`
-        if bgIntervals[bgCount].value >= cutoff:
-          passedCount += bgBases
-
-        bgCount += 1
-
-    return (readCount / float(totBaseCount),
-            passedCount / float(totBaseCount))
-
-  def levels(self, element, intervals=None, save=True):
+  def allLevels(self, intervals):
     """
-    Save coverage as discrete levels to be vizualized across genes.
+    Public: Generates BEDGraph intervals as string representation that can be
+    persisted in a SQL database.
+    ----------
+
+    :param intervals: [iterable] List of `Interval` objects
+    :returns:         [str] String representation of BEDGraph intervals
     """
-    # It's possible to "reuse" BEDGraph covereage intrevals.
-    if not intervals:
-      # Assume gene
-      intervals = self.getCoverage(element.chrom,
-                                   element.intervals.lower_bound(),
-                                   element.intervals.upper_bound())
+    levels = ["{start}-{end}-{depth}".format(start=interval.start,
+                                             end=interval.end,
+                                             depth=interval.value)
+              for interval in intervals]
 
-    # Four coverage levels are used, `IntervalSet` will automatically merge
-    # the calculated level intervals.
-    levels = [IntervalSet(), IntervalSet(), IntervalSet(), IntervalSet()]
-    for interval in intervals:
-      readDepth = interval.value
+    return ",".join(levels)
 
-      if readDepth > 50:
-        levels[3].add(Interval(interval.start, interval.end))
-      elif readDepth > 10:
-        levels[2].add(Interval(interval.start, interval.end))
-      elif readDepth > 0:
-        levels[1].add(Interval(interval.start, interval.end))
-      else:
-        levels[0].add(Interval(interval.start, interval.end))
+  def levels(self, intervals):
+    """
+    Public: Generates a string representation of discrete coverage levels;
+    ok, soso, warn, err. These can be saved to a SQL database and later be
+    parsed to vizualize coverage dynamically.
+    ----------
 
-    for count, level in enumerate(levels):
-      # Stringify the merged intervals to be able to store them in SQL database
-      intervals = ",".join(["{0}-{1}".format(ival.lower_bound, ival.upper_bound)
-                            for ival in level.intervals])
+    :param intervals: [iterable] A list of BEDGraph `Interval`s
+    :returns:         [str] String representation of the discrete levels
+    """
+    # Initialize/Reset
+    self.lastStart = None
+    self.lastLevel = None
 
-      # Place the stringified intervals under the correct attribute
-      if count == 0:
-        element.intervals_0x = intervals
-      elif count == 1:
-        element.intervals_1_10x = intervals
-      elif count == 2:
-        element.intervals_10_50x = intervals
-      else:
-        element.intervals_50x = intervals
+    # List comprehend level intervals (or None)
+    levels = [self._setLevel(interval) for interval in intervals]
 
-    if save:
-      # Persist changes
-      element.save()
+    # First filter out `None` items from the list. Then concat the rest of the
+    # items separated by a comma.
+    return ",".join(filter(None, levels))
 
-    # Enable chaining
-    return element
+  def _setLevel(self, interval):
+    """
+    Private: Determines what level an interval belongs to accoding to
+    read depth.
+    ----------
+
+    :param interval: [obj] BEDGraph `Interval`
+    :returns:        [str/None] String used by `.levels()` or `None` if level
+                     hasn't changed.
+    """
+
+    # score = interval.value / 5
+
+    # self.score2level = {
+    #   1: None,
+    #   2: 10,
+    #   3: 15,
+    #   4: 20,
+    #   5: 25
+    # }
+
+    # Determine what level the interval belongs to
+    if interval.value > 19:
+      currLevel = "ok"
+    elif interval.value > 9:
+      currLevel = "soso"
+    elif interval.value > 1:
+      currLevel = "warn"
+    else:
+      currLevel = "err"
+
+    # Check if the level has changed
+    if currLevel != self.lastLevel:
+      # Yes: begin new level interval
+      self.lastStart = interval.start
+      self.lastLevel = currLevel
+
+      # Return the start pos of the new interval and level
+      return "{start}-{level}".format(start=interval.start, level=currLevel)
+
+    else:
+      # Return `None` if the level hasn't changed
+      return None
+    
