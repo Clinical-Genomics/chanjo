@@ -81,21 +81,21 @@ class Analyzer(object):
   def coverage(self, chrom, intervals, cutoff=50, levels=False,
                bgIntervals=None):
     """
-    Public: Calculates both X and % coverage for a given set of intervals.
-    This is accompished using a single method since the bottleneck will be
-    reading coverage from a file rather than calculating coverage.
+    Public: Calculates both coverage and completeness for a given set of
+    intervals. This is accompished using a single method since the bottleneck
+    will be reading coverage from a file rather than calculating coverage.
 
     N.B. Doesn't handle overlapping intervals.
     ----------
 
     :param chrom:       [string] The chromosome id for the intervals
     :param intervals:   [iterable] List of `Interval` objects
-    :param cutoff:      [int] The cutoff to calculate X coverage (Default: 50)
+    :param cutoff:      [int] The cutoff to calculate completeness (Default: 50)
     :param levels:      [bool] Whether to return string representation of
                         coverage across the intervals (Default: False)
     :param bgIntervals: [iterable] List of BEDGraph intervals instead of
                         generating them dynamically
-    :returns:           [float, float, str] X coverage, % coverage, BEDGraph
+    :returns:           [float, float, str] coverage, completeness, BEDGraph
                         intervals as string
     """
     # Initialize

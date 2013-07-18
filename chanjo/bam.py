@@ -173,7 +173,8 @@ class CoverageAdaptor(pysam.Samfile):
       count += 1
 
     else:
-      print("Positions with 0 reads: {position}".format(position=currentPos))
+      print("Positions with 0 reads: {chrom}->{position}"
+            .format(chrom=chrom, position=currentPos))
 
     return count
 
