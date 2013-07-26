@@ -48,7 +48,7 @@ class Importer(object):
 
           # ====================================================================
           #     GENE objects
-          # ====================================================================
+          # --------------------------------------------------------------------
           # Get an existing gene or `None`
           existingGene = self.adaptor.get("gene", gene_id)
 
@@ -65,7 +65,7 @@ class Importer(object):
 
           # ====================================================================
           #     EXON objects
-          # ====================================================================
+          # --------------------------------------------------------------------
           # Generate exon intervals
           # 1. Split the string based list of exons by comma.
           # 2-4. See _limits.
@@ -101,7 +101,7 @@ class Importer(object):
 
           # ====================================================================
           #     TRANSCRIPT objects
-          # ====================================================================
+          # --------------------------------------------------------------------
           existingTx = self.adaptor.get("transcript", tx_id)
           if not existingTx:
             # Transcripts have id, chrom, strand, and parent gene

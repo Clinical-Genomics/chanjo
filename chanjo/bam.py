@@ -32,27 +32,6 @@ class CoverageAdaptor(pysam.Samfile):
   def __init__(self, bam_path):
     super(CoverageAdaptor, self).__init__(bam_path, "rb")
 
-  def coverage(self, chrom, intervals, maxDepth=float("inf"), sort=False):
-    """
-    Scans all intervals and calculates the combined coverage statistics.
-    Expects intervals sorted by start position.
-    """
-
-    try:
-      firstPos = intervals[0].start
-      endPos = intervals[-1].end
-    except ValueError:
-      return (0, 0)
-
-    counter = Counter(intervals)
-
-    # An empty string is evaluated larger than any integer
-    iterator = self.pileup(str(chrom), firstPos, endPos, callback=counter)
-
-    baseCount = float(sum((len(interval) for interval in intervals)))
-
-    return counter.readCount / baseCount, counter.passedCount / baseCount
-
   def intervals(self, chrom, intervals, maxDepth=float("inf")):
     """
     Public: Generates BEDGraph intervals of equal coverage between start and end

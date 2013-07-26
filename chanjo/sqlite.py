@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# coding: utf-8
+
 import autumn
 from autumn.util import AutoConn
 from autumn.model import Model

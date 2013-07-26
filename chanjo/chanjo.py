@@ -14,8 +14,6 @@
 """
 
 from __future__ import print_function
-import collections
-from interval import Interval, IntervalSet
 
 
 class Analyzer(object):
