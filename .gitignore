@@ -73,9 +73,5 @@ nosetests.xml
 .project
 .pydevproject
 
-<<<<<<< HEAD
 # Databses
-=======
-# Databases
->>>>>>> develop
 *.db
