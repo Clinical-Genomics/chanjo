@@ -15,7 +15,8 @@ config = {
         "nose",
         "pysam",
         "autumn",
-        "interval"
+        "interval",
+        "bx-python"
     ],
     "packages": ["chanjo"],
     "scripts": [],
