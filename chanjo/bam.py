@@ -105,8 +105,8 @@ class CoverageAdaptor(pysam.Samfile):
     often returns an iterator starting before the start that was submitted.
     ----------
 
-    :param start:    [int] The position to move the iterator to
-    :param iterator: [object] The Pysam iterator to use
+    :param start:    [int]      The position to move the iterator to
+    :param iterator: [object]   The Pysam iterator to use
     :returns:        [int, int] The position and read depth for `start`
     """
     # Move the iterator until start of given interval
@@ -126,15 +126,15 @@ class CoverageAdaptor(pysam.Samfile):
     Private: Stores a BEDGraph interval of equal coverage in `bgIntervals`.
     ----------
 
-    :param chrom:       [str] The chromosome ID
-    :param lastStart:   [int] The start position of the interval
-    :param currentPos:  [int] The end position of the interval
-    :param lastDepth:   [int] The read depth for the interval
-    :param maxDepth:    [int] The maximum read depth to consider
+    :param chrom:       [str]  The chromosome ID
+    :param lastStart:   [int]  The start position of the interval
+    :param currentPos:  [int]  The end position of the interval
+    :param lastDepth:   [int]  The read depth for the interval
+    :param maxDepth:    [int]  The maximum read depth to consider
     :param bgIntervals: [list] An list to store BEDGraph intervals in
-    :param count:       [int] A pointer to which item in `bgIntervals` to store
-                        the new BEDGraph interval
-    :returns:           [int] The updated count pointer
+    :param count:       [int]  A pointer to which item in `bgIntervals` to store
+                               the new BEDGraph interval
+    :returns:           [int]  The updated count pointer
     """
 
     if lastDepth > 0:

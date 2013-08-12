@@ -8,7 +8,7 @@ class TestClass:
   def __init__(self):
     self.chanjo = Analyzer()
 
-    elem_path = "tests/data/_CCDS.elements.full.db"
+    elem_path = "tests/data/CCDS.db"
     bam_path = "tests/data/align.bam"
 
     self.chanjo.setAdaptors(CoverageAdaptor(bam_path),

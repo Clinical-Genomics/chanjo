@@ -45,6 +45,7 @@ def main(elemPath, covPath, threadCount, cutoff):
   for geneBlock in geneBlocks:
     job = Clone(covPath, elemPath, geneBlock, cutoff)
     pool.put(job)
+    print("New job submitted...")
 
   # Send shutdown jobs to all threads, wait until the jobs have been completed
   pool.shutdown()

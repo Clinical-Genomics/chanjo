@@ -1,5 +1,7 @@
 import threading
 import time
+import sys
+sys.path.append("/Users/robinandeer/SciLife/modules/chanjo2")
 from chanjo import chanjo, sqlite, bam
 import argparse
 
@@ -34,6 +36,7 @@ def main(elemPath, covPath, threadCount, cutoff):
 
   for thread in threads:
     thread.start()
+    print "A new thread initiated..."
 
   # Wait for all threads to complete
   for thread in threads:

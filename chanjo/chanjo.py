@@ -4,7 +4,7 @@
   chanjo.module
   ~~~~~~~~~~~~~
 
-  The clue and control hub of the `chanjo` package.
+  The glue and control hub of the `chanjo` package.
   Borrows many structural ideas from Ember.js in the way you add in adaptors to
   add in modular functionality that can be switched out to support multiple
   "backends".
@@ -14,6 +14,8 @@
 """
 
 from __future__ import print_function
+import interval as ival
+from bx.intervals.intersection import IntervalTree
 
 
 class Analyzer(object):
@@ -63,7 +65,7 @@ class Analyzer(object):
 
     Usage:
       gene = analyzer.get("gene", gene_id)
-      analyzer.annotate("gene", gene, 50)
+      analyzer.annotate(gene, 50)
       [out] => <chanjo.sqlite2.Gene at 0x1041c4c10>
     """
 
@@ -75,6 +77,24 @@ class Analyzer(object):
     elem.completeness = comp
     elem.cutoff = cutoff
     elem.levels = str_levels
+
+  def annotateExons(self, elements, cutoff=50, levels=False):
+    """
+    Public: Calculates coverage data for exons belonging to submitted elements.
+    Saves to database.
+    """
+    for element in elements:
+      exons = element.exons
+      exonData = self.bgToCov(exons, self.intervals(element.chrom,
+                              element.simpleIntervals()), cutoff, levels)
+
+      for exon, data in zip(exons, exonData):
+        exon.coverage = data["coverage"]
+        exon.completeness = data["completeness"]
+        exon.cutoff = cutoff
+        exon.levels = data["levels"]
+
+        exon.save()
 
   def coverage(self, chrom, intervals, cutoff=50, levels=False,
                bgIntervals=None):
@@ -106,14 +126,14 @@ class Analyzer(object):
       # Minimizes the number of times we have to fetch BEDGraph intervals
       bgIntervals = self.intervals(chrom, intervals)
 
-    for bgInterval in bgIntervals:
-      bgBases = len(bgInterval)
+    for bgi in bgIntervals:
+      bgBases = len(bgi)
 
       # Add the number of overlapping reads
-      readCount += (bgBases * bgInterval.value)
+      readCount += (bgBases * bgi.value)
 
       # Add the position if it passes `cutoff`
-      if bgInterval.value >= cutoff:
+      if bgi.value >= cutoff:
         passedCount += bgBases
 
     # Also calculate levels if requested
@@ -203,4 +223,63 @@ class Analyzer(object):
     else:
       # Return `None` if the level hasn't changed
       return None
-    
+
+  def bgToCov(self, exIntervals, bgIntervals, cutoff=50, levels=False):
+    """
+    Based on BEDGraph intervals for a whole gene. Calculate coverage and
+    completeness for each individual exon interval.
+
+    :param exIntervals: [list] List of objects with start, end, value
+                               attributes.
+    :param bgIntervals: [list] List of BEDGraph formatted intervals
+    :param cutoff:      [int]  The cutoff to calculate completeness (Default: 50)
+    :param levels:      [bool] Whether to return string representation of
+                        coverage across the intervals (Default: False)
+    :returns:           [list] List of dicts with data on each exon interval
+    """
+
+    # Initialize interval tree
+    bgTree = IntervalTree()
+    for bgi in bgIntervals:
+      bgTree.insert_interval(bgi)
+
+    # This is for storing exon coverage scores
+    exons = [None]*len(exIntervals)
+
+    for exCount, ex in enumerate(exIntervals):
+      baseCount = float(ex.end - ex.start)
+      readCount = 0
+      passedCount = 0
+
+      exBgIntervals = bgTree.find(ex.start, ex.end)
+      for bgi in exBgIntervals:
+
+        bgStart = bgi.start
+        bgEnd = bgi.end
+
+        # First and last interval might only overlap partially
+        if bgi.start < ex.start:
+          bgStart = ex.start
+
+        if bgi.end > ex.end:
+          bgEnd = ex.end
+
+        bgBaseCount = bgEnd - bgStart
+
+        # Add the number of overlapping reads
+        readCount += (bgBaseCount * bgi.value)
+
+        # Add the bases if they pass `cutoff`
+        if bgi.value >= cutoff:
+          passedCount += bgBaseCount
+
+      # TODO: Also calculate levels if requested
+      str_levels = self.allLevels(exBgIntervals)
+
+      exons[exCount] = {
+        "coverage": readCount / baseCount,
+        "completeness": passedCount / baseCount,
+        "levels": str_levels
+      }
+
+    return exons
