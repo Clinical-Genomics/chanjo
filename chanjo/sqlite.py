@@ -84,8 +84,8 @@ class ElementAdaptor(object):
       comma = ","
 
     _genes_sql = """
-    DROP TABLE IF EXISTS gene;
-    CREATE TABLE gene (
+    DROP TABLE IF EXISTS Gene;
+    CREATE TABLE Gene (
       id TEXT PRIMARY KEY,
       chrom TEXT,
       strand TEXT,
@@ -101,8 +101,8 @@ class ElementAdaptor(object):
       comma = ","
 
     _transcripts_sql = """
-    DROP TABLE IF EXISTS transcripts;
-    CREATE TABLE transcripts (
+    DROP TABLE IF EXISTS Transcript;
+    CREATE TABLE Transcript (
       id TEXT PRIMARY KEY,
       chrom TEXT,
       strand TEXT,
@@ -110,7 +110,7 @@ class ElementAdaptor(object):
       coverage REAL,
       completeness REAL,
       cutoff INT,
-      FOREIGN KEY (gene_id) REFERENCES gene(id){comma}{columns}
+      FOREIGN KEY (gene_id) REFERENCES Gene(id){comma}{columns}
     );""".format(comma=comma, columns=tx_cols)
     
     if len(ex_cols) == 0:
@@ -119,8 +119,8 @@ class ElementAdaptor(object):
       comma = ","
 
     _exons_sql = """
-    DROP TABLE IF EXISTS exons;
-    CREATE TABLE exons (
+    DROP TABLE IF EXISTS Exon;
+    CREATE TABLE Exon (
       id TEXT PRIMARY KEY,
       chrom TEXT,
       strand TEXT,
@@ -132,23 +132,23 @@ class ElementAdaptor(object):
     );""".format(comma=comma, columns=ex_cols)
 
     _genes_exons_sql = """
-    DROP TABLE IF EXISTS gene_exons;
-    CREATE TABLE gene_exons (
+    DROP TABLE IF EXISTS Exon_Gene;
+    CREATE TABLE Exon_Gene (
       gene_id TEXT,
       exon_id TEXT,
       PRIMARY KEY (gene_id, exon_id),
-      FOREIGN KEY (gene_id) REFERENCES gene(id),
-      FOREIGN KEY (exon_id) REFERENCES exons(id)
+      FOREIGN KEY (gene_id) REFERENCES Gene(id),
+      FOREIGN KEY (exon_id) REFERENCES Exon(id)
     );"""
 
     _transcripts_exons_sql = """
-    DROP TABLE IF EXISTS transcripts_exons;
-    CREATE TABLE transcripts_exons (
+    DROP TABLE IF EXISTS Exon_Transcript;
+    CREATE TABLE Exon_Transcript (
       transcript_id TEXT,
       exon_id TEXT,
       PRIMARY KEY (transcript_id, exon_id),
-      FOREIGN KEY (transcript_id) REFERENCES transcripts(id),
-      FOREIGN KEY (exon_id) REFERENCES exons(id)
+      FOREIGN KEY (transcript_id) REFERENCES Transcript(id),
+      FOREIGN KEY (exon_id) REFERENCES Exon(id)
     );"""
 
     # create the tables, dropping any previous tables of the same name
@@ -167,6 +167,9 @@ class ElementAdaptor(object):
       transcripts = OneToMany("Transcript")
       _intervals = None
       _exons = None
+
+      class Meta:
+        table = "Gene"
 
       @property
       def exons(self):
@@ -208,6 +211,9 @@ class ElementAdaptor(object):
       gene = ForeignKey(Gene)
       _exons = None
 
+      class Meta:
+        table = "Transcript"
+
       @property
       def exons(self):
         if not self._exons:
@@ -229,14 +235,14 @@ class ElementAdaptor(object):
         """
         return self.exons
 
-      class Meta:
-        table = "transcripts"
-
     class Exon(Model):
       db = self.db
       gene = ForeignKey(Gene)
       _transcripts = None
       _genes = None
+
+      class Meta:
+        table = "Exon"
 
       def __len__(self):
         return self.end - self.start
@@ -264,30 +270,27 @@ class ElementAdaptor(object):
 
         return self._genes
 
-      class Meta:
-        table = "exons"
-
-    class Gene_Exon(Model):
+    class Exon_Gene(Model):
       db = self.db
       gene = ForeignKey(Gene, field="gene_id")
       exon = ForeignKey(Exon, field="exon_id")
 
       class Meta:
-        table = "gene_exons"
+        table = "Exon_Gene"
 
-    class Transcript_Exon(Model):
+    class Exon_Transcript(Model):
       db = self.db
       transcript = ForeignKey(Transcript, field="transcript_id")
       exon = ForeignKey(Exon, field="exon_id")
 
       class Meta:
-        table = "transcripts_exons"
+        table = "Exon_Transcript"
 
     # Shortcuts
     self.classes = {
       "gene": Gene,
       "transcript": Transcript,
       "exon": Exon,
-      "gene_exon": Gene_Exon,
-      "transcript_exon": Transcript_Exon
+      "gene_exon": Exon_Gene,
+      "transcript_exon": Exon_Transcript
     }  
