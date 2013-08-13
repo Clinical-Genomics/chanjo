@@ -7,9 +7,9 @@ config = {
     "description": "A coverage analysis package for clinical exome"
                    "sequencing.",
     "author": "Robin Andeer",
-    "url": "http://chanjo.herokuapp.com/",
-    "download_url": "Where to download it.",
     "author_email": "robin.andeer@gmail.com",
+    "url": "http://chanjo.herokuapp.com/",
+    "download_url": "https://github.com/robinandeer/chanjo2",
     "version": "0.1",
     "install_requires": [
         "nose",
