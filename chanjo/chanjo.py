@@ -33,15 +33,15 @@ class Analyzer(object):
     ----------
 
     :param coverageAdaptor: [object] A class instance of a Coverage Adaptor
-    :param elementAdaptor: [object] A class instance of a Element Adaptor
+    :param elementAdaptor:  [object] A class instance of a Element Adaptor
 
     Usage:
-      from chanjo.bigBed import CoverageAdaptor
+      from chanjo.bam import CoverageAdaptor
       from chanjo.sqlite import ElementAdaptor
 
       analyzer = Analyzer()
       bam_path = "/path/to/file.bam"
-      cov_path = "/path/to/database.db"
+      cov_path = "/path/to/sqlite.db"
       analyzer.setAdaptors(CoverageAdaptor(bam_path), ElementAdaptor(cov_path))
     """
     # Customizable adaptors
@@ -58,14 +58,14 @@ class Analyzer(object):
     """
     Public: Calculate coverage for a single element.
     ----------
-    :param elem_class: [str] The type of element
+    :param elem_class: [str]    The type of element
     :param element:    [object] The element object to annotate
-    :param cutoff:     [int] The read depth level to use for coverage
-                       completeness (Default: 50)
+    :param cutoff:     [int]    The read depth level to use for coverage
+                                completeness (Default: 50)
 
     Usage:
-      gene = analyzer.get("gene", gene_id)
-      analyzer.annotate(gene, 50)
+      gene = analyzer.get("gene", "EGFR")
+      analyzer.annotate(gene, 15)
       [out] => <chanjo.sqlite2.Gene at 0x1041c4c10>
     """
 
@@ -82,18 +82,35 @@ class Analyzer(object):
     """
     Public: Calculates coverage data for exons belonging to submitted elements.
     Saves to database.
+    ----------
+
+    :param elements: [list] List of element objects (genes/transcripts)
+    :param cutoff:   [int]  The read depth level to use for coverage
+                            completeness (Default: 50)
+    :param levels:   [bool] Whether to return string representation of
+                            coverage across the intervals (Default: False)
+
+    Useage:
+      genes = analyzer.get("gene", ["GIT1", "EGFR", "BRCA1"])
+      analyzer.annotateExons(genes, 10, levels=True)
     """
+    # Both transcripts and genes can be used to select exons to annotate
     for element in elements:
+      # Get the exons related to the element
       exons = element.exons
+      # Calculate coverage, completeness, and levels for all exon
       exonData = self.bgToCov(exons, self.intervals(element.chrom,
                               element.simpleIntervals()), cutoff, levels)
 
+      # Iterate through each exon and accompanying coverage data
       for exon, data in zip(exons, exonData):
+        # Fill in all the details for the exon
         exon.coverage = data["coverage"]
         exon.completeness = data["completeness"]
         exon.cutoff = cutoff
         exon.levels = data["levels"]
 
+        # Persist changes to the datastore
         exon.save()
 
   def coverage(self, chrom, intervals, cutoff=50, levels=False,
@@ -106,15 +123,22 @@ class Analyzer(object):
     N.B. Doesn't handle overlapping intervals.
     ----------
 
-    :param chrom:       [string] The chromosome id for the intervals
+    :param chrom:       [string]   The chromosome id for the intervals
     :param intervals:   [iterable] List of `Interval` objects
-    :param cutoff:      [int] The cutoff to calculate completeness (Default: 50)
-    :param levels:      [bool] Whether to return string representation of
-                        coverage across the intervals (Default: False)
+    :param cutoff:      [int]      The cutoff to calculate completeness
+                                   (Default: 50)
+    :param levels:      [bool]     Whether to return string representation of
+                                   coverage across the intervals
+                                   (Default: False)
     :param bgIntervals: [iterable] List of BEDGraph intervals instead of
-                        generating them dynamically
-    :returns:           [float, float, str] coverage, completeness, BEDGraph
-                        intervals as string
+                                   generating them dynamically
+    :returns:           [tuple]    Coverage (float), completeness (float),
+                                   BEDGraph intervals (str)
+
+    Usage:
+      gene = analyzer.get("gene", "C3")
+      analyzer.coverage(gene.chrom, gene.simpleIntervals(), 15)
+      [out] => (13.43522398231, 0.434122133123, None)
     """
     # Initialize
     totBaseCount = float(sum([len(interval) for interval in intervals]))
@@ -150,7 +174,7 @@ class Analyzer(object):
     ----------
 
     :param intervals: [iterable] List of `Interval` objects
-    :returns:         [str] String representation of BEDGraph intervals
+    :returns:         [str]      String representation of BEDGraph intervals
     """
     levels = ["{start}-{end}-{depth}".format(start=interval.start,
                                              end=interval.end,
@@ -167,7 +191,7 @@ class Analyzer(object):
     ----------
 
     :param intervals: [iterable] A list of BEDGraph `Interval`s
-    :returns:         [str] String representation of the discrete levels
+    :returns:         [str]      String representation of the discrete levels
     """
     # Initialize/Reset
     self.lastStart = None
@@ -186,9 +210,9 @@ class Analyzer(object):
     read depth.
     ----------
 
-    :param interval: [obj] BEDGraph `Interval`
+    :param interval: [obj]      BEDGraph `Interval`
     :returns:        [str/None] String used by `.levels()` or `None` if level
-                     hasn't changed.
+                                hasn't changed.
     """
 
     # score = interval.value / 5
@@ -228,13 +252,15 @@ class Analyzer(object):
     """
     Based on BEDGraph intervals for a whole gene. Calculate coverage and
     completeness for each individual exon interval.
+    ----------
 
     :param exIntervals: [list] List of objects with start, end, value
                                attributes.
     :param bgIntervals: [list] List of BEDGraph formatted intervals
-    :param cutoff:      [int]  The cutoff to calculate completeness (Default: 50)
+    :param cutoff:      [int]  The cutoff to calculate completeness
+                               (Default: 50)
     :param levels:      [bool] Whether to return string representation of
-                        coverage across the intervals (Default: False)
+                               coverage across the intervals (Default: False)
     :returns:           [list] List of dicts with data on each exon interval
     """
 
