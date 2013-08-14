@@ -12,7 +12,19 @@ import os
 
 
 class ElementAdaptor(object):
-  """docstring for ElementAdaptor"""
+  """
+  Chanjo adaptor for interfacing with a SQLite database with element data from
+  the CCDS database.
+  ----------
+
+  :param dbPath: [str]  Path to the SQLite database. This is required at setup.
+  :param new:    [bool] Set up new or overwrite/reset current database.
+
+  Usage:
+    from chanjo.sqlite import ElementAdaptor
+    path = "/path/to/sqlite.db"
+    adaptor = ElementAdaptor(path)
+  """
   def __init__(self, db_path, new=False):
     super(ElementAdaptor, self).__init__()
 
@@ -27,7 +39,7 @@ class ElementAdaptor(object):
 
   def connect(self, path, new=False):
     """
-    Public: Opens a connection to an existing or new SQLite database file.
+    Private: Opens a connection to an existing or new SQLite database file.
     ----------
 
     :param path: [str] The path to the SQLite database file
@@ -42,25 +54,39 @@ class ElementAdaptor(object):
     if not new:
       self._defaultORM()
 
-  def get(self, elem_class, elem_ids):
+  def get(self, elemClass, elemIDs):
     """
-    Get one or multiple elements by ID.
+    Public: Get one or multiple elements by ID.
+
+    :param elemClass: [str]         Choices: "gene", "transcript" or "exon"
+    :param elemIDs:   [str/list]    An element ID or list of IDs
+    :returns:         [object/list] One element or list of elements
+
+    Usage:
+      gene = adaptor.get("gene", "EGFR")
+      genes = adaptor.get("gene", ["TTN", "GIT1", "EGFR"])
+
+      # Change an attribute
+      gene.coverage = 10.0
+
+      # Persist changes
+      gene.save()
     """
     singleElement = False
     # Test if just a single ID was submitted
-    if isinstance(elem_ids, str):
-      elem_ids = (elem_ids, )
+    if isinstance(elemIDs, str):
+      elemIDs = (elemIDs, )
       singleElement = True
     else:
       # Otherwise make sure we have an iterable
-      if not isinstance(elem_ids, collections.Iterable):
+      if not isinstance(elemIDs, collections.Iterable):
         print("Input must be ID string or list of IDs.")
         return None
 
-    elements = range(0,len(elem_ids))
-    for count, elem_id in enumerate(elem_ids):
+    elements = range(0,len(elemIDs))
+    for count, elem_id in enumerate(elemIDs):
 
-      elements[count] = self.getClass(elem_class).get(elem_id)
+      elements[count] = self.getClass(elemClass).get(elem_id)
 
     # Return a single element if that was requested
     if singleElement:
@@ -69,11 +95,23 @@ class ElementAdaptor(object):
       # If a list of element ID was submitted, return a list of elements
       return elements
 
-  def set(self, elem_class, elem_tuple):
-      self.getClass(elem_class)(*elem_tuple).save()
+  def set(self, elemClass, elemTuple):
+    """
+    Public: Create and persist and new element to the database.
 
-  def getClass(self, elem_class):
-    return self.classes[elem_class]
+    :param elemClass: [str]   Choices: "gene", "transcript" or "exon"
+    :param elemTuple: [tuple] Tuple of attributes in order!
+    """
+    self.getClass(elemClass)(*elemTuple).save()
+
+  def getClass(self, elemClass):
+    """
+    Public: Get direct access to an element class.
+
+    :param elemClass: [str]    Choices: "gene", "transcript" or "exon"
+    :returns:         [object] The raw element class ORM object
+    """
+    return self.classes[elemClass]
 
   def setup(self, gs_cols="", tx_cols="", ex_cols=""):
     # code to create the database tsable
