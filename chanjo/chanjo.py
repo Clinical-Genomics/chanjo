@@ -24,7 +24,7 @@ class Analyzer(object):
     super(Analyzer, self).__init__()
 
     self.get = None  # 
-    self.intervals = None  # 
+    self.readIntervals = None  # 
 
     # Set up the adaptors
     if coverageAdaptor and elementAdaptor:
@@ -55,7 +55,8 @@ class Analyzer(object):
     self.get = self.elementAdaptor.get
 
     # Shortcut to getting coverage for intervals
-    self.intervals = self.coverageAdaptor.intervals
+    self.readIntervals = self.coverageAdaptor.readIntervals
+    self.read = self.coverageAdaptor.read
 
   def annotate(self, elem, cutoff=50, levels=False):
     """
@@ -102,7 +103,7 @@ class Analyzer(object):
       # Get the exons related to the element
       exons = element.exons
       # Calculate coverage, completeness, and levels for all exon
-      exonData = self.bgToCov(exons, self.intervals(element.chrom,
+      exonData = self.bgToCov(exons, self.readIntervals(element.chrom,
                               element.simpleIntervals()), cutoff, levels)
 
       # Iterate through each exon and accompanying coverage data
@@ -151,17 +152,19 @@ class Analyzer(object):
     if bgIntervals is None:
       # Get BEDGraph intervals covering all input intervals
       # Minimizes the number of times we have to fetch BEDGraph intervals
-      bgIntervals = self.intervals(chrom, intervals)
+      bgIntervals = self.readIntervals(chrom, intervals)
 
-    for bgi in bgIntervals:
-      bgBases = len(bgi)
+    for chunk in bgIntervals:
 
-      # Add the number of overlapping reads
-      readCount += (bgBases * bgi.value)
+      for bgi in chunk:
+        bgBases = len(bgi)
 
-      # Add the position if it passes `cutoff`
-      if bgi.value >= cutoff:
-        passedCount += bgBases
+        # Add the number of overlapping reads
+        readCount += (bgBases * bgi.value)
+
+        # Add the position if it passes `cutoff`
+        if bgi.value >= cutoff:
+          passedCount += bgBases
 
     # Also calculate levels if requested
     str_levels = None

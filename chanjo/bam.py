@@ -22,11 +22,15 @@
     * [UNDER REVIEW] include `maxDepth` option in `.read()`/`.readIntervals()`.
       Should flatten BEDGraph intervals at `maxDepth`
 
+    * exclude regions without aligned reads to be left out completely from the
+      returned list of BEDGraph intervals.
+
   :copyright: 2013 by Robin Andeer, see AUTHORS for more details
   :license: license_name, see LICENSE for more details
 """
 
 import pysam
+from bx.intervals.intersection import IntervalTree
 
 
 class CoverageAdaptor(pysam.Samfile):
@@ -35,8 +39,8 @@ class CoverageAdaptor(pysam.Samfile):
   files.
   ----------
 
-  :param bam_path: [str] Path to the BAM alignment file. This is required at
-                         setup.
+  :param bamPath: [str] Path to the BAM alignment file. This is required at
+                        setup.
 
   Usage:
     from chanjo.bam import CoverageAdaptor
@@ -44,133 +48,138 @@ class CoverageAdaptor(pysam.Samfile):
     adaptor = CoverageAdaptor(path)
   """
 
-  def __init__(self, bam_path):
-    super(CoverageAdaptor, self).__init__(bam_path, "rb")
+  def __init__(self, bamPath):
+    super(CoverageAdaptor, self).__init__(bamPath, "rb")
 
-  def intervals(self, chrom, intervals, maxDepth=float("inf")):
+  def read(self, chrom, start, end):
     """
     Public: Generates BEDGraph intervals of equal coverage between start and end
-    on the given chromosome.
+    on the given chromosome. Expect regions without aligned reads to be left out
+    completely from the returned list of BEDGraph intervals.
+    ----------
 
-    :param chrom:    [str] The chromosome of interest
-    :param start:    [int] The first position of the interval
-    :param end:      [int] The last position of the interval
-    :param maxDepth: [int] The highest read depth to consider
+    :param chrom:     [str]  The chromosome of interest
+    :param start:     [int]  The first position of the interval
+    :param end:       [int]  The last position of the interval
+    :returns:         [list] A list of `Interval` objects representing BEDGraph
+                             intervals
 
     Usage:
-      adaptor.intervals("17", 100023, 102051, 50)
+      adaptor.read("17", 100023, 102051)
       [out] => [<chanjo.bam.Interval instance at 0x10f2ea518>,
                 <chanjo.bam.Interval instance at 0x10f2ea4d0>]
     """
+    # Set temporary chromosome for current interval
+    self.chrom = chrom
+
+    # Preallocate an list with enough space (worst case scenario; read depth
+    # changes for every base)
+    self.bgIntervals = [None]*(end-start)
+    # Pointer for the above list
+    self.count = 0
+
+    # Init
+    lastStart = 0
+    lastDepth = 0
+
+    # Start Pileup iterator and walk through each position in the interval
+    # `truncate` will make sure it start and ends on the given positions!
+    for col in self.pileup(str(chrom), start, end, truncate=True):
+
+      # Tests whether coverage has changed
+      if col.n != lastDepth:
+
+        # Stuff the latest interval into the array
+        self._persist(lastStart, col.pos, lastDepth)
+
+        # Start new interval
+        lastDepth = col.n
+        lastStart = col.pos
+
     try:
-      firstPos = intervals[0].start
-      # Pysam uses only 0-based positions
-      endPos = intervals[-1].end - 1
-    except IndexError:
-      # No intervals sent
+      # Stuff the last interval into the array. To get 0,1-based coordinates we
+      # have to add 1 to the position of this the last BEDGraph interval.
+      self._persist(lastStart, col.pos + 1, lastDepth)
+    except UnboundLocalError:
+      # This means pileup didn't find any reads across the intervals
       return []
 
-    # Preallocate an array with enough space (worst case scenario)
-    bgIntervals = [None]*(endPos-firstPos)
-    # Pointer for the array
-    count = 0
-
-    # An empty string is evaluated larger than any integer
-    iterator = self.pileup(str(chrom), firstPos, endPos)
-
-    for interval in intervals:
-      # Move the iterator to the start of the interval
-      lastStart, lastDepth = self._move2start(interval.start, iterator)
-
-      # Pick up the iterator
-      for col in iterator:
-
-        # Don't move beyond the given interval
-        if col.pos >= interval.end:
-          # Move on to the next interval
-          break
-
-        # Testing whether coverage has changed or
-        # if both the beginning and the current position in the current interval
-        # is above the specified max.
-        if col.n != lastDepth and (col.n < maxDepth or lastDepth < maxDepth):
-
-          # Stuff the latest interval into the array
-          count = self._persistCoverage(chrom, lastStart, col.pos, lastDepth,
-                                        maxDepth, bgIntervals, count)
-
-          # Start new interval
-          lastDepth = col.n
-          lastStart = col.pos
-
-      try:
-        # Stuff the last interval into the array
-        count = self._persistCoverage(chrom, lastStart, col.pos, lastDepth,
-                                      maxDepth, bgIntervals, count)
-      except UnboundLocalError:
-        # This means pileup didn't find any reads across the intervals
-        return []
-
     # Return the subset of the list actually containing calculated intervals
-    return bgIntervals[:count]
+    return self.bgIntervals[:self.count]
 
-  def _move2start(self, start, iterator):
+  def readIntervals(self, chrom, intervals):
     """
-    Private: Moves the `iterator` forward to a given start position. Pysam
-    often returns an iterator starting before the start that was submitted.
+    Public: Generates BEDGraph intervals of equal coverage for each interval on
+    the given chromosome. Intervals can be overlapping.
     ----------
 
-    :param start:    [int]      The position to move the iterator to
-    :param iterator: [object]   The Pysam iterator to use
-    :returns:        [int, int] The position and read depth for `start`
+    :param chrom:     [str]    The chromosome of interest
+    :param intervals: [list]   List of `Interval` instances
+    :returns:         [object] A generator object yielding BEDGraph `Interval`
+                               objects for each input interval
+
+    Usage:
+      adaptor.read("17", 100023, 102051)
+      [out] => [<chanjo.bam.Interval instance at 0x10f2ea518>,
+                <chanjo.bam.Interval instance at 0x10f2ea4d0>]
     """
-    # Move the iterator until start of given interval
-    for col in iterator:
-      if col.pos < start:
-        continue
-      else:
-        # Return the position and read depth
-        return col.pos, col.n
+    # First figure out the outer bounderies of the intervals
+    try:
+      start = intervals[0].start
+      end = intervals[-1].end
+    except IndexError:
+      # If the user submitted an empty list...
+      return []
 
-    # If the iterator is exhausted
-    return -1, -1
+    # Initialize interval tree
+    bgTree = IntervalTree()
+    for interval in self.read(chrom, start, end):
+      bgTree.insert_interval(interval)
 
-  def _persistCoverage(self, chrom, lastStart, currentPos, lastDepth, maxDepth,
-                       bgIntervals, count):
+    # Return generator object for each interval in order
+    return (self._cutIntervals(bgTree.find(interval.start, interval.end),
+                               interval) for interval in intervals)
+
+  def _cutIntervals(self, bgIntervals, interval):
+    """
+    Private: Trims the first and last BEDGraph interval in a list to match a
+    query interval to an `IntervalTree`.
+    ----------
+
+    :param bgIntervals: [int]  BEDGraph intervals for the interval
+    :param interval:    [int]  The input interval for the BEDGraph intervals
+    :returns:           [list] The modified list of BEDGraph intervals
+    """
+    try:
+      # If first BEDGraph interval begins before the input interval, trim!
+      if bgIntervals[0].start < interval.start:
+        bgIntervals[0].start = interval.start
+
+      # If last BEDGraph interval ends after the input interval, trim!
+      if bgIntervals[-1].end > interval.end:
+        bgIntervals[-1].end = interval.end
+
+    except IndexError:
+      return []
+
+    return bgIntervals
+
+  def _persist(self, lastStart, currentPos, lastDepth):
     """
     Private: Stores a BEDGraph interval of equal coverage in `bgIntervals`.
     ----------
 
-    :param chrom:       [str]  The chromosome ID
-    :param lastStart:   [int]  The start position of the interval
-    :param currentPos:  [int]  The end position of the interval
-    :param lastDepth:   [int]  The read depth for the interval
-    :param maxDepth:    [int]  The maximum read depth to consider
-    :param bgIntervals: [list] An list to store BEDGraph intervals in
-    :param count:       [int]  A pointer to which item in `bgIntervals` to store
-                               the new BEDGraph interval
-    :returns:           [int]  The updated count pointer
+    :param lastStart:   [int] The start position of the interval
+    :param currentPos:  [int] The end position of the interval
+    :param lastDepth:   [int] The read depth for the interval
     """
 
     if lastDepth > 0:
 
-      # Limit the max reported read depth
-      if lastDepth > maxDepth:
-        reportedDepth = maxDepth
-      else:
-        reportedDepth = lastDepth
-
-      bgIntervals[count] = Interval(lastStart, currentPos, reportedDepth)
+      self.bgIntervals[self.count] = Interval(lastStart, currentPos, lastDepth)
 
       # Move the save pointer one step forward
-      count += 1
-
-    else:
-      # BGI with 0 reads covering won't make a difference to include or exclude
-      print("Positions with 0 reads: {chrom}->{position}"
-            .format(chrom=chrom, position=currentPos))
-
-    return count
+      self.count += 1
 
 class Interval(object):
   """
@@ -192,59 +201,7 @@ class Interval(object):
     # This is the BED standard definition of an interval
     return "({start}, {end}]".format(start=self.start, end=self.end)
 
-class Counter(object):
-  def __init__(self, intervals, maxDepth=50):
-    # Initialize
-    self.intervals = intervals
-    self.intervalCount = 0
-    self.readCount = 0
-    self.passedCount = 0
-    self.maxDepth = maxDepth
-    self.endPos = intervals[-1].end
-
-    # BEDGraph interval helper variables: keeps track of the current bgInterval
-    self.lastStart = None
-    self.lastDepth = None
-
-  @property
-  def currentInterval(self):
-    return self.intervals[self.intervalCount]
-
-  def annotate(self, currPos):
-    bases = currPos - self.lastStart
-
-    self.readCount += self.lastDepth * bases
-
-    # If sufficient read depth
-    if self.lastDepth >= self.maxDepth:
-      self.passedCount += bases
-
-  def __call__(self, col):
-    if col.pos <= self.endPos:
-      # If the iterator has entered the current interval
-      if col.pos >= self.currentInterval.start:
-
-        if self.lastStart is None:
-          self.lastStart = col.pos
-          self.lastDepth = col.n
-
-        # If the iterator has passed the current interval
-        if col.pos > self.currentInterval.end:
-
-          self.intervalCount += 1
-
-          # End the bgInterval prematurely
-          self.annotate(col.pos)
-
-          # Update the helper variables
-          self.lastDepth = col.n
-          self.lastStart = col.pos
-
-        elif col.n != self.lastDepth:
-
-          # The bgInterval ended on the previous position
-          self.annotate(col.pos)
-
-          # Update the helper variables
-          self.lastDepth = col.n
-          self.lastStart = col.pos
+  def __eq__(self, other):
+    # This compares Interval instances by matches values
+    return (self.start == other.start and self.end == other.end and
+            self.value == other.value and self.chrom == other.chrom)

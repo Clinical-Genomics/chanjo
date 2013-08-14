@@ -55,23 +55,24 @@ class TestCoverageAdaptor:
     # This step is important becuase it should be possible to return a generator
     # object insted of a list of BEDGraph intervals.
     chunks = [chunk for chunk in bgi]
-    assert_equal(chunks, self.trueIntervals[:6] + [Interval(25,30,7)])
+    assert_equal(chunks, [self.trueIntervals[:6] + [Interval(25,30,7)]])
 
     # Test multiple non-overlapping intervals
     bgi = self.adaptor.readIntervals("chr1", self.poly_intervals)
     chunks = [chunk for chunk in bgi]
-    assert_equal(chunks, [Interval(20,30,7), Interval(30,32,7),
-                          Interval(32,33,6), Interval(33,35,4)])
+    assert_equal(chunks, [[Interval(10,20,7)],
+                          [Interval(30,32,7), Interval(32,33,6),
+                           Interval(33,35,4)]])
 
     # Test multiple intervals extending beyond reads
     bgi = self.adaptor.readIntervals("chr1", self.partly_outside_intervals)
     chunks = [chunk for chunk in bgi]
-    assert_equal(chunks, [Interval(35,37,4), Interval(37,39,2)])
+    assert_equal(chunks, [[Interval(35,37,3), Interval(37,39,2)], []])
 
     # Test interval outside reads
     bgi = self.adaptor.readIntervals("chr1", self.outside_intervals)
     chunks = [chunk for chunk in bgi]
-    assert_equal(chunks, [])
+    assert_equal(chunks, [[]])
 
 class TestInterval:
   def setUp(self):

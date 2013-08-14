@@ -14,8 +14,6 @@ class TestClass:
     self.chanjo.setAdaptors(CoverageAdaptor(bam_path),
                             ElementAdaptor(elem_path))
 
-    #setattr(self, "{}s".format(element.lower()), self.dfs[element])
-
   def setUp(self):
     print "SETUP!"
 
@@ -36,8 +34,7 @@ class TestClass:
 
   def test_coverage(self):
     chrom = "chr1"
-    cov_s, comp_s, levels = self.chanjo.coverage(chrom, self.single_intervals,
-                                                 5)
+    cov_s, comp_s, levels = self.chanjo.coverage(chrom,self.single_intervals,5)
     assert_equal(cov_s, 53/float(10))
     assert_equal(comp_s, 8/float(10))
 
