@@ -164,7 +164,7 @@ class ElementAdaptor(object):
     # create ORM class; Autumn introspects the database to find out columns
     class Gene(Model):
       db = self.db
-      transcripts = OneToMany("Transcript")
+      transcripts = OneToMany("Transcript", field="gene_id")
       _intervals = None
       _exons = None
 
@@ -174,7 +174,7 @@ class ElementAdaptor(object):
       @property
       def exons(self):
         if not self._exons:
-          self._exons = [combo.exon for combo in Gene_Exon.get(gene_id=self.id)]
+          self._exons = [combo.exon for combo in Exon_Gene.get(gene_id=self.id)]
 
         return self._exons
 
@@ -208,7 +208,7 @@ class ElementAdaptor(object):
 
     class Transcript(Model):
       db = self.db
-      gene = ForeignKey(Gene)
+      gene = ForeignKey(Gene, field="gene_id")
       _exons = None
 
       class Meta:
@@ -218,7 +218,7 @@ class ElementAdaptor(object):
       def exons(self):
         if not self._exons:
           self._exons = [combo.exon for combo in
-                         Transcript_Exon.get(transcript_id=self.id)]
+                         Exon_Transcript.get(transcript_id=self.id)]
 
         return self._exons
 
@@ -259,14 +259,14 @@ class ElementAdaptor(object):
       def transcripts(self):
         if not self._transcripts:
           self._transcripts = [combo.transcript for combo in
-                               Transcript_Exon.get(exon_id=self.id)]
+                               Exon_Transcript.get(exon_id=self.id)]
 
         return self._transcripts
 
       @property
       def genes(self):
         if not self._genes:
-          self._genes = [combo.gene for combo in Gene_Exon.get(exon_id=self.id)]
+          self._genes = [combo.gene for combo in Exon_Gene.get(exon_id=self.id)]
 
         return self._genes
 
@@ -291,6 +291,6 @@ class ElementAdaptor(object):
       "gene": Gene,
       "transcript": Transcript,
       "exon": Exon,
-      "gene_exon": Exon_Gene,
-      "transcript_exon": Exon_Transcript
+      "exon_gene": Exon_Gene,
+      "exon_transcript": Exon_Transcript
     }  

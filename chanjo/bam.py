@@ -4,8 +4,23 @@
   bam.module
   ~~~~~~~~~~~~~
 
-  Responsible for returning BEDGraph intervals given start, end coordinates on
-  a specified chromosome.
+  A certified CoverageAdaptor should:
+
+    * include a `.read(chrom, start, end)` method that returns BEDGraph
+      formatted coverage intervals between `start` and `end`.
+
+    * include a `.readIntervals(chrom, intervals)` method that returns
+      BEDGraph formatted coverage intervals in chunks corresponding to the
+      overlapping intervals.
+
+    * expect all intervals definitions to be 0,1-based in accordance with
+      Python `range()`.
+
+    * take a file path or similar as a required parameter in the initialization
+      of each class instance, i.e. `CoverageAdaptor(path)`.
+
+    * [UNDER REVIEW] include `maxDepth` option in `.read()`/`.readIntervals()`.
+      Should flatten BEDGraph intervals at `maxDepth`
 
   :copyright: 2013 by Robin Andeer, see AUTHORS for more details
   :license: license_name, see LICENSE for more details
@@ -21,7 +36,7 @@ class CoverageAdaptor(pysam.Samfile):
   ----------
 
   :param bam_path: [str] Path to the BAM alignment file. This is required at
-                   setup.
+                         setup.
 
   Usage:
     from chanjo.bam import CoverageAdaptor
@@ -145,13 +160,13 @@ class CoverageAdaptor(pysam.Samfile):
       else:
         reportedDepth = lastDepth
 
-      bgIntervals[count] = Interval(lastStart, currentPos,
-                                             reportedDepth)
+      bgIntervals[count] = Interval(lastStart, currentPos, reportedDepth)
 
       # Move the save pointer one step forward
       count += 1
 
     else:
+      # BGI with 0 reads covering won't make a difference to include or exclude
       print("Positions with 0 reads: {chrom}->{position}"
             .format(chrom=chrom, position=currentPos))
 

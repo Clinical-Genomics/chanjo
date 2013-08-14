@@ -23,6 +23,9 @@ class Analyzer(object):
   def __init__(self, coverageAdaptor=None, elementAdaptor=None):
     super(Analyzer, self).__init__()
 
+    self.get = None  # 
+    self.intervals = None  # 
+
     # Set up the adaptors
     if coverageAdaptor and elementAdaptor:
       self.setAdaptors(coverageAdaptor, elementAdaptor)

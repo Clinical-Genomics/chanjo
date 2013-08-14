@@ -5,14 +5,21 @@ from nose.tools import *
 from chanjo.bam import CoverageAdaptor, Interval
 
 
-class CoverageAdaptorClass:
+class TestCoverageAdaptor:
   def __init__(self):
     bam_path = "tests/data/align.bam"
     self.adaptor = CoverageAdaptor(bam_path)
 
+    # These are the main results from "align.bam"
+    self.trueIntervals = [Interval(0,1,2), Interval(1,2,4), Interval(2,6,5),
+                          Interval(6,7,6), Interval(7,23,7), Interval(23,25,8),
+                          Interval(25,32,7), Interval(32,33,6),
+                          Interval(33,35,4), Interval(34,37,3),
+                          Interval(37,39,2)]
+
   def setUp(self):
     print "SETUP!"
-    # Test interval with multiple reads
+    # Different combinations of intervals
     self.mono_intervals = [Interval(0, 30)]
     self.poly_intervals = [Interval(10, 20), Interval(30, 35)]
     self.partly_outside_intervals = [Interval(35, 45), Interval(60, 70)]
@@ -23,75 +30,48 @@ class CoverageAdaptorClass:
 
     del self.mono_intervals, self.poly_intervals
 
-  def test_intervals(self):
+  def test_read(self):
+    # Read BAM from position [1,10]
+    bgi = self.adaptor.read("chr1", 0, 10)
 
-    intervals = self.adaptor.intervals("chr1", self.mono_intervals)
-    assert_equal(len(intervals), 7)
+    # The actual BEDGraph intervals, the 4 first + modified 5th
+    trueIntervals = self.trueIntervals[:4] + [Interval(7,10,7)]
+    assert_equal(bgi, trueIntervals)
 
-    # Test first
-    interval1 = intervals[0]
-    assert_equal(interval1.start, 0)
-    assert_equal(interval1.end, 1)
-    assert_equal(len(interval1), 1)
-    assert_equal(interval1.value, 2)
+    # Test also an interval that extends beyond reads
+    bgi = self.adaptor.read("chr1", 50, 60)
+    assert_equal(bgi, [])
 
-    # Test mid interval
-    interval2 = intervals[4]
-    assert_equal(interval2.start, 7)
-    assert_equal(interval2.end, 23)
-    assert_equal(len(interval2), 16)
-    assert_equal(interval2.value, 7)
+    # Test submitting a false chromosome ID
+    try:
+      bgi = self.adaptor.read("crh1", 10, 20)
+    except ValueError, e:
+      assert_true(e.message == "invalid reference `crh1`")
 
-    # Test last interval
-    interval3 = intervals[-1]
-    assert_equal(interval3.start, 25)
-    assert_equal(interval3.end, 30)
-    assert_equal(len(interval3), 5)
-    assert_equal(interval3.value, 7)
+  def test_readIntervals(self):
+    # Test a single interval
+    bgi = self.adaptor.readIntervals("chr1", self.mono_intervals)
 
-    # Test multiple input intervals
-    intervals = self.adaptor.intervals("chr1", self.poly_intervals)
-    assert_equal(len(intervals), 4)
+    # This step is important becuase it should be possible to return a generator
+    # object insted of a list of BEDGraph intervals.
+    chunks = [chunk for chunk in bgi]
+    assert_equal(chunks, self.trueIntervals[:6] + [Interval(25,30,7)])
 
-    # Test first
-    interval1 = intervals[0]
-    assert_equal(interval1.start, 10)
-    assert_equal(interval1.end, 20)
-    assert_equal(len(interval1), 10)
-    assert_equal(interval1.value, 7)
+    # Test multiple non-overlapping intervals
+    bgi = self.adaptor.readIntervals("chr1", self.poly_intervals)
+    chunks = [chunk for chunk in bgi]
+    assert_equal(chunks, [Interval(20,30,7), Interval(30,32,7),
+                          Interval(32,33,6), Interval(33,35,4)])
 
-    # Test mid interval
-    interval2 = intervals[2]
-    assert_equal(interval2.start, 32)
-    assert_equal(interval2.end, 33)
-    assert_equal(len(interval2), 1)
-    assert_equal(interval2.value, 6)
+    # Test multiple intervals extending beyond reads
+    bgi = self.adaptor.readIntervals("chr1", self.partly_outside_intervals)
+    chunks = [chunk for chunk in bgi]
+    assert_equal(chunks, [Interval(35,37,4), Interval(37,39,2)])
 
-    # Test last interval
-    interval3 = intervals[-1]
-    assert_equal(interval3.start, 33)
-    assert_equal(interval3.end, 35)
-    assert_equal(len(interval3), 2)
-    assert_equal(interval3.value, 4)
-
-    # Test intervals outside reads
-    intervals = self.adaptor.intervals("chr1", self.partly_outside_intervals)
-    assert_equal(len(intervals), 2)
-
-    # Test first interval
-    assert_equal(intervals[0].start, 35)
-    assert_equal(intervals[0].end, 37)
-    assert_equal(len(intervals[0]), 2)
-    assert_equal(intervals[0].value, 4)
-
-    # Test sec/last interval
-    assert_equal(intervals[-1].start, 37)
-    assert_equal(intervals[-1].end, 39)
-    assert_equal(len(intervals[-1]), 2)
-    assert_equal(intervals[-1].value, 3)
-
-    intervals = self.adaptor.intervals("chr1", self.outside_intervals)
-    assert_equal(len(intervals), 0)
+    # Test interval outside reads
+    bgi = self.adaptor.readIntervals("chr1", self.outside_intervals)
+    chunks = [chunk for chunk in bgi]
+    assert_equal(chunks, [])
 
 class TestInterval:
   def setUp(self):
