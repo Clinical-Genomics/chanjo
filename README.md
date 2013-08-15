@@ -29,11 +29,11 @@ from chanjo import chanjo, sqlite, bam
 
 # Instantiation
 analyzer = chanjo.Analyzer()
-elements = sqlite.ElementAdaptor("tests/data/CCDS.db")
-coverage = bam.CoverageAdaptor("test/data/align.bam")
+elements = sqlite.ElementAdapter("tests/data/CCDS.db")
+coverage = bam.CoverageAdapter("test/data/align.bam")
 
-# Plug in the adaptors
-analyzer.setAdaptors(coverage, elements)
+# Plug in the adapters
+analyzer.setAdapters(coverage, elements)
 
 # We are ready! Let's take a look at a gene
 gene = analyzer.get("gene", "EGFR")
@@ -53,10 +53,10 @@ analyzer.coverage(gene.chrom, gene.simpleIntervals())
 
 ## Contribute
 If you feel like learning more about the project and contributing a good idea
-would be to see if you can rewrite the current ElementAdaptor (sqlite) to use
+would be to see if you can rewrite the current ElementAdapter (sqlite) to use
 the popular python ORM SQLAlchemy as a replacement of Autumn.
 
-Or why not go one step further and implement an adaptor relying on a more
+Or why not go one step further and implement an adapter relying on a more
 flexible NoSQL database.
 
 ## Installation

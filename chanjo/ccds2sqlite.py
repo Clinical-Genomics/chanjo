@@ -17,11 +17,11 @@ import csv
 
 class Importer(object):
   """docstring for the CCDS parser/importer"""
-  def __init__(self, element_adaptor):
+  def __init__(self, element_adapter):
     super(Importer, self).__init__()
 
-    # Plug in the Element Adaptor
-    self.adaptor = element_adaptor
+    # Plug in the Element Adapter
+    self.adapter = element_adapter
 
   def open(self, path):
     # Have we bypassed all comment lines?
@@ -50,12 +50,12 @@ class Importer(object):
           #     GENE objects
           # --------------------------------------------------------------------
           # Get an existing gene or `None`
-          existingGene = self.adaptor.get("gene", gene_id)
+          existingGene = self.adapter.get("gene", gene_id)
 
           # If we haven't already initiated the gene
           if existingGene is None:
             # Gene has id, chrom, strand
-            self.adaptor.set("gene", (gene_id, chrom, strand,
+            self.adapter.set("gene", (gene_id, chrom, strand,
                                       tx_start))
           else:
             # Make sure to get the correct gene start position to be able to
@@ -82,30 +82,30 @@ class Importer(object):
 
             exon_id = "{chrom}-{start}-{end}".format(chrom=chrom,
                                                      start=ex_start, end=ex_end)
-            existingExon = self.adaptor.get("exon", exon_id)
+            existingExon = self.adapter.get("exon", exon_id)
             if existingExon is None:
               # Create a new exon instance
               # Add id, chrom, strand, start, end
-              self.adaptor.set("exon", (exon_id, chrom, strand, ex_start,
+              self.adapter.set("exon", (exon_id, chrom, strand, ex_start,
                                         ex_end))
 
             # Add the transcript-exon combo
-            self.adaptor.set("transcript_exon", (tx_id, exon_id))
+            self.adapter.set("transcript_exon", (tx_id, exon_id))
 
             # Test if the exon has been connected with the current gene
-            results = self.adaptor.getClass("gene_exon").get(gene_id=gene_id,
+            results = self.adapter.getClass("gene_exon").get(gene_id=gene_id,
                                                              exon_id=exon_id)
             if len(results) != 1:
               # Add the gene-exon combo
-              self.adaptor.set("gene_exon", (gene_id, exon_id))
+              self.adapter.set("gene_exon", (gene_id, exon_id))
 
           # ====================================================================
           #     TRANSCRIPT objects
           # --------------------------------------------------------------------
-          existingTx = self.adaptor.get("transcript", tx_id)
+          existingTx = self.adapter.get("transcript", tx_id)
           if not existingTx:
             # Transcripts have id, chrom, strand, and parent gene
-            self.adaptor.set("transcript", (tx_id, chrom, strand, gene_id))
+            self.adapter.set("transcript", (tx_id, chrom, strand, gene_id))
           else:
             print(tx_id)
 

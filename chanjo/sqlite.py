@@ -6,14 +6,14 @@ from autumn.util import AutoConn
 from autumn.model import Model
 from autumn.db.relations import ForeignKey, OneToMany
 from interval import Interval, IntervalSet
-from bam import Interval as Ival
+from utils import Interval as Ival
 import collections
 import os
 
 
-class ElementAdaptor(object):
+class ElementAdapter(object):
   """
-  Chanjo adaptor for interfacing with a SQLite database with element data from
+  Chanjo adapter for interfacing with a SQLite database with element data from
   the CCDS database.
   ----------
 
@@ -21,12 +21,12 @@ class ElementAdaptor(object):
   :param new:    [bool] Set up new or overwrite/reset current database.
 
   Usage:
-    from chanjo.sqlite import ElementAdaptor
+    from chanjo.sqlite import ElementAdapter
     path = "/path/to/sqlite.db"
-    adaptor = ElementAdaptor(path)
+    adapter = ElementAdapter(path)
   """
   def __init__(self, db_path, new=False):
-    super(ElementAdaptor, self).__init__()
+    super(ElementAdapter, self).__init__()
 
     self.classes = None
 
@@ -63,8 +63,8 @@ class ElementAdaptor(object):
     :returns:         [object/list] One element or list of elements
 
     Usage:
-      gene = adaptor.get("gene", "EGFR")
-      genes = adaptor.get("gene", ["TTN", "GIT1", "EGFR"])
+      gene = adapter.get("gene", "EGFR")
+      genes = adapter.get("gene", ["TTN", "GIT1", "EGFR"])
 
       # Change an attribute
       gene.coverage = 10.0
@@ -127,10 +127,7 @@ class ElementAdaptor(object):
       id TEXT PRIMARY KEY,
       chrom TEXT,
       strand TEXT,
-      start INT,
-      coverage REAL,
-      completeness REAL,
-      cutoff INT{comma}{columns}
+      start INT{comma}{columns}
     );""".format(comma=comma, columns=gs_cols)
 
     if len(tx_cols) == 0:
@@ -145,9 +142,6 @@ class ElementAdaptor(object):
       chrom TEXT,
       strand TEXT,
       gene_id TEXT,
-      coverage REAL,
-      completeness REAL,
-      cutoff INT,
       FOREIGN KEY (gene_id) REFERENCES Gene(id){comma}{columns}
     );""".format(comma=comma, columns=tx_cols)
     
@@ -244,6 +238,7 @@ class ElementAdaptor(object):
         return [Ival(i.lower_bound-2, i.upper_bound+2)
                 for i in self.intervals]
 
+
     class Transcript(Model):
       db = self.db
       gene = ForeignKey(Gene, field="gene_id")
@@ -272,6 +267,42 @@ class ElementAdaptor(object):
         Exons aleady have start and end attributes.
         """
         return self.exons
+
+      def coverage(self):
+        """
+        Public: calculates coverage based on exon annotations.
+        """
+        # Initialize
+        readCount = 0
+        baseCount = 0
+
+        # Go through each exon (never overlaps!)
+        for exon in self.exons:
+
+          # Add the number of bases
+          baseCount += len(exon)
+
+          # Add the number of reads
+          readCount += len(exon) * exon.coverage
+
+        return readCount / float(baseCount)
+
+      def completeness(self):
+        """
+        Public: calculates completeness based on exon annotations.
+        """
+        # Initialize
+        passedCount = 0
+
+        # Go through each exon (never overlaps!)
+        for exon in self.exons:
+
+          # Add the number of bases
+          passedCount += len(exon) * exon.completeness
+
+        # Should be int...
+        return passedCount
+      
 
     class Exon(Model):
       db = self.db

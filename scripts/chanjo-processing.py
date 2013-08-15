@@ -13,8 +13,8 @@ class Clone(object):
   def __init__(self, covPath, elemPath, genes, cutoff):
     super(Clone, self).__init__()
     self.chanjo = chanjo.Analyzer()
-    self.chanjo.setAdaptors(bam.CoverageAdaptor(covPath),
-                            sqlite.ElementAdaptor(elemPath))
+    self.chanjo.setAdapters(bam.CoverageAdapter(covPath),
+                            sqlite.ElementAdapter(elemPath))
 
   def run(self, gene):
     for gene in self.genes:

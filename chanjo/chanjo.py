@@ -5,7 +5,7 @@
   ~~~~~~~~~~~~~
 
   The glue and control hub of the `chanjo` package.
-  Borrows many structural ideas from Ember.js in the way you add in adaptors to
+  Borrows many structural ideas from Ember.js in the way you add in adapters to
   add in modular functionality that can be switched out to support multiple
   "backends".
 
@@ -15,48 +15,48 @@
 
 from __future__ import print_function
 import interval as ival
-from bx.intervals.intersection import IntervalTree
+from utils import CoverageTree
 
 
 class Analyzer(object):
   """docstring for Analyzer"""
-  def __init__(self, coverageAdaptor=None, elementAdaptor=None):
+  def __init__(self, coverageAdapter=None, elementAdapter=None):
     super(Analyzer, self).__init__()
 
     self.get = None  # 
     self.readIntervals = None  # 
 
-    # Set up the adaptors
-    if coverageAdaptor and elementAdaptor:
-      self.setAdaptors(coverageAdaptor, elementAdaptor)
+    # Set up the adapters
+    if coverageAdapter and elementAdapter:
+      self.setAdapters(coverageAdapter, elementAdapter)
 
-  def setAdaptors(self, coverageAdaptor, elementAdaptor):
+  def setAdapters(self, coverageAdapter, elementAdapter):
     """
-    Public: Plugs in the required adaptors and sets up a few shortcuts.
+    Public: Plugs in the required adapters and sets up a few shortcuts.
     ----------
 
-    :param coverageAdaptor: [object] A class instance of a Coverage Adaptor
-    :param elementAdaptor:  [object] A class instance of a Element Adaptor
+    :param coverageAdapter: [object] A class instance of a Coverage Adapter
+    :param elementAdapter:  [object] A class instance of a Element Adapter
 
     Usage:
-      from chanjo.bam import CoverageAdaptor
-      from chanjo.sqlite import ElementAdaptor
+      from chanjo.bam import CoverageAdapter
+      from chanjo.sqlite import ElementAdapter
 
       analyzer = Analyzer()
       bam_path = "/path/to/file.bam"
       cov_path = "/path/to/sqlite.db"
-      analyzer.setAdaptors(CoverageAdaptor(bam_path), ElementAdaptor(cov_path))
+      analyzer.setAdapters(CoverageAdapter(bam_path), ElementAdapter(cov_path))
     """
-    # Customizable adaptors
-    self.coverageAdaptor = coverageAdaptor
-    self.elementAdaptor = elementAdaptor
+    # Customizable adapters
+    self.coverageAdapter = coverageAdapter
+    self.elementAdapter = elementAdapter
 
     # Shortcut to getting elements by ID
-    self.get = self.elementAdaptor.get
+    self.get = self.elementAdapter.get
 
     # Shortcut to getting coverage for intervals
-    self.readIntervals = self.coverageAdaptor.readIntervals
-    self.read = self.coverageAdaptor.read
+    self.readIntervals = self.coverageAdapter.readIntervals
+    self.read = self.coverageAdapter.read
 
   def annotate(self, elem, cutoff=50, levels=False):
     """
@@ -130,10 +130,9 @@ class Analyzer(object):
     :param chrom:       [string]   The chromosome id for the intervals
     :param intervals:   [iterable] List of `Interval` objects
     :param cutoff:      [int]      The cutoff to calculate completeness
-                                   (Default: 50)
+                                   (Def: 50)
     :param levels:      [bool]     Whether to return string representation of
-                                   coverage across the intervals
-                                   (Default: False)
+                                   coverage across the intervals (Def: False)
     :param bgIntervals: [iterable] List of BEDGraph intervals instead of
                                    generating them dynamically
     :returns:           [tuple]    Coverage (float), completeness (float),
@@ -220,17 +219,6 @@ class Analyzer(object):
     :returns:        [str/None] String used by `.levels()` or `None` if level
                                 hasn't changed.
     """
-
-    # score = interval.value / 5
-
-    # self.score2level = {
-    #   1: None,
-    #   2: 10,
-    #   3: 15,
-    #   4: 20,
-    #   5: 25
-    # }
-
     # Determine what level the interval belongs to
     if interval.value > 19:
       currLevel = "ok"
@@ -271,9 +259,10 @@ class Analyzer(object):
     """
 
     # Initialize interval tree
-    bgTree = IntervalTree()
-    for bgi in bgIntervals:
-      bgTree.insert_interval(bgi)
+    bgTree = CoverageTree()
+    for chunk in bgIntervals:
+      for bgi in chunk:
+        bgTree.insert_interval(bgi)
 
     # This is for storing exon coverage scores
     exons = [None]*len(exIntervals)
@@ -283,20 +272,10 @@ class Analyzer(object):
       readCount = 0
       passedCount = 0
 
-      exBgIntervals = bgTree.find(ex.start, ex.end)
+      exBgIntervals = bgTree.get(ex.start, ex.end)
       for bgi in exBgIntervals:
 
-        bgStart = bgi.start
-        bgEnd = bgi.end
-
-        # First and last interval might only overlap partially
-        if bgi.start < ex.start:
-          bgStart = ex.start
-
-        if bgi.end > ex.end:
-          bgEnd = ex.end
-
-        bgBaseCount = bgEnd - bgStart
+        bgBaseCount = bgi.end - bgi.start
 
         # Add the number of overlapping reads
         readCount += (bgBaseCount * bgi.value)

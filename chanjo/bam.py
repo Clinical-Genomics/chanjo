@@ -4,7 +4,7 @@
   bam.module
   ~~~~~~~~~~~~~
 
-  A certified CoverageAdaptor should:
+  A certified **Coverage Adapter** should:
 
     * include a `.read(chrom, start, end)` method that returns BEDGraph
       formatted coverage intervals between `start` and `end`.
@@ -17,7 +17,7 @@
       Python `range()`.
 
     * take a file path or similar as a required parameter in the initialization
-      of each class instance, i.e. `CoverageAdaptor(path)`.
+      of each class instance, i.e. `CoverageAdapter(path)`.
 
     * [UNDER REVIEW] include `maxDepth` option in `.read()`/`.readIntervals()`.
       Should flatten BEDGraph intervals at `maxDepth`
@@ -30,12 +30,12 @@
 """
 
 import pysam
-from bx.intervals.intersection import IntervalTree
+from utils import Interval, CoverageTree
 
 
-class CoverageAdaptor(pysam.Samfile):
+class CoverageAdapter(pysam.Samfile):
   """
-  Chanjo adaptor for fetching BEDGraph intervals directly from BAM alignment
+  Chanjo adapter for fetching BEDGraph intervals directly from BAM alignment
   files.
   ----------
 
@@ -43,13 +43,13 @@ class CoverageAdaptor(pysam.Samfile):
                         setup.
 
   Usage:
-    from chanjo.bam import CoverageAdaptor
+    from chanjo.bam import CoverageAdapter
     path = "/path/to/bam/file.bam"
-    adaptor = CoverageAdaptor(path)
+    adapter = CoverageAdapter(path)
   """
 
   def __init__(self, bamPath):
-    super(CoverageAdaptor, self).__init__(bamPath, "rb")
+    super(CoverageAdapter, self).__init__(bamPath, "rb")
 
   def read(self, chrom, start, end):
     """
@@ -65,7 +65,7 @@ class CoverageAdaptor(pysam.Samfile):
                              intervals
 
     Usage:
-      adaptor.read("17", 100023, 102051)
+      adapter.read("17", 100023, 102051)
       [out] => [<chanjo.bam.Interval instance at 0x10f2ea518>,
                 <chanjo.bam.Interval instance at 0x10f2ea4d0>]
     """
@@ -119,7 +119,7 @@ class CoverageAdaptor(pysam.Samfile):
                                objects for each input interval
 
     Usage:
-      adaptor.read("17", 100023, 102051)
+      adapter.read("17", 100023, 102051)
       [out] => [<chanjo.bam.Interval instance at 0x10f2ea518>,
                 <chanjo.bam.Interval instance at 0x10f2ea4d0>]
     """
@@ -132,37 +132,12 @@ class CoverageAdaptor(pysam.Samfile):
       return []
 
     # Initialize interval tree
-    bgTree = IntervalTree()
+    bgTree = CoverageTree()
     for interval in self.read(chrom, start, end):
       bgTree.insert_interval(interval)
 
-    # Return generator object for each interval in order
-    return (self._cutIntervals(bgTree.find(interval.start, interval.end),
-                               interval) for interval in intervals)
-
-  def _cutIntervals(self, bgIntervals, interval):
-    """
-    Private: Trims the first and last BEDGraph interval in a list to match a
-    query interval to an `IntervalTree`.
-    ----------
-
-    :param bgIntervals: [int]  BEDGraph intervals for the interval
-    :param interval:    [int]  The input interval for the BEDGraph intervals
-    :returns:           [list] The modified list of BEDGraph intervals
-    """
-    try:
-      # If first BEDGraph interval begins before the input interval, trim!
-      if bgIntervals[0].start < interval.start:
-        bgIntervals[0].start = interval.start
-
-      # If last BEDGraph interval ends after the input interval, trim!
-      if bgIntervals[-1].end > interval.end:
-        bgIntervals[-1].end = interval.end
-
-    except IndexError:
-      return []
-
-    return bgIntervals
+    # Return generator object fintervalor each interval in order
+    return (bgTree.get(interval.start, interval.end) for interval in intervals)
 
   def _persist(self, lastStart, currentPos, lastDepth):
     """
@@ -180,28 +155,3 @@ class CoverageAdaptor(pysam.Samfile):
 
       # Move the save pointer one step forward
       self.count += 1
-
-class Interval(object):
-  """
-  Interval
-  Input start is 0-based and input end is 1-based like range().
-  """
-  def __init__(self, start, end, value=None, chrom=None):
-    super(Interval, self).__init__()
-    self.start = start
-    self.end = end
-    self.value = value
-    self.chrom = chrom
-
-  def __len__(self):
-    # We are counting the number of positions in the interval
-    return self.end - self.start
-
-  def __str__(self):
-    # This is the BED standard definition of an interval
-    return "({start}, {end}]".format(start=self.start, end=self.end)
-
-  def __eq__(self, other):
-    # This compares Interval instances by matches values
-    return (self.start == other.start and self.end == other.end and
-            self.value == other.value and self.chrom == other.chrom)

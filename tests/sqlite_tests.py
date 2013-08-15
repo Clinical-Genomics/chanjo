@@ -1,11 +1,11 @@
 from nose.tools import *
-from chanjo.sqlite import ElementAdaptor
+from chanjo.sqlite import ElementAdapter
 import os
 
 class TestClass:
   def __init__(self):
     path = "tests/data/CCDS.db"
-    self.adaptor = ElementAdaptor(path)
+    self.adapter = ElementAdapter(path)
 
   def setUp(self):
     print "SETUP!"
@@ -14,7 +14,7 @@ class TestClass:
     print "TEAR DOWN!"
 
   def test_get(self):
-    gene = self.adaptor.get("gene", "GIT1")
+    gene = self.adapter.get("gene", "GIT1")
     # The correct chromosome
     assert_equal(gene.chrom, "17")
     # The correct number of transcripts
@@ -24,7 +24,7 @@ class TestClass:
     # The correct strand
     assert_equal(gene.strand, "-")
 
-    tx = self.adaptor.get("transcript", "CCDS47587.1")
+    tx = self.adapter.get("transcript", "CCDS47587.1")
     # The correct chromosome
     assert_equal(tx.chrom, "7")
     # The correct parent gene_id
@@ -34,7 +34,7 @@ class TestClass:
     # The correct strand
     assert_equal(tx.strand, "+")
 
-    ex = self.adaptor.get("exon", "X-21996077-21996232")
+    ex = self.adapter.get("exon", "X-21996077-21996232")
     # The correct chromosome
     assert_equal(ex.chrom, "X")
     # The correct parent gene_id
@@ -46,7 +46,7 @@ class TestClass:
     assert_equal(ex.strand, "+")
 
     # Test getting multiple IDs
-    genes = self.adaptor.get("gene", ("GIT1", "EGFR"))
+    genes = self.adapter.get("gene", ("GIT1", "EGFR"))
     assert_equal(len(genes), 2)
     assert_equal(genes[1].chrom, "7")
     assert_equal(genes[1].strand, "+")

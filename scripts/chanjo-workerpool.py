@@ -9,8 +9,8 @@ class Clone(workerpool.Job):
   """Job for annotating a set of genes."""
   def __init__(self, covPath, elemPath, genes, cutoff):
     self.chanjo = chanjo.Analyzer()
-    self.chanjo.setAdaptors(bam.CoverageAdaptor(covPath),
-                            sqlite.ElementAdaptor(elemPath))
+    self.chanjo.setAdapters(bam.CoverageAdapter(covPath),
+                            sqlite.ElementAdapter(elemPath))
     self.genes = genes
     self.cutoff = cutoff
 
@@ -28,8 +28,8 @@ def main(elemPath, covPath, threadCount, cutoff):
   start = time.time()
   print("Starting up...")
 
-  # Set up an instance of an Element Adaptor
-  elements = sqlite.ElementAdaptor(elemPath)
+  # Set up an instance of an Element Adapter
+  elements = sqlite.ElementAdapter(elemPath)
 
   # Get a number of genes from the source (SQLite database)
   genes = [gene for gene in elements.classes["gene"].get()][10000:12000]
