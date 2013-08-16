@@ -216,7 +216,7 @@ class Gene(Base):
     :returns: [list] A list of `Interval` objects
     """
     return [Ival(i.lower_bound, i.upper_bound)
-            for i in self.intervals]
+            for i in self.intervalSet]
 
 # ==============================================================================
 #   Transcript class
@@ -252,6 +252,43 @@ class Transcript(Base):
       baseCount += len(exon)
 
     return baseCount
+
+  @property
+  def coverage(self):
+    """
+    Public: calculates coverage based on exon annotations.
+    """
+    # Initialize
+    readCount = 0
+    baseCount = 0
+
+    # Go through each exon (never overlaps!)
+    for exon in self.exons:
+
+      # Add the number of bases
+      baseCount += len(exon)
+
+      # Add the number of reads
+      readCount += len(exon) * exon.coverage
+
+    return readCount / float(baseCount)
+
+  @property
+  def completeness(self):
+    """
+    Public: calculates completeness based on exon annotations.
+    """
+    # Initialize
+    passedCount = 0
+
+    # Go through each exon (never overlaps!)
+    for exon in self.exons:
+
+      # Add the number of bases
+      passedCount += len(exon) * exon.completeness
+
+    # Should be int...
+    return passedCount
 
 # ==============================================================================
 #   Exon class

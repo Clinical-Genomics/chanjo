@@ -233,7 +233,7 @@ class ElementAdapter(object):
       @property
       def intervals(self):
         return [Ival(i.lower_bound, i.upper_bound)
-                for i in self.intervals]
+                for i in self.intervalSet]
 
       def simpleSpliceIntervals(self):
         return [Ival(i.lower_bound-2, i.upper_bound+2)
