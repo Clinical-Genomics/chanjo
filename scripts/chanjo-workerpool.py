@@ -8,7 +8,7 @@ import argparse
 class Clone(workerpool.Job):
   """Job for annotating a set of genes."""
   def __init__(self, covPath, elemPath, genes, cutoff):
-    self.chanjo = chanjo.Analyzer()
+    self.chanjo = chanjo.Core()
     self.chanjo.setAdapters(bam.CoverageAdapter(covPath),
                             sqlite.ElementAdapter(elemPath))
     self.genes = genes

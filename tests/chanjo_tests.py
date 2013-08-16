@@ -1,12 +1,12 @@
 from nose.tools import *
-from chanjo.chanjo import Analyzer
+from chanjo.chanjo import Core
 from chanjo.sqlite import ElementAdapter
 from chanjo.bam import CoverageAdapter, Interval
 
 
 class TestClass:
   def __init__(self):
-    self.chanjo = Analyzer()
+    self.chanjo = Core()
 
     elem_path = "tests/data/CCDS.db"
     bam_path = "tests/data/align.bam"

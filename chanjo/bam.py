@@ -58,11 +58,11 @@ class CoverageAdapter(pysam.Samfile):
     completely from the returned list of BEDGraph intervals.
     ----------
 
-    :param chrom:     [str]  The chromosome of interest
-    :param start:     [int]  The first position of the interval
-    :param end:       [int]  The last position of the interval
-    :returns:         [list] A list of `Interval` objects representing BEDGraph
-                             intervals
+    :param chrom: [str]  The chromosome of interest
+    :param start: [int]  The first position of the interval
+    :param end:   [int]  The last position of the interval
+    :returns:     [list] A list of `Interval` objects representing BEDGraph
+                         intervals
 
     Usage:
       adapter.read("17", 100023, 102051)

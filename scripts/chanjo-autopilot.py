@@ -10,7 +10,7 @@ def annotateGene(options):
 start = time.time()
 print "Let's get started!"
 
-chanjo = chanjo.Analyzer()
+chanjo = chanjo.Core()
 bam_path = "/Users/robinandeer/mountpoint/test_data/10-7053/mosaik/10-7053.110713_AD035EACXX.1_sorted_pmd.bam"
 elem_path = "tests/data/CCDS.db"
 chanjo.setAdapters(bam.CoverageAdapter(bam_path), sqlite.ElementAdapter(elem_path))

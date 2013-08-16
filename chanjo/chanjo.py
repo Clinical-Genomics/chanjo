@@ -18,10 +18,10 @@ import interval as ival
 from utils import CoverageTree
 
 
-class Analyzer(object):
-  """docstring for Analyzer"""
+class Core(object):
+  """docstring for Core"""
   def __init__(self, coverageAdapter=None, elementAdapter=None):
-    super(Analyzer, self).__init__()
+    super(Core, self).__init__()
 
     self.get = None  # 
     self.readIntervals = None  # 
@@ -39,13 +39,14 @@ class Analyzer(object):
     :param elementAdapter:  [object] A class instance of a Element Adapter
 
     Usage:
+      from chanjo.chanjo import Core
       from chanjo.bam import CoverageAdapter
       from chanjo.sqlite import ElementAdapter
 
-      analyzer = Analyzer()
+      core = Core()
       bam_path = "/path/to/file.bam"
       cov_path = "/path/to/sqlite.db"
-      analyzer.setAdapters(CoverageAdapter(bam_path), ElementAdapter(cov_path))
+      core.setAdapters(CoverageAdapter(bam_path), ElementAdapter(cov_path))
     """
     # Customizable adapters
     self.coverageAdapter = coverageAdapter
@@ -68,8 +69,8 @@ class Analyzer(object):
                                 completeness (Default: 50)
 
     Usage:
-      gene = analyzer.get("gene", "EGFR")
-      analyzer.annotate(gene, 15)
+      gene = core.get("gene", "EGFR")
+      core.annotate(gene, 15)
       [out] => <chanjo.sqlite2.Gene at 0x1041c4c10>
     """
 
@@ -95,8 +96,8 @@ class Analyzer(object):
                             coverage across the intervals (Default: False)
 
     Useage:
-      genes = analyzer.get("gene", ["GIT1", "EGFR", "BRCA1"])
-      analyzer.annotateExons(genes, 10, levels=True)
+      genes = core.get("gene", ["GIT1", "EGFR", "BRCA1"])
+      core.annotateExons(genes, 10, levels=True)
     """
     # Both transcripts and genes can be used to select exons to annotate
     for element in elements:
@@ -139,8 +140,8 @@ class Analyzer(object):
                                    BEDGraph intervals (str)
 
     Usage:
-      gene = analyzer.get("gene", "C3")
-      analyzer.coverage(gene.chrom, gene.simpleIntervals(), 15)
+      gene = core.get("gene", "C3")
+      core.coverage(gene.chrom, gene.simpleIntervals(), 15)
       [out] => (13.43522398231, 0.434122133123, None)
     """
     # Initialize
