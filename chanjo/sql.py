@@ -16,7 +16,11 @@ Base = declarative_base()
 # ------------------------------------------------------------------------------
 class ElementAdapter(object):
   """
-  SQLAlchemy based Element Adapter for Chanjo.
+  SQLAlchemy based Element Adapter for Chanjo. Use ":memory:" as the `path`
+  argument for testing purposes to set up in-memory version of the database.
+
+  :param path:  [str]  Path to the database to connect to
+  :param debug: [bool] Whether to print logging information
   """
   def __init__(self, path, debug=False):
     super(ElementAdapter, self).__init__()
@@ -41,34 +45,118 @@ class ElementAdapter(object):
     }
 
   def setup(self):
+    """
+    Public: Setup a new database with the default tables and columns.
+    ----------
+
+    Usage:
+      from chanjo.sql import ElementAdapter
+
+      # Point the adapter to the location of a new database
+      adapter = ElementAdapter("path/to/new_database.db")
+
+      # Commit to setting it up
+      adapter.setup()
+
+      # Add some elements...
+    """
     # Create the tables
     Base.metadata.create_all(self.engine)
 
   def get(self, elemClass, elemID=None):
-    klass = self.getClass(elemClass)
+    """
+    Public: Fetches one or multiple elements from the database
+    ----------
+
+    :param elemClass: [str]      Choice between "gene", "transcript", "exon"
+    :param elemID:    [str/None] A single element ID or `None`. The latter
+                                 returns all elements of the `elemClass`.
+    :returns:         [object/list] One or all element objects
+
+    Usage:
+      adapter = ElementAdapter("path/to/element.db")
+
+      # Get all genes in the database
+      allGenes = adapter.get("gene")
+
+      # Get a specific gene from the database
+      git1 = adapter.get("gene", "GIT1")
+    """
+    # Get the ORM class
+    klass = self._getClass(elemClass)
+
+    # Test is user submitted and element ID
     if elemID is None:
+      # Return all `elemClass` elements in the database
       return self.session.query(klass).all()
     else:
-      return self.session.query(klass).get(elemID)
+      # Return only the requested element object (or `None`) if not found
+      return self.session.querty(klass).get(elemID)
 
-  def getClass(self, elemClass):
+  def _getClass(self, elemClass):
+    """
+    Private: Gives access to the raw element ORM objects
+    ----------
+
+    :param elemClass: [str]    Choice between "gene", "transcript", "exon"
+    :returns:         [object] ORM class object
+    """
     return self.classes[elemClass]
 
   def set(self, elements):
+    """
+    Public: Add one or multiple new elements to the database and commit the
+    changes. Chainable.
+    ----------
+
+    :param elements: [object/list] New ORM object instance or list or such
+    :returns:        [self]        Chainability
+    """
     if isinstance(elements, Base):
       # Add the record to the session object
-      session.add(elements)
+      self.session.add(elements)
     elif isinstance(elements, list):
       # Add all records to the session object
-      session.add_all(elements)
+      self.session.add_all(elements)
 
     # Commit the record(s) the database
-    session.commit()
+    self.session.commit()
 
     return self
 
   def new(self, elemClass, attributes):
-    return self.getClass(elemClass)(*attributes)
+    """
+    Public: Creates a new instance of an ORM element object filled in with the
+    given `attributes`.
+
+    If attributes is a tuple they must be in the correct order. Supplying a
+    `dict` doesn't require the attributes to be in any particular order.
+    ----------
+
+    :param elemClass:  [str]         Choice between "gene", "transcript", "exon"
+    :param attributes: [tuple/dict]  Instance attr in order for new element
+    :returns:          [object/None] The new ORM instance object
+    """
+    if isinstance(attributes, tuple):
+      # Unpack tuple
+      return self._getClass(elemClass)(*attributes)
+    elif isinstance(attributes, dict):
+      # Unpack dictionary
+      return self._getClass(elemClass)(**attributes)
+    else:
+      raise TypeError("Use tuple or dict for attributes")
+
+  def commit(self):
+    """
+    Public: Manually persist changes made to various elements. Chainable.
+    ----------
+
+    :returns: [self] Chainability
+    """
+    # Commit/persist dirty changes to the database
+    self.session.commit()
+
+    return self
 
 # ==============================================================================
 #   Association tables
@@ -96,7 +184,7 @@ class Gene(Base):
   end = sql.Column(sql.Integer)
   strand = sql.Column(sql.String)
 
-  def __init__(self, hgnc, chrom, start, end, strand):
+  def __init__(self, hgnc=None, chrom=None, start=None, end=None, strand=None):
     super(Gene, self).__init__()
 
     self.id = hgnc
@@ -119,6 +207,13 @@ class Gene(Base):
     return self._intervals
 
   def simpleIntervals(self):
+    """
+    Public: Generate Interval objects with start and end attributes representing
+    non-overlapping exon intervals.
+    ----------
+
+    :returns: [list] A list of `Interval` objects
+    """
     return [Ival(i.lower_bound, i.upper_bound)
             for i in self.intervals]
 
@@ -136,9 +231,10 @@ class Transcript(Base):
   strand = sql.Column(sql.String)
 
   gene_id = sql.Column(sql.String, sql.ForeignKey("Gene.id"))
-  gene = relationship("Gene", backref=backref('transcripts', order_by=start))
+  gene = relationship("Gene", backref=backref("transcripts", order_by=start))
 
-  def __init__(self, tx_id, chrom, start, end, strand, gene_id):
+  def __init__(self, tx_id=None, chrom=None, start=None, end=None, strand=None,
+               gene_id=None):
     super(Transcript, self).__init__()
 
     self.id = tx_id
@@ -179,7 +275,7 @@ class Exon(Base):
   genes = relationship("Gene", secondary=Exon_Gene,
                        backref=backref("exons", order_by=start))
 
-  def __init__(self, ex_id, chrom, start, end, strand):
+  def __init__(self, ex_id=None, chrom=None, start=None, end=None, strand=None):
     super(Exon, self).__init__()
 
     self.id = ex_id
