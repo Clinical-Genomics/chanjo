@@ -28,9 +28,9 @@ class Core(object):
 
     # Set up the adapters
     if coverageAdapter and elementAdapter:
-      self.setAdapters(coverageAdapter, elementAdapter)
+      self.connect(coverageAdapter, elementAdapter)
 
-  def setAdapters(self, coverageAdapter, elementAdapter):
+  def connect(self, coverageAdapter, elementAdapter):
     """
     Public: Plugs in the required adapters and sets up a few shortcuts.
     ----------
@@ -46,7 +46,7 @@ class Core(object):
       core = Core()
       bam_path = "/path/to/file.bam"
       cov_path = "/path/to/sqlite.db"
-      core.setAdapters(CoverageAdapter(bam_path), ElementAdapter(cov_path))
+      core.connect(CoverageAdapter(bam_path), ElementAdapter(cov_path))
     """
     # Customizable adapters
     self.coverageAdapter = coverageAdapter
@@ -74,8 +74,8 @@ class Core(object):
       [out] => <chanjo.sqlite2.Gene at 0x1041c4c10>
     """
 
-    cov, comp, str_levels = self.coverage(elem.chrom, elem.simpleIntervals(),
-                                          cutoff, levels)
+    (cov, comp,
+     str_levels) = self.calculate(elem.chrom, elem.intervals, cutoff, levels)
 
     # Update the element with the calculated coverage information
     elem.coverage = cov
@@ -104,8 +104,8 @@ class Core(object):
       # Get the exons related to the element
       exons = element.exons
       # Calculate coverage, completeness, and levels for all exon
-      exonData = self.bgToCov(exons, self.readIntervals(element.chrom,
-                              element.simpleIntervals()), cutoff, levels)
+      exonData = self._processExons(exons, self.readIntervals(element.chrom,
+                                    element.intervals), cutoff, levels)
 
       # Iterate through each exon and accompanying coverage data
       for exon, data in zip(exons, exonData):
@@ -118,8 +118,8 @@ class Core(object):
         # Persist changes to the datastore
         exon.save()
 
-  def coverage(self, chrom, intervals, cutoff=50, levels=False,
-               bgIntervals=None):
+  def calculate(self, chrom, intervals, cutoff=50, levels=False,
+                bgIntervals=None):
     """
     Public: Calculates both coverage and completeness for a given set of
     intervals. This is accompished using a single method since the bottleneck
@@ -141,7 +141,7 @@ class Core(object):
 
     Usage:
       gene = core.get("gene", "C3")
-      core.coverage(gene.chrom, gene.simpleIntervals(), 15)
+      core.coverage(gene.chrom, gene.intervals, 15)
       [out] => (13.43522398231, 0.434122133123, None)
     """
     # Initialize
@@ -169,11 +169,11 @@ class Core(object):
     # Also calculate levels if requested
     str_levels = None
     if levels:
-      str_levels = self.allLevels(bgIntervals)
+      str_levels = self.stringify(bgIntervals)
 
     return (readCount / totBaseCount), (passedCount / totBaseCount), str_levels
 
-  def allLevels(self, intervals):
+  def stringify(self, intervals):
     """
     Public: Generates BEDGraph intervals as string representation that can be
     persisted in a SQL database.
@@ -243,10 +243,10 @@ class Core(object):
       # Return `None` if the level hasn't changed
       return None
 
-  def bgToCov(self, exIntervals, bgIntervals, cutoff=50, levels=False):
+  def _processExons(self, exIntervals, bgIntervals, cutoff=50, levels=False):
     """
-    Based on BEDGraph intervals for a whole gene. Calculate coverage and
-    completeness for each individual exon interval.
+    Private: Based on BEDGraph intervals for a whole gene, calculate coverage
+    and completeness for each individual exon interval.
     ----------
 
     :param exIntervals: [list] List of objects with start, end, value
@@ -286,7 +286,7 @@ class Core(object):
           passedCount += bgBaseCount
 
       # TODO: Also calculate levels if requested
-      str_levels = self.allLevels(exBgIntervals)
+      str_levels = self.stringify(exBgIntervals)
 
       exons[exCount] = {
         "coverage": readCount / baseCount,

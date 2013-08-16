@@ -103,7 +103,7 @@ class ElementAdapter(object):
     """
     return self.classes[elemClass]
 
-  def set(self, elements):
+  def add(self, elements):
     """
     Public: Add one or multiple new elements to the database and commit the
     changes. Chainable.
@@ -124,7 +124,7 @@ class ElementAdapter(object):
 
     return self
 
-  def new(self, elemClass, attributes):
+  def create(self, elemClass, attributes):
     """
     Public: Creates a new instance of an ORM element object filled in with the
     given `attributes`.
@@ -196,7 +196,7 @@ class Gene(Base):
     self._intervals = None
 
   @property
-  def intervals(self):
+  def intervalSet(self):
     """
     Returns all the non-overlapping exonic intervals.
     """
@@ -206,7 +206,8 @@ class Gene(Base):
 
     return self._intervals
 
-  def simpleIntervals(self):
+  @property
+  def intervals(self):
     """
     Public: Generate Interval objects with start and end attributes representing
     non-overlapping exon intervals.

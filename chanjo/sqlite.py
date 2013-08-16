@@ -220,7 +220,7 @@ class ElementAdapter(object):
                     for interval in self.intervals])
 
       @property
-      def intervals(self):
+      def intervalSet(self):
         """
         Returns all the non-overlapping exonic intervals.
         """
@@ -230,7 +230,8 @@ class ElementAdapter(object):
 
         return self._intervals
 
-      def simpleIntervals(self):
+      @property
+      def intervals(self):
         return [Ival(i.lower_bound, i.upper_bound)
                 for i in self.intervals]
 
@@ -262,7 +263,8 @@ class ElementAdapter(object):
         """
         return sum([len(exon) for exon in self.exons])
 
-      def simpleIntervals(self):
+      @property
+      def intervals(self):
         """
         Exons aleady have start and end attributes.
         """
