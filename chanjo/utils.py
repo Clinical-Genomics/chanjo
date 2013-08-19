@@ -42,8 +42,9 @@ class Interval(object):
 
 class CoverageTree(IntervalTree):
   """
-  Ever so slightly modified IntervalTree implementation that wraps the default
-  `find` method so as to only return intervals trimmed to the original input.
+  Superset of IntervalTree implementation (bx-python) that wraps the default
+  `find` method so as to only return intervals trimmed to the original input
+  start + end arguments.
   ----------
   """
   def __init__(self):
@@ -56,19 +57,20 @@ class CoverageTree(IntervalTree):
     beyond (start, end).
     ----------
 
-    :param start: [int] The start of the input range
-    :param end:   [int] The end of the input range
+    :param start: [int]  The start of the input range
+    :param end:   [int]  The end of the input range
+    :returns:     [list] List of `Interval` objects between `start`-`end`.
     """
     # Use default `find` method to return all intervals overlapping the given
     # range (start, end)
     intervals = self.find(start, end)
 
     try:
-      # If first interval begins before the input (start), trim!
+      # Check if first interval begins before the input (start), trim!
       if intervals[0].start < start:
         intervals[0].start = start
 
-      # If last BEDGraph interval ends after the input interval, trim!
+      # Check if last BEDGraph interval ends after the input interval, trim!
       if intervals[-1].end > end:
         intervals[-1].end = end
 

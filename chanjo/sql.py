@@ -18,6 +18,7 @@ class ElementAdapter(object):
   """
   SQLAlchemy based Element Adapter for Chanjo. Use ":memory:" as the `path`
   argument for testing purposes to set up in-memory version of the database.
+  ----------
 
   :param path:  [str]  Path to the database to connect to
   :param debug: [bool] Whether to print logging information
@@ -80,7 +81,7 @@ class ElementAdapter(object):
       allGenes = adapter.get("gene")
 
       # Get a specific gene from the database
-      git1 = adapter.get("gene", "GIT1")
+      gene = adapter.get("gene", "GIT1")
     """
     # Get the ORM class
     klass = self._getClass(elemClass)
@@ -91,7 +92,7 @@ class ElementAdapter(object):
       return self.session.query(klass).all()
     else:
       # Return only the requested element object (or `None`) if not found
-      return self.session.querty(klass).get(elemID)
+      return self.session.query(klass).get(elemID)
 
   def _getClass(self, elemClass):
     """
@@ -119,12 +120,9 @@ class ElementAdapter(object):
       # Add all records to the session object
       self.session.add_all(elements)
 
-    # Commit the record(s) the database
-    self.session.commit()
-
     return self
 
-  def create(self, elemClass, attributes):
+  def create(self, elemClass, *args, **kwargs):
     """
     Public: Creates a new instance of an ORM element object filled in with the
     given `attributes`.
@@ -137,14 +135,14 @@ class ElementAdapter(object):
     :param attributes: [tuple/dict]  Instance attr in order for new element
     :returns:          [object/None] The new ORM instance object
     """
-    if isinstance(attributes, tuple):
+    if args:
       # Unpack tuple
-      return self._getClass(elemClass)(*attributes)
-    elif isinstance(attributes, dict):
+      return self._getClass(elemClass)(*args)
+    elif kwargs:
       # Unpack dictionary
-      return self._getClass(elemClass)(**attributes)
+      return self._getClass(elemClass)(**kwargs)
     else:
-      raise TypeError("Use tuple or dict for attributes")
+      raise TypeError("Submit attributes as arguments or keyword arguments")
 
   def commit(self):
     """
@@ -193,14 +191,17 @@ class Gene(Base):
     self.end = end
     self.strand = strand
 
+    # These should be instantiated but are not present for instances
+    # for some reason. Therefore I have to use `hasattr` further down.
     self._intervals = None
+    self.bgTree = None
 
   @property
   def intervalSet(self):
     """
     Returns all the non-overlapping exonic intervals.
     """
-    if self._intervals is None:
+    if hasattr(self, "_intervals"):
       self._intervals = IntervalSet([Interval(exon.start, exon.end)
                                      for exon in self.exons])
 
@@ -217,6 +218,63 @@ class Gene(Base):
     """
     return [Ival(i.lower_bound, i.upper_bound)
             for i in self.intervalSet]
+
+  def _buildTree(self, startWith=0):
+    pass
+
+  def _countCoverageStats(self, bgIntervals):
+    pass
+
+  @property
+  def coverage(self):
+    """
+    Expects exons to be ordered by chromosome start position
+    """
+    # Initialize
+    readCount = 0
+    baseCount = 0
+
+    # This guy keeps track of the last position considered
+    countedTo = 0
+    exonCount = 0
+    for exon in self.exons:
+
+      # Check if the exon overlaps
+      if exon.start < countedTo:
+
+        # Check if the exon is completely overlapped
+        if exon.end < countedTo:
+          # Skip
+          continue
+
+        if self.bgTree is None:
+          # We now need to build a BEDGraph interval tree
+          self._buildTree(startWith=exonCount)
+
+        # Fetch the trimmed BEDGraph intervals for new regions
+        bgIntervals = self.bgTree.get(countedTo, exon.end)
+
+        (exonBaseCount,
+         exonReadCount) = self._countBedGraphStats(bgIntervals)
+
+      else:
+
+        # Simply get information from the exon
+        exonBaseCount = len(exon)
+        exonReadCount = len(exon) * exon.coverage
+
+      # Add the number of bases
+      baseCount += exonBaseCount
+
+      # Add the number of reads
+      readCount += exonReadCount
+
+      # Now we might have considered a few more positions
+      if exon.end > countedTo:
+        countedTo = exon.end
+
+    return readCount / float(baseCount)
+
 
 # ==============================================================================
 #   Transcript class
