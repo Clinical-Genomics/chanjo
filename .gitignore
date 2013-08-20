@@ -74,4 +74,4 @@ nosetests.xml
 .pydevproject
 
 # Databses
-*.db
+*.db*
