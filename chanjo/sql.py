@@ -201,7 +201,7 @@ class Gene(Base):
     """
     Returns all the non-overlapping exonic intervals.
     """
-    if hasattr(self, "_intervals"):
+    if not hasattr(self, "_intervals"):
       self._intervals = IntervalSet([Interval(exon.start, exon.end)
                                      for exon in self.exons])
 
@@ -274,6 +274,19 @@ class Gene(Base):
         countedTo = exon.end
 
     return readCount / float(baseCount)
+
+  def toDict(self):
+    return {
+      "id": self.id,
+      "chrom": self.chrom,
+      "start": self.start,
+      "end": self.end,
+      "strand": self.strand,
+      "coverage": self.coverage,
+      "completeness": self.completeness,
+      "transcript_ids": [tx.id for tx in self.transcripts],
+      "exon_ids": [ex.id for ex in self.exons]
+    }
 
 
 # ==============================================================================
@@ -348,6 +361,19 @@ class Transcript(Base):
     # Should be int...
     return passedCount
 
+  def toDict(self):
+    return {
+      "id": self.id,
+      "chrom": self.chrom,
+      "start": self.start,
+      "end": self.end,
+      "strand": self.strand,
+      "coverage": self.coverage,
+      "completeness": self.completeness,
+      "gene_id": self.gene_id,
+      "exon_ids": [ex.id for ex in self.exons]
+    }
+
 # ==============================================================================
 #   Exon class
 # ------------------------------------------------------------------------------
@@ -382,3 +408,17 @@ class Exon(Base):
 
   def __len__(self):
     return self.end - self.start
+
+  def toDict(self):
+    return {
+    "id": self.id,
+    "chrom": self.chrom,
+    "start": self.start,
+    "end": self.end,
+    "strand": self.strand,
+    "coverage": self.coverage,
+    "completeness": self.completeness,
+    "cutoff": self.cutoff,
+    "gene_ids": [gene.id for gene in self.genes],
+    "transcript_ids": [tx.id for tx in self.transcripts]
+    }

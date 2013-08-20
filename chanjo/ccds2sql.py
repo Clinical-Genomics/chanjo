@@ -156,7 +156,7 @@ class Importer(object):
     :returns:   [tuple] A bunch of strings and ints (see order below)
     """
     # Chrom, HGNC, Transcript ID, strand, Transcript start, end, exon coords
-    return (row[0], row[2], row[4], row[6], int(row[7]), int(row[8]),
+    return (row[0], row[2], row[4], row[6], int(row[7])-1, int(row[8])-1,
             self._generateExonCoordinates(row[9]))
 
   def _generateExonCoordinates(self, rowData):
@@ -173,5 +173,11 @@ class Importer(object):
 
     # 1. Split first into exons coordinates
     # 2. Split into start, end and parse int
-    return [[int(pos) for pos in item.split("-")]
-            for item in csvExons.split(",")]
+    exons = [[int(pos) for pos in item.split("-")]
+             for item in csvExons.split(",")]
+
+    # 3. Correct coords to 0,1-based standard
+    for exon in exons:
+      exon[0] -= 1
+
+    return exons

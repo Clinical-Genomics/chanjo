@@ -115,8 +115,8 @@ class Core(object):
         exon.cutoff = cutoff
         exon.levels = data["levels"]
 
-        # Persist changes to the datastore
-        exon.save()
+    # Persist all changes to database
+    self.elementAdapter.commit()
 
   def calculate(self, chrom, intervals, cutoff=50, levels=False,
                 bgIntervals=None):
