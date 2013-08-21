@@ -282,8 +282,6 @@ class Gene(Base):
       "start": self.start,
       "end": self.end,
       "strand": self.strand,
-      "coverage": self.coverage,
-      "completeness": self.completeness,
       "transcript_ids": [tx.id for tx in self.transcripts],
       "exon_ids": [ex.id for ex in self.exons]
     }
@@ -368,8 +366,6 @@ class Transcript(Base):
       "start": self.start,
       "end": self.end,
       "strand": self.strand,
-      "coverage": self.coverage,
-      "completeness": self.completeness,
       "gene_id": self.gene_id,
       "exon_ids": [ex.id for ex in self.exons]
     }
