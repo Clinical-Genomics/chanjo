@@ -31,6 +31,7 @@
 
 import pysam
 from utils import Interval, CoverageTree
+import numpy as np
 
 
 class CoverageAdapter(pysam.Samfile):
@@ -69,11 +70,11 @@ class CoverageAdapter(pysam.Samfile):
                 <chanjo.bam.Interval instance at 0x10f2ea4d0>]
     """
     # Generate a list of 0 read depth for each position
-    positions = [0] * (end-start)
+    positions = np.zeros(end-start)
 
     # Start Pileup iterator and walk through each position in the interval
     # `truncate` will make sure it starts and ends on the given positions!
-    for col in self.pileup(chrom, start, end, truncate=True):
+    for col in self.pileup(str(chrom), start, end, truncate=True):
 
       # Overwrite the read depth in the correct position
       # This will allow simple slicing to get at the positions of interest
