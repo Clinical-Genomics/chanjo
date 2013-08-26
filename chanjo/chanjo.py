@@ -1,26 +1,45 @@
 #!/usr/bin/env python
 # coding: utf-8
 """
-  chanjo.module
+  chanjo.core
   ~~~~~~~~~~~~~
 
-  The glue and control hub of the `chanjo` package.
-  Borrows many structural ideas from Ember.js in the way you add in adapters to
-  add in modular functionality that can be switched out to support multiple
-  "backends".
+  This module implements the glue and controlling hub. The :class:`Hub` is
+  also where the adapters are plugged in to. This will likely be pretty much
+  the only part of the package you directly interact with.
 
-  :copyright: 2013 by Robin Andeer, see AUTHORS for more details
+  :copyright: (c) 2013 by Robin Andeer
   :license: MIT, see LICENSE for more details
 """
 
-from __future__ import print_function
 import zlib
 
 
-class Core(object):
-  """docstring for Core"""
+class Hub(object):
+  """
+  The :class:`Hub` is the core component of Chanjo. When you plug in the
+  adapters, it will create handy shortcuts to easily reach common methods.
+
+  The :class:`Hub` is able to prepare data and annotate elements, calculate
+  coverage for a range of genomic positions, and interact with the
+  element data store.
+
+  Usage::
+    from chanjo.core import Hub
+    from chanjo.bam import CoverageAdapter
+    from chanjo.sqlite import ElementAdapter
+
+    hub = Hub()
+    bam_path = "/path/to/file.bam"
+    cov_path = "/path/to/sqlite.db"
+    hub.connect(CoverageAdapter(bam_path), ElementAdapter(cov_path))
+
+  :param coverageAdapter: (optional) Plug in the adapter during init
+  :param elementAdapter: (optional) Plug in the adapter during init
+
+  """
   def __init__(self, coverageAdapter=None, elementAdapter=None):
-    super(Core, self).__init__()
+    super(Hub, self).__init__()
 
     self.get = None  # See your Element Adapter for documentation
 
@@ -31,20 +50,19 @@ class Core(object):
   def connect(self, coverageAdapter, elementAdapter):
     """
     Public: Plugs in the required adapters and sets up a few shortcuts.
-    ----------
 
-    :param coverageAdapter: [object] A class instance of a Coverage Adapter
-    :param elementAdapter:  [object] A class instance of a Element Adapter
-
-    Usage:
-      from chanjo.chanjo import Core
+    Usage::
+      from chanjo.chanjo import Hub
       from chanjo.bam import CoverageAdapter
       from chanjo.sqlite import ElementAdapter
 
-      core = Core()
+      hub = Hub()
       bam_path = "/path/to/file.bam"
       cov_path = "/path/to/sqlite.db"
-      core.connect(CoverageAdapter(bam_path), ElementAdapter(cov_path))
+      hub.connect(CoverageAdapter(bam_path), ElementAdapter(cov_path))
+
+    :param coverageAdapter: An instance of a :class:`CoverageAdapter`
+    :param elementAdapter:  An instance of a :class:`ElementAdapter`
     """
     # Customizable adapters
     self.coverageAdapter = coverageAdapter
@@ -59,19 +77,16 @@ class Core(object):
 
   def annotate(self, element, cutoff=50):
     """
-    Public: Calculates coverage data for exons belonging to submitted elements.
-    Saves to database.
-    ----------
+    Public: Annotates each related exon with coverage data.
 
-    :param element: [obj]  One element objects (genes/transcripts)
-    :param cutoff:  [int]  The read depth level to use for coverage
-                           completeness (Default: 50)
-    :param levels:  [bool] Whether to return string representation of
-                           coverage across the intervals (Default: False)
+    Useage::
+      genes = hub.get("gene", ["GIT1", "EGFR", "BRCA1"])
+      for gene in genes:
+        hub.annotate(gene, 10)
 
-    Useage:
-      genes = core.get("gene", ["GIT1", "EGFR", "BRCA1"])
-      core.annotate(genes, 10, levels=True)
+    :param element: One element object (gene/transcript)
+    :param cutoff: (optional) The min read depth to use for completeness
+                   (Default: 50)
     """
     # Both transcripts and genes can be used to select exons to annotate
     depth = self.read(element.chrom, element.start, element.end)
@@ -94,25 +109,16 @@ class Core(object):
 
   def calculate(self, depths, cutoff=50):
     """
-    Public: Calculates both coverage and completeness for a given set of
-    intervals. This is accompished using a single method since the bottleneck
-    will be reading coverage from a file rather than calculating coverage.
+    Public: Calculates both coverage and completeness for a interval.
 
-    N.B. Doesn't handle overlapping intervals.
-    ----------
-
-    :param depths: [list]  List of `Interval` objects
-    :param cutoff: [int]   The cutoff to calculate completeness
-                           (Def: 50)
-    :param levels: [bool]  Whether to return string representation of
-                           coverage across the intervals (Def: False)
-    :returns:      [tuple] Coverage (float), completeness (float),
-                           BEDGraph intervals (str)
-
-    Usage:
-      gene = core.get("gene", "C3")
-      core.coverage(gene.chrom, gene.intervals, 15)
+    Usage::
+      gene = hub.get("gene", "C3")
+      hub.coverage(gene.chrom, gene.intervals, 15)
       [out] => (13.43522398231, 0.434122133123, None)
+
+    :param depths: List/array of the read depth for each position/base
+    :param cutoff: (optional) The cutoff to calculate completeness (Def: 50)
+    :returns: Coverage (float), completeness (float), compressed levels (str)
     """
     # Initialize
     totBaseCount = float(len(depths))
@@ -135,13 +141,13 @@ class Core(object):
 
   def stringify(self, depths):
     """
-    Public: Compress the string of depths. Because of how compression works I
-    believe this will be sort of the same as generating BEDGraph intervals to
-    compress the information.
-    ----------
+    Public: Compresses the string of read depths.
 
-    :param depths: [list] Array of read depth floats
-    :returns:      [str]  Compressed string of read depths
+    Because of how compression works I believe this will be sort of the same
+    as generating BEDGraph intervals to compress the information.
+
+    :param depths: Array of read depth (float or int)
+    :returns: Compressed string of read depths
     """
     # Turn floats to ints, then to strings, then concat with "|"-separator
     str_depths = "|".join(map(str, map(int, depths)))

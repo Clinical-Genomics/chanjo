@@ -1,5 +1,17 @@
 #!/usr/bin/env python
 # coding: utf-8
+"""
+  chanjo.sql
+  ~~~~~~~~~~~~~
+
+  The default :class:`ElementAdapter` that ships with Chanjo. Provides an
+  interface to a SQLite database using the SQLAlchemy ORM.
+
+  This module also defines the ORM objects and adds nessesary methods.
+
+  :copyright: (c) 2013 by Robin Andeer
+  :license: MIT, see LICENSE for more details
+"""
 
 import sqlalchemy as sql
 from sqlalchemy.ext.declarative import declarative_base
@@ -18,12 +30,14 @@ Base = declarative_base()
 # -----------------------------------------------------------------------------
 class ElementAdapter(object):
   """
-  SQLAlchemy-based Element Adapter for Chanjo. Use ":memory:" as the `path`
-  argument for testing purposes to set up in-memory version of the database.
-  ----------
+  SQLAlchemy-based :class:`ElementAdapter` for Chanjo.
 
-  :param path:  [str]  Path to the database to connect to
-  :param debug: [bool] Whether to print logging information
+  .. note::
+    For testing pourposes; use ":memory:" as the `path` argument to set up
+    in-memory version of the database.
+
+  :param path: Path to the database to connect to
+  :param debug: (optional) Whether to print logging information
   """
   def __init__(self, path, debug=False):
     super(ElementAdapter, self).__init__()
@@ -49,10 +63,9 @@ class ElementAdapter(object):
 
   def setup(self):
     """
-    Public: Setup a new database with the default tables and columns.
-    ----------
+    Public: Sets up a new database with the default tables and columns.
 
-    Usage:
+    Usage::
       from chanjo.sql import ElementAdapter
 
       # Point the adapter to the location of a new database
@@ -69,14 +82,8 @@ class ElementAdapter(object):
   def get(self, elemClass, elemID=None):
     """
     Public: Fetches one or multiple elements from the database
-    ----------
 
-    :param elemClass: [str]      Choice between "gene", "transcript", "exon"
-    :param elemID:    [str/None] A single element ID or `None`. The latter
-                                 returns all elements of the `elemClass`.
-    :returns:         [object/list] One or all element objects
-
-    Usage:
+    Usage::
       adapter = ElementAdapter("path/to/element.db")
 
       # Get all genes in the database
@@ -84,6 +91,11 @@ class ElementAdapter(object):
 
       # Get a specific gene from the database
       gene = adapter.get("gene", "GIT1")
+
+    :param elemClass: Elemet to get: "gene", "transcript" or "exon"
+    :param elemID: (optional) Element ID of interest. Default case fetches all
+                   elements of the ``elemClass``.
+    :returns: One or all element objects of ``elemClass``
     """
     # Get the ORM class
     klass = self._getClass(elemClass)
@@ -99,10 +111,9 @@ class ElementAdapter(object):
   def _getClass(self, elemClass):
     """
     Private: Gives access to the raw element ORM objects
-    ----------
 
-    :param elemClass: [str]    Choice between "gene", "transcript", "exon"
-    :returns:         [object] ORM class object
+    :param elemClass: Choice between "gene", "transcript", "exon"
+    :returns: ORM class object
     """
     return self.classes[elemClass]
 
@@ -110,10 +121,9 @@ class ElementAdapter(object):
     """
     Public: Add one or multiple new elements to the database and commit the
     changes. Chainable.
-    ----------
 
-    :param elements: [object/list] New ORM object instance or list or such
-    :returns:        [self]        Chainability
+    :param elements: New ORM object instance or list of such
+    :returns: ``self`` for chainability
     """
     if isinstance(elements, Base):
       # Add the record to the session object
@@ -131,11 +141,11 @@ class ElementAdapter(object):
 
     If attributes is a tuple they must be in the correct order. Supplying a
     `dict` doesn't require the attributes to be in any particular order.
-    ----------
 
-    :param elemClass:  [str]         Choice between "gene", "transcript", "exon"
-    :param attributes: [tuple/dict]  Instance attr in order for new element
-    :returns:          [object/None] The new ORM instance object
+    :param elemClass: Choice between "gene", "transcript", "exon"
+    :param \*args: List the element attributes in the *correct order*
+    :param \*kwargs: Element attributes in whatever order you like
+    :returns: The new ORM instance object
     """
     if args:
       # Unpack tuple
@@ -149,9 +159,8 @@ class ElementAdapter(object):
   def commit(self):
     """
     Public: Manually persist changes made to various elements. Chainable.
-    ----------
 
-    :returns: [self] Chainability
+    :returns: ``self`` for chainability
     """
     # Commit/persist dirty changes to the database
     self.session.commit()
@@ -212,11 +221,10 @@ class Gene(Base):
   @property
   def intervals(self):
     """
-    Public: Generate Interval objects with start and end attributes representing
-    non-overlapping exon intervals.
-    ----------
+    Public: Generate Interval objects with start and end attributes
+    representing non-overlapping exon intervals.
 
-    :returns: [list] A list of `Interval` objects
+    :returns: A list of :class:`Interval` objects
     """
     return [Ival(i.lower_bound, i.upper_bound)
             for i in self.intervalSet]
@@ -224,7 +232,7 @@ class Gene(Base):
   @property
   def mean_coverage(self):
     """
-    Expects exons to be ordered by chromosome start position
+    Expects exons to be ordered by genomic start position
     """
     return np.mean([tx.coverage for tx in self.transcripts])
 
@@ -350,7 +358,8 @@ class Transcript(Base):
 #   Exon class
 # -----------------------------------------------------------------------------
 class Exon(Base):
-  """Exon: start and end coordinates are 0-based.
+  """
+  Exon: start and end coordinates are 0-based.
   """
   __tablename__ = "Exon"
 

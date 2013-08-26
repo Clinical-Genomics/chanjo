@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # coding: utf-8
 """
-  ccds2sql.module
+  chanjo.ccds2sql
   ~~~~~~~~~~~~~
 
-  A description which can be long and explain the complete
-  functionality of this module even with indented code examples.
-  Class/Function however should not be documented here.
+  Official importer module for the SQL :class:`ElementAdapter`. Works off of a
+  CCDS database dump and extracts all the nessesary data to build up a complete
+  genomic database in SQLite.
 
-  :copyright: year by my name, see AUTHORS for more details
-  :license: license_name, see LICENSE for more details
+  :copyright: (c) 2013 by Robin Andeer
+  :license: MIT, see LICENSE for more details
 """
 import csv
 from sql import ElementAdapter
@@ -19,11 +19,10 @@ class Importer(object):
   """
   Setup class that takes a CCDS database file and pushes it through to form the
   basis of a SQLite database. Should take only a few minutes to complete.
-  ----------
 
-  :param dbPath:   [str]  Full path to the new database
-  :param ccdsPath: [str]  Path to location of the CCDS file (Def: `None`)
-  :param debug:    [bool] Debug info is printed to the console (Def. `False`)
+  :param dbPath: Full path to the new database
+  :param ccdsPath: (optional) Path to location of the CCDS file (Def: `None`)
+  :param debug: (optional) Debug info is printed to the console (Def. `False`)
   """
   def __init__(self, dbPath, ccdsPath=None, debug=False):
     super(Importer, self).__init__()
@@ -41,10 +40,9 @@ class Importer(object):
   def reference(self, ccdsPath):
     """
     Public: Sets the path to the CCDS reference file
-    ----------
 
-    :param ccdsPath: [str]    Path to the CCDS file
-    :returns:        [object] Chainability
+    :param ccdsPath: Path to the CCDS file
+    :returns: ``self`` for chainability
     """
     self.ccdsPath = ccdsPath
 
@@ -57,8 +55,8 @@ class Importer(object):
 
     I think this is "ACID compliant". It only sets up things if everything
     works. I other words. If you have a working database after running this
-    method you can be sure all elements were successfully added to the database.
-    -------
+    method you can be sure all elements were successfully added to the
+    database.
     """
     # Setup the new database
     self.adapter.setup()
@@ -151,9 +149,9 @@ class Importer(object):
   def _extractLineData(self, row):
     """
     Private: Extracts the useful information from one CCDS file row.
-    -------
-    :param row: [list]  A list of strings from split row
-    :returns:   [tuple] A bunch of strings and ints (see order below)
+
+    :param row: A list of strings from split row
+    :returns: A bunch of strings and ints (see order below)
     """
     # Chrom, HGNC, Transcript ID, strand, Transcript start, end, exon coords
     return (row[0], row[2], row[4], row[6], int(row[7])-1, int(row[8])-1,
@@ -164,9 +162,9 @@ class Importer(object):
     Private: Takes the formatted string of exon coordinates from the CCDS row
     and turns it into a more managable list of lists with int start, end
     coordinates for each exon.
-    ----------
-    :param rowData: [str]  A csv string of (start,end) pairs
-    :returns:       [list] A list of lists with the start, end pairs (int)
+
+    :param rowData: A csv string of (start,end) pairs
+    :returns: A list of lists with the start, end pairs (int)
     """
     # Remove the "[]"
     csvExons = rowData[1:-1].replace(" ", "")

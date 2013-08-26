@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 """
-  utils.module
+  chanjo.utils
   ~~~~~~~~~~~~~
 
-  A number of utility classes:
+  A number of utilities used elsewhere in Chanjo.
 
-    * 
-
-  :copyright: 2013 by Robin Andeer, see AUTHORS for more details
-  :license: license_name, see LICENSE for more details
+  :copyright: (c) 2013 by Robin Andeer
+  :license: MIT, see LICENSE for more details
 """
 from bx.intervals.intersection import IntervalTree
 
