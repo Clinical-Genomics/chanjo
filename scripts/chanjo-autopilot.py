@@ -1,43 +1,55 @@
+#!/usr/bin/env python
+# coding: utf-8
+"""
+Usage: chanjo-autopilot.py <bam_path> <sql_path> [--cutoff=<kn>]
+       chanjo-autopilot.py new <bam_path> <sql_path> <ccds_path> [--cutoff=<kn>]
+       chanjo-autopilot.py -h | --help
+       chanjo-autopilot.py --version
+
+Process all exons in the SQLite database, get coverage from BAM alignment and
+commit changes to SQLite again.
+
+Arguments:
+  <bam_path> path to the BAM alignment file
+  <sql_path> path to the SQLite database file
+  <ccds_path> path to the CCDS database dump
+
+Options:
+  -h --help   Show this screen.
+  --version   Show version.
+"""
+from docopt import docopt
 import time
 import sys
 sys.path.append("/Users/robinandeer/SciLife/modules/chanjo2")
-from chanjo import chanjo, sqlite, bam
-#import workerpool
 
-def annotateGene(options):
-  chanjo.annotate(options[0], options[1], options[2])
+from chanjo import core, sql, bam, ccds2sql
 
-start = time.time()
-print "Let's get started!"
+def main(args):
+  start = time.time()
 
-chanjo = chanjo.Core()
-bam_path = "/Users/robinandeer/mountpoint/test_data/10-7053/mosaik/10-7053.110713_AD035EACXX.1_sorted_pmd.bam"
-elem_path = "tests/data/CCDS.db"
-chanjo.setAdapters(bam.CoverageAdapter(bam_path), sqlite.ElementAdapter(elem_path))
+  # We can set up a brand new database
+  if args["new"]:
+    imp = ccds2sql.Importer(args["<sql_path>"], args["<ccds_path>"])
+    imp.populate()
 
-end = time.time()
-print "Elapsed time: {nosec} seconds".format(nosec=(end-start))
-print "Getting genes..."
+  cov = bam.CoverageAdapter(args["<bam_path>"])
+  db = sql.ElementAdapter(args["<sql_path>"])
+  hub = core.Hub(cov, db)
 
-genes = [(gene, 20, True) for gene in chanjo.elementAdapter.classes["gene"].get()][6000:8000]
+  genes = hub.db.get("gene")
+  for gene in genes:
+    # Annotate the gene
+    hub.annotate(gene, args["--cutoff"])
 
-#pool = workerpool.WorkerPool(size=4)
+  # Persist all annotations
+  hub.db.commit()
 
-end = time.time()
-print "Elapsed time: {nosec} seconds".format(nosec=(end-start))
-print "Calculating coverage..."
-#pool.map(annotateGene, genes[:100])
-bgIntervals = map(annotateGene, genes)
+  end = time.time()
+  print "Elapsed time: {nosec} seconds".format(nosec=(end-start))
 
-#pool.shutdown()
-#pool.join()
+if __name__ == '__main__':
+  # parse arguments based on docstring above
+  arguments = docopt(__doc__, version='Chanjo 0.0.1')
 
-end = time.time()
-print "Elapsed time: {nosec} seconds".format(nosec=(end-start))
-print "Saving genes..."
-
-for gene in genes:
-  gene[0].save()
-
-end = time.time()
-print "Elapsed time: {nosec} seconds".format(nosec=(end-start))
+  main(arguments)
