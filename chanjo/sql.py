@@ -18,7 +18,7 @@ Base = declarative_base()
 # -----------------------------------------------------------------------------
 class ElementAdapter(object):
   """
-  SQLAlchemy based Element Adapter for Chanjo. Use ":memory:" as the `path`
+  SQLAlchemy-based Element Adapter for Chanjo. Use ":memory:" as the `path`
   argument for testing purposes to set up in-memory version of the database.
   ----------
 
@@ -275,6 +275,7 @@ class Transcript(Base):
     self.cutoff = cutoff
 
   def __len__(self):
+    # Returns combined exon length
     baseCount = 0
     for exon in self.exons:
       baseCount += len(exon)
@@ -349,7 +350,8 @@ class Transcript(Base):
 #   Exon class
 # -----------------------------------------------------------------------------
 class Exon(Base):
-  """docstring for Exon"""
+  """Exon: start and end coordinates are 0-based.
+  """
   __tablename__ = "Exon"
 
   id = sql.Column(sql.String, primary_key=True)
@@ -378,7 +380,8 @@ class Exon(Base):
     self.strand = strand
 
   def __len__(self):
-    return self.end - self.start
+    # We add +1 because we count positions and both coordinates are 0-based
+    return (self.end - self.start) + 1
 
   def toDict(self):
     return {

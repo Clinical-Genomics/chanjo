@@ -36,12 +36,11 @@ import numpy as np
 
 class CoverageAdapter(pysam.Samfile):
   """
-  Chanjo adapter for fetching BEDGraph intervals directly from BAM alignment
+  Chanjo adapter for fetching read depth data directly from BAM alignment
   files.
   ----------
 
-  :param bamPath: [str] Path to the BAM alignment file. This is required at
-                        setup.
+  :param bamPath: [str] *Required* path to the BAM alignment file.
 
   Usage:
     from chanjo.bam import CoverageAdapter
