@@ -48,9 +48,23 @@ def crossdomain(origin=None, methods=None, headers=None, max_age=21600,
     return update_wrapper(wrapped_function, f)
   return decorator
 
+# =============================================================================
+#   Routes
+# -----------------------------------------------------------------------------
+@app.route("/genes")
+@crossdomain(origin='*')
+def genes():
+  genes = adapter.get("gene")[:20]
+
+  res = {
+    "genes": [gene.toDict() for gene in genes]
+  }
+
+  return jsonify(**res)
+
 @app.route("/genes/<gene_id>")
 @crossdomain(origin='*')
-def genes(gene_id):
+def gene(gene_id):
   gene = adapter.get("gene", gene_id)
 
   res = {

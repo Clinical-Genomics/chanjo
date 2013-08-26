@@ -16,19 +16,19 @@ from bx.intervals.intersection import IntervalTree
 
 class Interval(object):
   """
-  (Genomic) Interval object.
-  Input start is 0-based and input end is 1-based like `range()`.
+  (Genomic) Interval object. Note that both start and end is 0-based.
   """
-  def __init__(self, start, end, value=None, chrom=None):
+  def __init__(self, start, end=None, value=None, chrom=None):
     super(Interval, self).__init__()
     self.start = start
-    self.end = end
+    # A single position interval can be set up by omitting end argument
+    self.end = end or start
     self.value = value
     self.chrom = chrom
 
   def __len__(self):
     # We are counting the number of positions in the interval
-    return self.end - self.start
+    return (self.end - self.start) + 1
 
   def __str__(self):
     # This is the BED standard definition of an interval

@@ -31,16 +31,16 @@
 
 import pysam
 from utils import Interval, CoverageTree
+import numpy as np
 
 
 class CoverageAdapter(pysam.Samfile):
   """
-  Chanjo adapter for fetching BEDGraph intervals directly from BAM alignment
+  Chanjo adapter for fetching read depth data directly from BAM alignment
   files.
   ----------
 
-  :param bamPath: [str] Path to the BAM alignment file. This is required at
-                        setup.
+  :param bamPath: [str] *Required* path to the BAM alignment file.
 
   Usage:
     from chanjo.bam import CoverageAdapter
@@ -53,105 +53,32 @@ class CoverageAdapter(pysam.Samfile):
 
   def read(self, chrom, start, end):
     """
-    Public: Generates BEDGraph intervals of equal coverage between start and end
-    on the given chromosome. Expect regions without aligned reads to be left out
-    completely from the returned list of BEDGraph intervals.
+    Public: Generates a list of read depths between start, end.
+
+    Positions are 0,0-based throughout Chanjo. If start=0, end=9 you should
+    expect the 10 read depths for position 1-10 to be returned.
     ----------
 
     :param chrom: [str]  The chromosome of interest
-    :param start: [int]  The first position of the interval
-    :param end:   [int]  The last position of the interval
-    :returns:     [list] A list of `Interval` objects representing BEDGraph
-                         intervals
+    :param start: [int]  The first position of the interval (0-based)
+    :param end:   [int]  The last position of the interval (0-based)
+    :returns:     [list] A list of read depths for each position in the interval
 
     Usage:
       adapter.read("17", 100023, 102051)
       [out] => [<chanjo.bam.Interval instance at 0x10f2ea518>,
                 <chanjo.bam.Interval instance at 0x10f2ea4d0>]
     """
-    # Set temporary chromosome for current interval
-    self.chrom = chrom
-
-    # Preallocate an list with enough space (worst case scenario; read depth
-    # changes for every base)
-    self.bgIntervals = [None]*(end-start)
-    # Pointer for the above list
-    self.count = 0
-
-    # Init
-    lastStart = 0
-    lastDepth = 0
+    # Generate a list of 0 read depth for each position
+    positions = np.zeros(end+1-start)
 
     # Start Pileup iterator and walk through each position in the interval
-    # `truncate` will make sure it start and ends on the given positions!
-    for col in self.pileup(str(chrom), start, end, truncate=True):
+    # `truncate` will make sure it starts and ends on the given positions!
+    # +1 to end because pysam otherwise stops one base short by default
+    for col in self.pileup(str(chrom), start, end+1, truncate=True):
 
-      # Tests whether coverage has changed
-      if col.n != lastDepth:
+      # Overwrite the read depth in the correct position
+      # This will allow simple slicing to get at the positions of interest
+      positions[col.pos - start] = col.n
 
-        # Stuff the latest interval into the array
-        self._persist(lastStart, col.pos, lastDepth)
-
-        # Start new interval
-        lastDepth = col.n
-        lastStart = col.pos
-
-    try:
-      # Stuff the last interval into the array. To get 0,1-based coordinates we
-      # have to add 1 to the position of this the last BEDGraph interval.
-      self._persist(lastStart, col.pos + 1, lastDepth)
-    except UnboundLocalError:
-      # This means pileup didn't find any reads across the intervals
-      return []
-
-    # Return the subset of the list actually containing calculated intervals
-    return self.bgIntervals[:self.count]
-
-  def readIntervals(self, chrom, intervals):
-    """
-    Public: Generates BEDGraph intervals of equal coverage for each interval on
-    the given chromosome. Intervals can be overlapping.
-    ----------
-
-    :param chrom:     [str]    The chromosome of interest
-    :param intervals: [list]   List of `Interval` instances
-    :returns:         [object] A generator object yielding BEDGraph `Interval`
-                               objects for each input interval
-
-    Usage:
-      adapter.read("17", 100023, 102051)
-      [out] => [<chanjo.bam.Interval instance at 0x10f2ea518>,
-                <chanjo.bam.Interval instance at 0x10f2ea4d0>]
-    """
-    # First figure out the outer bounderies of the intervals
-    try:
-      start = intervals[0].start
-      end = intervals[-1].end
-    except IndexError:
-      # If the user submitted an empty list...
-      return []
-
-    # Initialize interval tree
-    bgTree = CoverageTree()
-    for interval in self.read(chrom, start, end):
-      bgTree.insert_interval(interval)
-
-    # Return generator object fintervalor each interval in order
-    return (bgTree.get(interval.start, interval.end) for interval in intervals)
-
-  def _persist(self, lastStart, currentPos, lastDepth):
-    """
-    Private: Stores a BEDGraph interval of equal coverage in `bgIntervals`.
-    ----------
-
-    :param lastStart:   [int] The start position of the interval
-    :param currentPos:  [int] The end position of the interval
-    :param lastDepth:   [int] The read depth for the interval
-    """
-
-    if lastDepth > 0:
-
-      self.bgIntervals[self.count] = Interval(lastStart, currentPos, lastDepth)
-
-      # Move the save pointer one step forward
-      self.count += 1
+    return positions

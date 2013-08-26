@@ -8,6 +8,8 @@ from sqlalchemy.orm import relationship, backref, sessionmaker
 from interval import IntervalSet, Interval
 from utils import Interval as Ival
 
+import numpy as np
+
 # Base for declaring a mapping
 Base = declarative_base()
 
@@ -16,7 +18,7 @@ Base = declarative_base()
 # -----------------------------------------------------------------------------
 class ElementAdapter(object):
   """
-  SQLAlchemy based Element Adapter for Chanjo. Use ":memory:" as the `path`
+  SQLAlchemy-based Element Adapter for Chanjo. Use ":memory:" as the `path`
   argument for testing purposes to set up in-memory version of the database.
   ----------
 
@@ -219,61 +221,16 @@ class Gene(Base):
     return [Ival(i.lower_bound, i.upper_bound)
             for i in self.intervalSet]
 
-  def _buildTree(self, startWith=0):
-    pass
-
-  def _countCoverageStats(self, bgIntervals):
-    pass
-
   @property
-  def coverage(self):
+  def mean_coverage(self):
     """
     Expects exons to be ordered by chromosome start position
     """
-    # Initialize
-    readCount = 0
-    baseCount = 0
+    return np.mean([tx.coverage for tx in self.transcripts])
 
-    # This guy keeps track of the last position considered
-    countedTo = 0
-    exonCount = 0
-    for exon in self.exons:
-
-      # Check if the exon overlaps
-      if exon.start < countedTo:
-
-        # Check if the exon is completely overlapped
-        if exon.end < countedTo:
-          # Skip
-          continue
-
-        if self.bgTree is None:
-          # We now need to build a BEDGraph interval tree
-          self._buildTree(startWith=exonCount)
-
-        # Fetch the trimmed BEDGraph intervals for new regions
-        bgIntervals = self.bgTree.get(countedTo, exon.end)
-
-        (exonBaseCount,
-         exonReadCount) = self._countBedGraphStats(bgIntervals)
-
-      else:
-
-        # Simply get information from the exon
-        exonBaseCount = len(exon)
-        exonReadCount = len(exon) * exon.coverage
-
-      # Add the number of bases
-      baseCount += exonBaseCount
-
-      # Add the number of reads
-      readCount += exonReadCount
-
-      # Now we might have considered a few more positions
-      if exon.end > countedTo:
-        countedTo = exon.end
-
-    return readCount / float(baseCount)
+  @property
+  def mean_completeness(self):
+    return np.mean([tx.completeness for tx in self.transcripts])
 
   def toDict(self):
     return {
@@ -304,7 +261,7 @@ class Transcript(Base):
   gene = relationship("Gene", backref=backref("transcripts", order_by=start))
 
   def __init__(self, tx_id=None, chrom=None, start=None, end=None, strand=None,
-               gene_id=None):
+               gene_id=None, coverage=None, completeness=None, cutoff=None):
     super(Transcript, self).__init__()
 
     self.id = tx_id
@@ -312,52 +269,68 @@ class Transcript(Base):
     self.start = start
     self.end = end
     self.strand = strand
-
     self.gene_id = gene_id
+    self._coverage = coverage
+    self._completeness = completeness
+    self.cutoff = cutoff
 
   def __len__(self):
+    # Returns combined exon length
     baseCount = 0
     for exon in self.exons:
       baseCount += len(exon)
 
-    return baseCount
+    return baseCount  
 
   @property
   def coverage(self):
     """
     Public: calculates coverage based on exon annotations.
     """
-    # Initialize
-    readCount = 0
-    baseCount = 0
+    if self._coverage is None:
+      # Initialize
+      readCount = 0
+      baseCount = 0
 
-    # Go through each exon (never overlaps!)
-    for exon in self.exons:
+      # Go through each exon (never overlaps!)
+      for exon in self.exons:
 
-      # Add the number of bases
-      baseCount += len(exon)
+        # Add the number of bases
+        baseCount += len(exon)
 
-      # Add the number of reads
-      readCount += len(exon) * exon.coverage
+        # Add the number of reads
+        readCount += len(exon) * exon.coverage
 
-    return readCount / float(baseCount)
+      self._coverage = readCount / float(baseCount)
+
+    return self._coverage
+
+  @coverage.setter
+  def coverage(self, value):
+    self._coverage = value
 
   @property
   def completeness(self):
     """
     Public: calculates completeness based on exon annotations.
     """
-    # Initialize
-    passedCount = 0
+    if self._completeness is None:
+      # Initialize
+      passedCount = 0
 
-    # Go through each exon (never overlaps!)
-    for exon in self.exons:
+      # Go through each exon (never overlaps!)
+      for exon in self.exons:
 
-      # Add the number of bases
-      passedCount += len(exon) * exon.completeness
+        # Add the number of bases
+        passedCount += len(exon) * exon.completeness
 
-    # Should be int...
-    return passedCount
+      self._completeness = passedCount
+
+    return self._completeness
+
+  @completeness.setter
+  def completeness(self, value):
+    self._completeness = value
 
   def toDict(self):
     return {
@@ -367,14 +340,18 @@ class Transcript(Base):
       "end": self.end,
       "strand": self.strand,
       "gene_id": self.gene_id,
-      "exon_ids": [ex.id for ex in self.exons]
+      "exon_ids": [ex.id for ex in self.exons],
+      "coverage": self.coverage,
+      "completeness": self.completeness,
+      "cutoff": self.cutoff
     }
 
 # =============================================================================
 #   Exon class
 # -----------------------------------------------------------------------------
 class Exon(Base):
-  """docstring for Exon"""
+  """Exon: start and end coordinates are 0-based.
+  """
   __tablename__ = "Exon"
 
   id = sql.Column(sql.String, primary_key=True)
@@ -403,18 +380,19 @@ class Exon(Base):
     self.strand = strand
 
   def __len__(self):
-    return self.end - self.start
+    # We add +1 because we count positions and both coordinates are 0-based
+    return (self.end - self.start) + 1
 
   def toDict(self):
     return {
-    "id": self.id,
-    "chrom": self.chrom,
-    "start": self.start,
-    "end": self.end,
-    "strand": self.strand,
-    "coverage": self.coverage,
-    "completeness": self.completeness,
-    "cutoff": self.cutoff,
-    "gene_ids": [gene.id for gene in self.genes],
-    "transcript_ids": [tx.id for tx in self.transcripts]
+      "id": self.id,
+      "chrom": self.chrom,
+      "start": self.start,
+      "end": self.end,
+      "strand": self.strand,
+      "coverage": self.coverage,
+      "completeness": self.completeness,
+      "cutoff": self.cutoff,
+      "gene_ids": [gene.id for gene in self.genes],
+      "transcript_ids": [tx.id for tx in self.transcripts]
     }
