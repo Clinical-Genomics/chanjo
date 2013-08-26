@@ -22,10 +22,6 @@ class TestClass:
   def tearDown(self):
     print "TEAR DOWN!"
 
-  def test_moveToFirstLine(self):
-    commentLines = self.importer._moveToFirstLine()
-    assert_true(self.ccdsFile.next()[0] != "#")
-
   def test_extractLineData(self):
     chrom,
     hgnc,
@@ -45,6 +41,3 @@ class TestClass:
     exons = self.importer._generateExons(self.exonString)
 
     assert_equal(exons, [(861321, 861392), (865534, 865715), (866418, 866468)])
-
-  def function(self):
-    pass
