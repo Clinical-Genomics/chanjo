@@ -41,8 +41,6 @@ class Hub(object):
   def __init__(self, coverageAdapter=None, elementAdapter=None):
     super(Hub, self).__init__()
 
-    self.get = None  # See your Element Adapter for documentation
-
     # Set up the adapters
     if coverageAdapter and elementAdapter:
       self.connect(coverageAdapter, elementAdapter)
@@ -52,7 +50,7 @@ class Hub(object):
     Public: Plugs in the required adapters and sets up a few shortcuts.
 
     Usage::
-      from chanjo.chanjo import Hub
+      from chanjo.core import Hub
       from chanjo.bam import CoverageAdapter
       from chanjo.sqlite import ElementAdapter
 
@@ -65,22 +63,15 @@ class Hub(object):
     :param elementAdapter:  An instance of a :class:`ElementAdapter`
     """
     # Customizable adapters
-    self.coverageAdapter = coverageAdapter
-    self.elementAdapter = elementAdapter
-
-    # Shortcut to getting elements by ID
-    self.get = self.elementAdapter.get
-    self.commit = self.elementAdapter.commit
-
-    # Shortcut to getting coverage for intervals
-    self.read = self.coverageAdapter.read
+    self.cov = coverageAdapter
+    self.db = elementAdapter
 
   def annotate(self, element, cutoff=50):
     """
     Public: Annotates each related exon with coverage data.
 
     Useage::
-      genes = hub.get("gene", ["GIT1", "EGFR", "BRCA1"])
+      genes = hub.db.get("gene", ["GIT1", "EGFR", "BRCA1"])
       for gene in genes:
         hub.annotate(gene, 10)
 
@@ -89,7 +80,7 @@ class Hub(object):
                    (Default: 50)
     """
     # Both transcripts and genes can be used to select exons to annotate
-    depth = self.read(element.chrom, element.start, element.end)
+    depth = self.cov.read(element.chrom, element.start, element.end)
 
     # Get the exons related to the element
     for exon in element.exons:
@@ -112,9 +103,9 @@ class Hub(object):
     Public: Calculates both coverage and completeness for a interval.
 
     Usage::
-      gene = hub.get("gene", "C3")
+      gene = hub.db.get("gene", "C3")
       hub.coverage(gene.chrom, gene.intervals, 15)
-      [out] => (13.43522398231, 0.434122133123, None)
+      #=> (13.43522398231, 0.434122133123, None)
 
     :param depths: List/array of the read depth for each position/base
     :param cutoff: (optional) The cutoff to calculate completeness (Def: 50)

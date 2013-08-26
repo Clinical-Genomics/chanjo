@@ -2,7 +2,7 @@
 # coding: utf-8
 
 from nose.tools import *
-from chanjo.bam import CoverageAdapter, Interval
+from chanjo.bam import CoverageAdapter
 
 
 class TestCoverageAdapter:
