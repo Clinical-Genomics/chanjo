@@ -13,7 +13,7 @@ To include Chanjo in your own python project you would first::
     # This sets up a new Chanjo instance
     hub = Core()
 
-    # Paths to the SQLite database and alignment files
+    # Paths to the SQLite database and alignment BAM files
     elem_path = "path/to/sqlite.db"
     cov_path = "/path/to/alignment.bam/"
 
@@ -34,9 +34,9 @@ Unlike other sequence coverage tools like `BEDTools` and `PicardTools` Chanjo wo
 
     # We can access coverage and completeness across the gene
     gene.coverage
-    [out] 9.782388431
+    #=> 9.782388431
     gene.completeness
-    [out] 0.34551213
+    #=> 0.34551213
 
     # To persist calculations so you don't have to annotate every time
     hub.commit()

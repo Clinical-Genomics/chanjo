@@ -10,9 +10,9 @@ Welcome to Chanjo
    :alt: Chanjo: agile clinical sequencing coverage tool
    :class: avatar
 
-What is Chanjo?
-What's included?
-Contribute
+* What is Chanjo?
+* What's included?
+* Contribute
 
 Welcome to Chanjo's documentation. This resource will help you with :ref:`installation`, provides a :ref:`quickstart` and catches you up on recent developments if you like through ... More detailed information about the architechture and design of Chanjo is found ... This can be useful if you would like to contribute to the development on Chanjo.
 

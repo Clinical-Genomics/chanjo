@@ -54,14 +54,15 @@ class CoverageAdapter(pysam.Samfile):
 
   def read(self, chrom, start, end):
     """
-    Public: Generates BEDGraph intervals of equal coverage between start and end
-    on the given chromosome. Expect regions without aligned reads to be left out
-    completely from the returned list of BEDGraph intervals.
+    Public: Generates a list of read depths between start, end.
+
+    Positions are 0,0-based throughout Chanjo. If start=0, end=9 you should
+    expect the 10 read depths for position 1-10 to be returned.
     ----------
 
     :param chrom: [str]  The chromosome of interest
-    :param start: [int]  The first position of the interval
-    :param end:   [int]  The last position of the interval
+    :param start: [int]  The first position of the interval (0-based)
+    :param end:   [int]  The last position of the interval (0-based)
     :returns:     [list] A list of read depths for each position in the interval
 
     Usage:
@@ -70,11 +71,12 @@ class CoverageAdapter(pysam.Samfile):
                 <chanjo.bam.Interval instance at 0x10f2ea4d0>]
     """
     # Generate a list of 0 read depth for each position
-    positions = np.zeros(end-start)
+    positions = np.zeros(end+1-start)
 
     # Start Pileup iterator and walk through each position in the interval
     # `truncate` will make sure it starts and ends on the given positions!
-    for col in self.pileup(str(chrom), start, end, truncate=True):
+    # +1 to end because pysam otherwise stops one base short by default
+    for col in self.pileup(str(chrom), start, end+1, truncate=True):
 
       # Overwrite the read depth in the correct position
       # This will allow simple slicing to get at the positions of interest
