@@ -14,6 +14,7 @@
 """
 
 from __future__ import print_function
+import zlib
 
 
 class Core(object):
@@ -118,12 +119,7 @@ class Core(object):
     readCount = 0
     passedCount = 0
 
-    # Initialize with worst case scenario
-    levels = [None]*int(totBaseCount)
-    levelCount = 0
-    lastDepth = -1
-
-    for pos, depth in enumerate(depths):
+    for depth in depths:
       # Add the number of overlapping reads
       readCount += depth
 
@@ -131,38 +127,24 @@ class Core(object):
       if depth >= cutoff:
         passedCount += 1
 
-      # Start a new level if the depth changed (new BEDGraph interval)
-      if lastDepth != depth:
-
-        # Make string and slot to array
-        # pos is 0-based for the interval in question
-        str_level = "{pos}-{depth}".format(pos=pos, depth=depth)
-        levels[levelCount] = str_level
-
-        # Move pointer to next slot 
-        levelCount += 1
-
-        # Re-initialize
-        lastDepth = depth
-
-    # Stringify the levels to enable storage in SQL database
-    str_levels = "|".join(levels[1:levelCount])
+    # Stringify and compress the levels to enable storage in SQL database
+    str_levels = self.stringify(depths)
 
     # totBaseCount should never be able to be 0! Exons be >= 1 bp
     return readCount / totBaseCount, passedCount / totBaseCount, str_levels
 
-  def stringify(self, intervals):
+  def stringify(self, depths):
     """
-    Public: Generates BEDGraph intervals as string representation that can be
-    persisted in a SQL database.
+    Public: Compress the string of depths. Because of how compression works I
+    believe this will be sort of the same as generating BEDGraph intervals to
+    compress the information.
     ----------
 
-    :param intervals: [iterable] List of `Interval` objects
-    :returns:         [str]      String representation of BEDGraph intervals
+    :param depths: [list] Array of read depth floats
+    :returns:      [str]  Compressed string of read depths
     """
-    levels = ["{start}-{end}-{depth}".format(start=interval.start,
-                                             end=interval.end,
-                                             depth=interval.value)
-              for interval in intervals]
+    # Turn floats to ints, then to strings, then concat with "|"-separator
+    str_depths = "|".join(map(str, map(int, depths)))
 
-    return ",".join(levels)
+    # Compress and return compressed string
+    return zlib.compress(str_depths)
