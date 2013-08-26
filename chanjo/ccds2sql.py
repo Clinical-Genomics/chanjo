@@ -165,7 +165,7 @@ class Importer(object):
     and turns it into a more managable list of lists with int start, end
     coordinates for each exon.
     ----------
-    :param rowData: [str]  A csv string of start,end pairs
+    :param rowData: [str]  A csv string of (start,end) pairs
     :returns:       [list] A list of lists with the start, end pairs (int)
     """
     # Remove the "[]"
@@ -176,8 +176,9 @@ class Importer(object):
     exons = [[int(pos) for pos in item.split("-")]
              for item in csvExons.split(",")]
 
-    # 3. Correct coords to 0,1-based standard
+    # 3. Correct coords to 0,0-based Pythonic standard
     for exon in exons:
       exon[0] -= 1
+      exon[1] -= 1
 
     return exons

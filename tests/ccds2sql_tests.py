@@ -23,21 +23,17 @@ class TestClass:
     print "TEAR DOWN!"
 
   def test_extractLineData(self):
-    chrom,
-    hgnc,
-    txId,
-    txStart,
-    exons,
-    strand = self.importer.extractLineData(self.ccdsLine)
+    (chrom, hgnc, txId, strand, txStart, txEnd,
+     exons) = self.importer._extractLineData(self.ccdsLine)
 
     assert_equal(chrom, "1")
     assert_equal(hgnc, "SAMD11")
     assert_equal(txId, "CCDS2.2")
-    assert_equal(txStart, 861321)
-    # assert_equal(exons, )
+    assert_equal(txStart, 861320)
+    assert_equal(txEnd, 879531)
     assert_equal(strand, "+")
 
-  def test_genereateExons(self):
-    exons = self.importer._generateExons(self.exonString)
+  def test_generateExonCoordinates(self):
+    exons = self.importer._generateExonCoordinates(self.exonString)
 
-    assert_equal(exons, [(861321, 861392), (865534, 865715), (866418, 866468)])
+    assert_equal(exons, [[861320, 861391], [865533, 865714], [866417, 866467]])
