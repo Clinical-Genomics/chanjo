@@ -33,12 +33,13 @@ A Element Adapter needs to:
     from module import ElementAdapter
     adapter = ElementAdapter("path/to/source")
 
-2. implement a `get(elem_class, elem_ids)` method that fetches gene, transcript, and exon objects based on the element ID(s). It should be valid to supply a single ID, a list of IDs or nothing. If no IDs are supplied, the method should return all elements matching the element class::
+2. implement a ``get(elem_class, [elem_ids])`` method that fetches gene, transcript, and exon objects based on the element ID(s). It should be valid to supply a single ID, a list of IDs or nothing. If no IDs are supplied, the method should return all elements matching the element class::
 
     adapter.get("gene", "GIT1")
-    # Returns a single "gene" object
+    #=> returns a single "gene" object matching the ID; "GIT1".
 
-    adapter.get()
+    adapter.get("gene")
+    #=> returns a list of all genes in the database
 
 3. implement a `commit()` method to persist all dirty changes made to element objects::
 
@@ -47,7 +48,7 @@ A Element Adapter needs to:
 
 4. provide at least a basic `setup()` method that initializes the storage medium by setting up the necessary foundations, e.g. tables in a SQL database.
 
-5. come associated with an script automating the import/setup of elements and relationships from a source file. The default adapter e.g. can import data from a CCDS database text file with one command. It's probably also fine to provide a baseline package for download online.
+5. come associated with a script automating the import/setup of elements and relationships from a source file. The default adapter e.g. can import data from a CCDS database text file with one command. It's probably also fine to provide a baseline package for download online.
 
 Further information
 --------------------

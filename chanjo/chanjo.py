@@ -21,8 +21,7 @@ class Core(object):
   def __init__(self, coverageAdapter=None, elementAdapter=None):
     super(Core, self).__init__()
 
-    self.get = None  # 
-    self.readIntervals = None  # 
+    self.get = None  # See your Element Adapter for documentation
 
     # Set up the adapters
     if coverageAdapter and elementAdapter:
@@ -78,12 +77,14 @@ class Core(object):
 
     # Get the exons related to the element
     for exon in element.exons:
+      # Relative start and end positions to slice the ``depth`` array
       start = exon.start - element.start
       end = exon.end - element.start
 
       # Do the heavy lifting
+      # +1 to end because ``end`` is 0-based and slicing is 0,1-based
       (coverage, completeness,
-       levels) = self.calculate(depth[start:end], cutoff)
+       levels) = self.calculate(depth[start:end+1], cutoff)
 
       exon.coverage = coverage
       exon.completeness = completeness
