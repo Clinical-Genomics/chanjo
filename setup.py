@@ -16,6 +16,7 @@ setup(
     url="http://chanjo.herokuapp.com/",
     download_url="https://github.com/robinandeer/chanjo",
     version=chanjo.__version__,
+    long_description="",
     install_requires=[
         "nose",
         "pysam",
