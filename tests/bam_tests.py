@@ -1,119 +1,43 @@
+#!/usr/bin/env python
+# coding: utf-8
+
 from nose.tools import *
-from chanjo.bam import CoverageAdaptor, Interval
+from chanjo.bam import CoverageAdapter
 
 
-class CoverageAdaptorClass:
+class TestCoverageAdapter:
   def __init__(self):
     bam_path = "tests/data/align.bam"
-    self.adaptor = CoverageAdaptor(bam_path)
+    self.adapter = CoverageAdapter(bam_path)
+
+    # These are the main results from "align.bam"
+    self.depths = [2., 4., 5., 5., 5., 5., 6., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 8., 8., 7., 7., 7., 7., 7., 7., 7., 6., 4., 4., 3., 3., 2., 2.]
 
   def setUp(self):
     print "SETUP!"
-    # Test interval with multiple reads
-    self.mono_intervals = [Interval(0, 30)]
-    self.poly_intervals = [Interval(10, 20), Interval(30, 35)]
-    self.partly_outside_intervals = [Interval(35, 45), Interval(60, 70)]
-    self.outside_intervals = [Interval(60, 70)]
 
   def tearDown(self):
     print "TEAR DOWN!"
 
-    del self.mono_intervals, self.poly_intervals
+  def test_read(self):
+    # Read BAM from position [1,10]
+    depths = self.adapter.read("chr1", 0, 9)
 
-  def test_intervals(self):
+    # Make assertions: we expect the read depths from 1st to 10th pos to be
+    # included.
+    answer = self.depths[0:10]
+    assert_equal(list(depths), answer)
 
-    intervals = self.adaptor.intervals("chr1", self.mono_intervals)
-    assert_equal(len(intervals), 7)
+    # Test also an interval that extends beyond the reads
+    depths = self.adapter.read("chr1", 35, 45)
+    assert_equal(list(depths), self.depths[35:] + [0, 0, 0, 0, 0, 0, 0])
 
-    # Test first
-    interval1 = intervals[0]
-    assert_equal(interval1.start, 0)
-    assert_equal(interval1.end, 1)
-    assert_equal(len(interval1), 1)
-    assert_equal(interval1.value, 2)
+    # Test interval completely outside the reads
+    depths = self.adapter.read("chr1", 50, 60)
+    assert_equal(list(depths), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
-    # Test mid interval
-    interval2 = intervals[4]
-    assert_equal(interval2.start, 7)
-    assert_equal(interval2.end, 23)
-    assert_equal(len(interval2), 16)
-    assert_equal(interval2.value, 7)
-
-    # Test last interval
-    interval3 = intervals[-1]
-    assert_equal(interval3.start, 25)
-    assert_equal(interval3.end, 30)
-    assert_equal(len(interval3), 5)
-    assert_equal(interval3.value, 7)
-
-    # Test multiple input intervals
-    intervals = self.adaptor.intervals("chr1", self.poly_intervals)
-    assert_equal(len(intervals), 4)
-
-    # Test first
-    interval1 = intervals[0]
-    assert_equal(interval1.start, 10)
-    assert_equal(interval1.end, 20)
-    assert_equal(len(interval1), 10)
-    assert_equal(interval1.value, 7)
-
-    # Test mid interval
-    interval2 = intervals[2]
-    assert_equal(interval2.start, 32)
-    assert_equal(interval2.end, 33)
-    assert_equal(len(interval2), 1)
-    assert_equal(interval2.value, 6)
-
-    # Test last interval
-    interval3 = intervals[-1]
-    assert_equal(interval3.start, 33)
-    assert_equal(interval3.end, 35)
-    assert_equal(len(interval3), 2)
-    assert_equal(interval3.value, 4)
-
-    # Test intervals outside reads
-    intervals = self.adaptor.intervals("chr1", self.partly_outside_intervals)
-    assert_equal(len(intervals), 2)
-
-    # Test first interval
-    assert_equal(intervals[0].start, 35)
-    assert_equal(intervals[0].end, 37)
-    assert_equal(len(intervals[0]), 2)
-    assert_equal(intervals[0].value, 4)
-
-    # Test sec/last interval
-    assert_equal(intervals[-1].start, 37)
-    assert_equal(intervals[-1].end, 39)
-    assert_equal(len(intervals[-1]), 2)
-    assert_equal(intervals[-1].value, 3)
-
-    intervals = self.adaptor.intervals("chr1", self.outside_intervals)
-    assert_equal(len(intervals), 0)
-
-class TestInterval:
-  def setUp(self):
-    print "SETUP!"
-
-    # Single position interval
-    self.single_interval = Interval(0, 1)
-
-    # Multi position interval
-    self.multi_interval = Interval(0, 10)
-
-    # Long position interval
-    self.long_interval = Interval(99, 100002)
-
-  def tearDown(self):
-    print "TEAR DOWN!"
-
-    del self.single_interval, self.multi_interval, self.long_interval
-
-  def test_len(self):    
-    assert_equal(len(self.single_interval), 1)
-    assert_equal(len(self.multi_interval), 10)
-    assert_equal(len(self.long_interval), 99903)
-
-  def test_str(self):
-    assert_equal(self.single_interval.__str__(), "(0, 1]")
-    assert_equal(self.multi_interval.__str__(), "(0, 10]")
-    assert_equal(self.long_interval.__str__(), "(99, 100002]")
+    # Test submitting a false chromosome ID
+    try:
+      bgi = self.adapter.read("crh1", 10, 20)
+    except ValueError, e:
+      assert_true(e.message == "invalid reference `crh1`")

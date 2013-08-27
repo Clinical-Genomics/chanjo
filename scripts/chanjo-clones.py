@@ -1,5 +1,7 @@
 import threading
 import time
+import sys
+sys.path.append("/Users/robinandeer/SciLife/modules/chanjo2")
 from chanjo import chanjo, sqlite, bam
 import argparse
 
@@ -7,9 +9,9 @@ class Clone(threading.Thread):
   """docstring for Thread"""
   def __init__(self, covPath, elemPath, genes, cutoff):
     super(Clone, self).__init__()
-    self.chanjo = chanjo.Analyzer()
-    self.chanjo.setAdaptors(bam.CoverageAdaptor(covPath),
-                            sqlite.ElementAdaptor(elemPath))
+    self.chanjo = chanjo.Core()
+    self.chanjo.setAdapters(bam.CoverageAdapter(covPath),
+                            sqlite.ElementAdapter(elemPath))
     self.genes = genes
     self.cutoff = cutoff
 
@@ -18,7 +20,7 @@ class Clone(threading.Thread):
       self.chanjo.annotate(gene, self.cutoff, True)
 
 def main(elemPath, covPath, threadCount, cutoff):
-  elements = sqlite.ElementAdaptor(elemPath)  
+  elements = sqlite.ElementAdapter(elemPath)  
   genes = [gene for gene in elements.classes["gene"].get()][8000:10000]
 
   block = len(genes)/threadCount
@@ -34,6 +36,7 @@ def main(elemPath, covPath, threadCount, cutoff):
 
   for thread in threads:
     thread.start()
+    print "A new thread initiated..."
 
   # Wait for all threads to complete
   for thread in threads:
