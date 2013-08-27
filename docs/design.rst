@@ -1,3 +1,5 @@
+..  _design:
+
 Design concepts
 ================
 In building Chanjo I've had to make assumptions in designing the package. The following text will set up the premise of why Chanjo looks and behaves the way it does. I will explain my reasons and give the reader an overview of how Chanjo is architected.

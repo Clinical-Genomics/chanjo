@@ -25,6 +25,7 @@ class Hub(object):
   element data store.
 
   Usage::
+
     from chanjo.core import Hub
     from chanjo.bam import CoverageAdapter
     from chanjo.sqlite import ElementAdapter
@@ -50,6 +51,7 @@ class Hub(object):
     Public: Plugs in the required adapters and sets up a few shortcuts.
 
     Usage::
+
       from chanjo.core import Hub
       from chanjo.bam import CoverageAdapter
       from chanjo.sqlite import ElementAdapter
@@ -71,6 +73,7 @@ class Hub(object):
     Public: Annotates each related exon with coverage data.
 
     Useage::
+
       genes = hub.db.get("gene", ["GIT1", "EGFR", "BRCA1"])
       for gene in genes:
         hub.annotate(gene, 10)
@@ -103,6 +106,7 @@ class Hub(object):
     Public: Calculates both coverage and completeness for a interval.
 
     Usage::
+
       gene = hub.db.get("gene", "C3")
       hub.coverage(gene.chrom, gene.intervals, 15)
       #=> (13.43522398231, 0.434122133123, None)

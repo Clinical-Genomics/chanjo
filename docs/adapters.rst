@@ -1,3 +1,5 @@
+..  _adapters:
+
 Adapters
 ============
 Chanjo uses adapters to interface with sources of coverage and elements and relationships between them. This makes it possible to tailor Chanjo to work with your existing pipeline.
