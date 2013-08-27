@@ -28,7 +28,7 @@ One concrete new feature you will get for free using Chanjo is to set a lower li
 | Test report export | Simple output that can be parsed to generate a genetic test report. |
 
 ### Contribute
-If you feel like learning more about the project and contributing you should check out the extended documentation. Coming soon.
+If you feel like learning more about the project and contributing you should check out the [extended documentation](https://chanjo.readthedocs.org/en/latest/).
 
 ### Contributor list
 Robin Andeer
