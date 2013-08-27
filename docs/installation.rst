@@ -46,5 +46,3 @@ Get the code
 2. Preferably in a `virtualenv`, run::
 
     $ python setup.py install
-
-*N.B. pip installation coming soon.*
