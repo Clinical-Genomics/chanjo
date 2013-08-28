@@ -43,6 +43,6 @@ Get the code
     $ git clone https://github.com/robinandeer/chanjo2.git
     $ cd chanjo2
 
-2. Preferably in a `virtualenv`, run::
+2. Preferably in a `virtualenv <http://www.virtualenv.org/en/latest/>`_, run::
 
     $ python setup.py install
