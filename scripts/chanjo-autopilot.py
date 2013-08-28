@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 """
-Usage: chanjo-autopilot.py <bam_path> <sql_path> [--cutoff=<kn>]
+Usage: chanjo-autopilot.py <bam_path> <sql_path> [--cutoff=<kn>] [-r]
        chanjo-autopilot.py new <bam_path> <sql_path> <ccds_path> [--cutoff=<kn>]
        chanjo-autopilot.py -h | --help
        chanjo-autopilot.py --version

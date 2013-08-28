@@ -295,7 +295,7 @@ class Transcript(Base):
     """
     Public: calculates coverage based on exon annotations.
     """
-    if self._coverage is None:
+    if not hasattr(self, "_coverage"):
       # Initialize
       readCount = 0
       baseCount = 0
@@ -322,7 +322,7 @@ class Transcript(Base):
     """
     Public: calculates completeness based on exon annotations.
     """
-    if self._completeness is None:
+    if not hasattr(self, "_completeness"):
       # Initialize
       passedCount = 0
 
