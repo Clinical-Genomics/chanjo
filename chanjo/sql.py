@@ -33,6 +33,7 @@ class ElementAdapter(object):
   SQLAlchemy-based :class:`ElementAdapter` for Chanjo.
 
   .. note::
+
     For testing pourposes; use ":memory:" as the `path` argument to set up
     in-memory version of the database.
 
@@ -66,6 +67,7 @@ class ElementAdapter(object):
     Public: Sets up a new database with the default tables and columns.
 
     Usage::
+
       from chanjo.sql import ElementAdapter
 
       # Point the adapter to the location of a new database
@@ -84,6 +86,7 @@ class ElementAdapter(object):
     Public: Fetches one or multiple elements from the database
 
     Usage::
+
       adapter = ElementAdapter("path/to/element.db")
 
       # Get all genes in the database
