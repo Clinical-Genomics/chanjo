@@ -250,7 +250,10 @@ class Gene(Base):
       "end": self.end,
       "strand": self.strand,
       "transcript_ids": [tx.id for tx in self.transcripts],
-      "exon_ids": [ex.id for ex in self.exons]
+      "exon_ids": [ex.id for ex in self.exons],
+      "coverage": self.coverage,
+      "completeness": self.completeness,
+      "cutoff": self.cutoff
     }
 
 
@@ -314,7 +317,7 @@ class Transcript(Base):
       passedCount += len(exon) * exon.completeness
 
     self.coverage = readCount / float(baseCount)
-    self.completeness = passedCount
+    self.completeness = passedCount / float(baseCount)
     # Should be the same for all exons, use the last
     self.cutoff = exon.cutoff
 
