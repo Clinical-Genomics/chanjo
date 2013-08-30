@@ -6,7 +6,7 @@ Process all or a subset of exons, get coverage from a BAM alignment and
 commit changes to a SQLite database.
 
 Usage:
-  chanjo.py <sql_path> <bam_path> [--ccds=<ccds_path>] [--cutoff=<int>] [--read=<path> | --pipe]
+  chanjo.py <sql_path> <bam_path> [--ccds=<ccds_path>] [--cutoff=<int>] [--read=<path> | --pipe] [-p | --print]
   chanjo.py -h | --help
   chanjo.py --version
 
@@ -21,7 +21,9 @@ Options:
   --cutoff=<int>  Lowest read depth to pass [default: 50].
   --read=<path>   Path to file with HGNC symbols.
   --pipe          Read piped list of HGNC symbols.
+  -p --print      Just print the input variables to the console
 """
+from __future__ import print_function
 from docopt import docopt
 import time
 import sys
@@ -31,17 +33,23 @@ import chanjo
 from chanjo import core, sql, bam, ccds2sql
 
 def main(args):
+  # Start a timer to be able to print out the runtime
   start = time.time()
 
-  # We can set up a brand new database
+  # We can set up a brand new database if the user wants to
   if args["--ccds"]:
+    # Setup CCDS importer
     imp = ccds2sql.Importer(args["<sql_path>"], args["--ccds"])
     # Populate the new database with elements
     imp.populate()
 
+  # Setup adapters and the main Hub
   cov = bam.CoverageAdapter(args["<bam_path>"])
   db = sql.ElementAdapter(args["<sql_path>"])
   hub = core.Hub(cov, db)
+
+  # Convert cutoff to int
+  cutoff = int(args["--cutoff"])
 
   if args["--pipe"]:
     # Get all genes with matching hgnc symbols from stdin
@@ -58,7 +66,7 @@ def main(args):
   
   for gene in genes:
     # Annotate the gene
-    hub.annotate(gene, args["--cutoff"])
+    hub.annotate(gene, cutoff)
 
     # Also make the same coverage calculations for transcripts, based on the
     # annotations for the exons
@@ -72,10 +80,15 @@ def main(args):
   hub.db.commit()
 
   end = time.time()
-  print "Elapsed time: {time} seconds".format(time=(end-start))
+  print("Elapsed time: {time} seconds".format(time=(end-start)))
 
 if __name__ == "__main__":
   # Parse arguments based on docstring above
   args = docopt(__doc__, version="Chanjo {v}".format(v=chanjo.__version__))
 
-  main(args)
+  # Just print the different inputs
+  if args["--print"]:
+    print(args)
+
+  else:
+    main(args)
