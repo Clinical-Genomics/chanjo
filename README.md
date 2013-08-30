@@ -1,6 +1,6 @@
 ![Chanjo Avatar](https://raw.github.com/robinandeer/chanjo2/master/assets/chanjo_logo.png)
 
-Current release: v0.0.1-beta
+Current release: v0.0.2-beta
 
 Chanjo is a coverage analysis tool for clinical sequencing.
 
