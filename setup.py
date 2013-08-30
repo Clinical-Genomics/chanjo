@@ -13,7 +13,7 @@ setup(
     description="A coverage analysis package for clinical sequencing.",
     author="Robin Andeer",
     author_email="robin.andeer@gmail.com",
-    url="http://chanjo.herokuapp.com/",
+    url="http://chanjo.readthedocs.org/",
     download_url="https://github.com/robinandeer/chanjo",
     version=chanjo.__version__,
     long_description="",
