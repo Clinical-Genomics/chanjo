@@ -42,7 +42,7 @@ class TestHub:
 
     # Test with all depths = 0, outside reads
     depths = [0, 0, 0, 0, 0, 0]
-    (cov_o, comp_o, __) = self.hub.calculate(depths)
+    (cov_o, comp_o, __) = self.hub.calculate(depths, 10)
     assert_equal(cov_o, 0)
     assert_equal(comp_o, 0)
 
