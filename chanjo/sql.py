@@ -170,6 +170,26 @@ class ElementAdapter(object):
 
     return self
 
+  def average(self, elemClass, attr, groupby=None):
+    klass = self._getClass(elemClass)
+
+    query = self.session.query(sql.sql.func.avg(getattr(klass, attr)))
+
+    # We can also perform a "group by" operation, for example by "chrom"
+    if groupby:
+      query = query.group_by(getattr(klass, groupby))
+
+    # Execute the query on all rows/elements
+    res = query.all()
+
+    # The average is wrapped in a list and a tuple
+    return res[0][0]
+
+  def passing(self, elemClass, attr, cutoff):
+    klass = self._getClass(elemClass)
+    return self.session.query(klass).filter(getattr(klass, attr) > cutoff)\
+                                    .count()
+
 # =============================================================================
 #   Association tables
 # -----------------------------------------------------------------------------
@@ -195,6 +215,9 @@ class Gene(Base):
   start = sql.Column(sql.Integer)
   end = sql.Column(sql.Integer)
   strand = sql.Column(sql.String)
+  coverage = sql.Column(sql.Float)
+  completeness = sql.Column(sql.Float)
+  cutoff = sql.Column(sql.Integer)
 
   def __init__(self, hgnc=None, chrom=None, start=None, end=None, strand=None):
     super(Gene, self).__init__()
@@ -232,16 +255,12 @@ class Gene(Base):
     return [Ival(i.lower_bound, i.upper_bound)
             for i in self.intervalSet]
 
-  @property
-  def mean_coverage(self):
-    """
-    Expects exons to be ordered by genomic start position
-    """
-    return np.mean([tx.coverage for tx in self.transcripts])
-
-  @property
-  def mean_completeness(self):
-    return np.mean([tx.completeness for tx in self.transcripts])
+  def extendAnnotations(self):
+    # Calculate mean coverage/completeness based on transcript annotations
+    # Transcripts need to be annotated first!
+    self.coverage = np.mean([tx.coverage for tx in self.transcripts])
+    self.completeness = np.mean([tx.completeness for tx in self.transcripts])
+    self.cutoff = self.transcripts[0].cutoff
 
   def toDict(self):
     return {
@@ -251,7 +270,10 @@ class Gene(Base):
       "end": self.end,
       "strand": self.strand,
       "transcript_ids": [tx.id for tx in self.transcripts],
-      "exon_ids": [ex.id for ex in self.exons]
+      "exon_ids": [ex.id for ex in self.exons],
+      "coverage": self.coverage,
+      "completeness": self.completeness,
+      "cutoff": self.cutoff
     }
 
 
@@ -267,6 +289,9 @@ class Transcript(Base):
   start = sql.Column(sql.Integer)
   end = sql.Column(sql.Integer)
   strand = sql.Column(sql.String)
+  coverage = sql.Column(sql.Float)
+  completeness = sql.Column(sql.Float)
+  cutoff = sql.Column(sql.Integer)
 
   gene_id = sql.Column(sql.String, sql.ForeignKey("Gene.id"))
   gene = relationship("Gene", backref=backref("transcripts", order_by=start))
@@ -281,8 +306,8 @@ class Transcript(Base):
     self.end = end
     self.strand = strand
     self.gene_id = gene_id
-    self._coverage = coverage
-    self._completeness = completeness
+    self.coverage = coverage
+    self.completeness = completeness
     self.cutoff = cutoff
 
   def __len__(self):
@@ -291,57 +316,30 @@ class Transcript(Base):
     for exon in self.exons:
       baseCount += len(exon)
 
-    return baseCount  
+    return baseCount
 
-  @property
-  def coverage(self):
-    """
-    Public: calculates coverage based on exon annotations.
-    """
-    if not hasattr(self, "_coverage"):
-      # Initialize
-      readCount = 0
-      baseCount = 0
+  def extendAnnotations(self):
+    # Initialize
+    readCount = 0
+    baseCount = 0
+    passedCount = 0
 
-      # Go through each exon (never overlaps!)
-      for exon in self.exons:
+    # Go through each exon (never overlaps!)
+    for exon in self.exons:
 
-        # Add the number of bases
-        baseCount += len(exon)
+      # Add the number of bases
+      baseCount += len(exon)
 
-        # Add the number of reads
-        readCount += len(exon) * exon.coverage
+      # Add the number of reads
+      readCount += len(exon) * exon.coverage
 
-      self._coverage = readCount / float(baseCount)
+      # Add the number of passed bases
+      passedCount += len(exon) * exon.completeness
 
-    return self._coverage
-
-  @coverage.setter
-  def coverage(self, value):
-    self._coverage = value
-
-  @property
-  def completeness(self):
-    """
-    Public: calculates completeness based on exon annotations.
-    """
-    if not hasattr(self, "_completeness"):
-      # Initialize
-      passedCount = 0
-
-      # Go through each exon (never overlaps!)
-      for exon in self.exons:
-
-        # Add the number of bases
-        passedCount += len(exon) * exon.completeness
-
-      self._completeness = passedCount
-
-    return self._completeness
-
-  @completeness.setter
-  def completeness(self, value):
-    self._completeness = value
+    self.coverage = readCount / float(baseCount)
+    self.completeness = passedCount / float(baseCount)
+    # Should be the same for all exons, use the last
+    self.cutoff = exon.cutoff
 
   def toDict(self):
     return {

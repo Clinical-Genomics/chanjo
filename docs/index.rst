@@ -27,6 +27,10 @@ Chanjo sets out be part of a new breed of tools aimed at solving problems more o
 
 2. Coverage analysis can't afford to stop at "average coverage".
 
+.. note::
+
+   Download the official Chanjo `wallpapers <https://dl.dropboxusercontent.com/u/116686/chanjo-wp.zip>`_!
+
 This resource will help get :ref:`up and running <installation>`, :ref:`introduce <quickstart>` you to working with Chanjo, provide a :ref:`deeper look <api>` at the guts of Chanjo, :ref:`design philosophies <design>` for those looking for a broader overview, and lastly catch you up on :ref:`development <development>`.
 
 User's Guide:
