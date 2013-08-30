@@ -2,8 +2,8 @@
 # coding: utf-8
 """
 Chanjo.
-Process all exons in the SQLite database, get coverage from BAM alignment and
-commit changes to SQLite again.
+Process all or a subset of exons, get coverage from a BAM alignment and
+commit changes to a SQLite database.
 
 Usage:
   chanjo.py <sql_path> <bam_path> [--ccds=<ccds_path>] [--cutoff=<int>] [--read=<path> | --pipe]

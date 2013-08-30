@@ -170,6 +170,26 @@ class ElementAdapter(object):
 
     return self
 
+  def average(self, elemClass, attr, groupby=None):
+    klass = self._getClass(elemClass)
+
+    query = self.session.query(sql.sql.func.avg(getattr(klass, attr)))
+
+    # We can also perform a "group by" operation, for example by "chrom"
+    if groupby:
+      query = query.group_by(getattr(klass, groupby))
+
+    # Execute the query on all rows/elements
+    res = query.all()
+
+    # The average is wrapped in a list and a tuple
+    return res[0][0]
+
+  def passing(self, elemClass, attr, cutoff):
+    klass = self._getClass(elemClass)
+    return self.session.query(klass).filter(getattr(klass, attr) > cutoff)\
+                                    .count()
+
 # =============================================================================
 #   Association tables
 # -----------------------------------------------------------------------------
