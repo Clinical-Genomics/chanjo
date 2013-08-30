@@ -72,6 +72,7 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+.env
 
 # Databses
 *.db*
