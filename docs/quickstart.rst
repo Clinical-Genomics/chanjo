@@ -1,9 +1,11 @@
+..  _quickstart:
+
 Quickstart
-================
+============
 This guide will get you started with Chanjo and teach you about the fundamental design concepts. If you haven't already installed Chanjo, head on over to the :ref:`installation` instructions.
 
 Boilerplate code
-------------------
+--------------------
 To include Chanjo in your own python project you would first::
 
     from chanjo.chanjo import Core
@@ -41,8 +43,22 @@ Unlike other sequence coverage tools like `BEDTools` and `PicardTools` Chanjo wo
     >>> # To persist calculations so you don't have to annotate every time
     >>> hub.db.commit()
 
+What if your genomic region of interest lies outside of the known exome? Glad you should ask! It's perfectly possible to manually "read" coverage in any region of the genome::
+    
+    >>> # Get the list of read depths for the region
+    >>> chrom = "1"
+    >>> readDepths = hub.cov.read(chrom, 1001, 1102)
+
+    >>> # Now we can calculate coverage for the region
+    >>> coverage, completeness, levels = hub.calculate(readDepths, cutoff=15)
+
+.. note::
+
+    Reading from a BAM file is likely a bottleneck when running Chanjo. It's therefore a good idea to read across *multiple* intervals (such as all exons in a gene) all at one. The returned array can then be sliced acording to the exon coordinates to calculate coverage for each exon individually.
+
+
 Automation
-------------------------
+------------
 Many times we are interested in coverage across more than a handful of genes. To automate the process of annotating coverage for all genes at once we would run::
 
     # Get all genes (don't supply HGNC)
@@ -56,7 +72,7 @@ Many times we are interested in coverage across more than a handful of genes. To
     hub.db.commit()
 
 .. note::
-    To work on a subset of genes, just submit a list of HGNC symbols to :ref:`get`
+    To work on a subset of genes, just submit a list of HGNC symbols to ``get()``
 
 What you have now is a very handy SQLite database containing all the annotations you have made. Because of the embedded nature of SQLite you can simply share the whole database with collegues. You should also be able to e.g. import it into `pandas <http://pandas.pydata.org/>`_ to further process the data.
 

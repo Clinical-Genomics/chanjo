@@ -1,3 +1,5 @@
+..  _installation:
+
 Installation
 ================
 This section will instruct you on how to install Chanjo and get set up properly. Please read through carefulle as Chanjo depends on some C libraries that can be tricky to get working just right.
@@ -26,9 +28,13 @@ Don't forget to copy at least `samtools` from `misc` to a location in your ``$PA
   $ brew install sqlite
   $ brew install python --framework
 
-Python dependencies
----------------------
-All python dependencies should be automatically installed when you follow the instructions below.
+Installing Chanjo
+------------------
+Finally! Simply run::
+
+    $ pip install chanjo
+
+Required Python dependencies will be installed along side the main package.
 
 Get the code
 -------------
@@ -37,8 +43,6 @@ Get the code
     $ git clone https://github.com/robinandeer/chanjo2.git
     $ cd chanjo2
 
-2. Preferably in a `virtualenv`, run::
+2. Preferably in a `virtualenv <http://www.virtualenv.org/en/latest/>`_, run::
 
     $ python setup.py install
-
-*N.B. pip installation coming soon.*

@@ -25,6 +25,7 @@ class Hub(object):
   element data store.
 
   Usage::
+
     from chanjo.core import Hub
     from chanjo.bam import CoverageAdapter
     from chanjo.sqlite import ElementAdapter
@@ -50,6 +51,7 @@ class Hub(object):
     Public: Plugs in the required adapters and sets up a few shortcuts.
 
     Usage::
+
       from chanjo.core import Hub
       from chanjo.bam import CoverageAdapter
       from chanjo.sqlite import ElementAdapter
@@ -66,18 +68,19 @@ class Hub(object):
     self.cov = coverageAdapter
     self.db = elementAdapter
 
-  def annotate(self, element, cutoff=50):
+  def annotate(self, element, cutoff=10):
     """
     Public: Annotates each related exon with coverage data.
 
     Useage::
+
       genes = hub.db.get("gene", ["GIT1", "EGFR", "BRCA1"])
       for gene in genes:
-        hub.annotate(gene, 10)
+        hub.annotate(gene, 15)
 
     :param element: One element object (gene/transcript)
     :param cutoff: (optional) The min read depth to use for completeness
-                   (Default: 50)
+                   (Default: 10)
     """
     # Both transcripts and genes can be used to select exons to annotate
     depth = self.cov.read(element.chrom, element.start, element.end)
@@ -98,17 +101,18 @@ class Hub(object):
       exon.cutoff = cutoff
       exon.levels = levels
 
-  def calculate(self, depths, cutoff=50):
+  def calculate(self, depths, cutoff):
     """
     Public: Calculates both coverage and completeness for a interval.
 
     Usage::
+
       gene = hub.db.get("gene", "C3")
       hub.coverage(gene.chrom, gene.intervals, 15)
       #=> (13.43522398231, 0.434122133123, None)
 
     :param depths: List/array of the read depth for each position/base
-    :param cutoff: (optional) The cutoff to calculate completeness (Def: 50)
+    :param cutoff: The cutoff for lowest passable read depth (completeness)
     :returns: Coverage (float), completeness (float), compressed levels (str)
     """
     # Initialize
@@ -127,7 +131,7 @@ class Hub(object):
     # Stringify and compress the levels to enable storage in SQL database
     str_levels = self.stringify(depths)
 
-    # totBaseCount should never be able to be 0! Exons be >= 1 bp
+    # totBaseCount should never be able to be 0! Exons be >= 1 bp long
     return readCount / totBaseCount, passedCount / totBaseCount, str_levels
 
   def stringify(self, depths):

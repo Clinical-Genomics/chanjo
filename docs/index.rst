@@ -3,11 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Chanjo: Clinical coverage. Evolved.
+Chanjo: Clinical sequencing coverage. Evolved.
 =======================================
-Release v0.0.1-beta
+Release |version|.
 
-Chanjo is a clinical sequencing coverage analysis tool.
+Chanjo is a coverage analysis tool for clinical DNA sequencing.
 
 `BEDtools` and `PicardTools` are both powerful and universally used in DNA sequencing. However, they were built for doing research, not clinic analysis. This means that simple tasks like finding out coverage for a gene are obscrured behind abstract BED intervals.
 
@@ -27,9 +27,14 @@ Chanjo sets out be part of a new breed of tools aimed at solving problems more o
 
 2. Coverage analysis can't afford to stop at "average coverage".
 
-This resource will help get up and running, introduce you to working with Chanjo, provide a deeper look at the guts of Chanjo, design philosophies for those looking for a broader overview, and lastly catch you up on recent developments.
+.. note::
 
-Contents:
+   Download the official Chanjo `wallpapers <https://dl.dropboxusercontent.com/u/116686/chanjo-wp.zip>`_!
+
+This resource will help get :ref:`up and running <installation>`, :ref:`introduce <quickstart>` you to working with Chanjo, provide a :ref:`deeper look <api>` at the guts of Chanjo, :ref:`design philosophies <design>` for those looking for a broader overview, and lastly catch you up on :ref:`development <development>`.
+
+User's Guide:
+----------------
 
 .. toctree::
    :maxdepth: 2
@@ -38,12 +43,20 @@ Contents:
    quickstart
    adapters
    design
+   development
 
+API reference
+--------------
 
-Indices and tables
-==================
+.. toctree::
+   :maxdepth: 2
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   api
+
+.. Indices and tables
+.. ==================
+
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+.. * :ref:`search`
 
