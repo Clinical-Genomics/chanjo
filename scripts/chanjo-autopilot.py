@@ -68,13 +68,23 @@ def main(args):
     # Annotate the gene
     hub.annotate(gene, cutoff)
 
-    # Also make the same coverage calculations for transcripts, based on the
-    # annotations for the exons
-    for tx in gene.transcripts:
-      tx.extendAnnotations()
+  # Extend annotations to transcripts
+  txsData = hub.db.transcriptStats()
+  for tx in txsData:
+    # Get the object
+    transcript = hub.db.get("transcript", tx[0])
 
-    # Lastly extend annotations to genes
-    gene.extendAnnotations()
+    # Update
+    transcript.coverage = tx[1]
+    transcript.completeness = tx[2]
+
+  # Extend annotations to genes
+  for gs in hub.db.geneStats():
+    gene = hub.db.get("gene", gx[0])
+
+    # Update
+    gene.coverage = gs[1]
+    gene.completeness = gs[2]
 
   # Persist all annotations
   hub.db.commit()

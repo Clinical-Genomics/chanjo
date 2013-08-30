@@ -209,7 +209,7 @@ class ElementAdapter(object):
     GROUP BY Transcript.gene_id
     """
 
-    return self.session.execute(rawSQL)
+    return self.session.execute(rawSQL).fetchall()
 
   def average(self, elemClass, attr, groupby=None):
     """
