@@ -53,20 +53,22 @@ def main(args):
 
   if args["--pipe"]:
     # Get all genes with matching hgnc symbols from stdin
-    genes = [hub.db.get("gene", hgnc) for hgnc in sys.stdin]
+    genes = [hub.db.get("gene", hgnc.strip()) for hgnc in sys.stdin]
 
   elif args["--read"]:
     # Read HGCN symbols from a file
     with open(args["--read"], "r") as f:
-      genes = [hub.db.get("gene", hgnc) for hgnc in f.readlines()]
+      genes = [hub.db.get("gene", hgnc.strip()) for hgnc in f.readlines()]
 
   else:
     # Get all genes
     genes = hub.db.get("gene")
-  
+
   for gene in genes:
-    # Annotate the gene
-    hub.annotate(gene, cutoff)
+    # Skip genes with false HGNC
+    if gene is not None:
+      # Annotate the gene
+      hub.annotate(gene, cutoff)
 
   # Extend annotations to transcripts
   txsData = hub.db.transcriptStats()
