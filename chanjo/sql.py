@@ -221,7 +221,7 @@ class ElementAdapter(object):
                       "transcript", or "exon")
     :param attr: String version of the attribute to calculate average for
     :param groupby: What attribute to group the elements by (Default: ``None``)
-    :returns: ``int``, if grouping a list of ``int``s mapped to a key will be
+    :returns: ``int``, if grouping a list of ``int`` mapped to a key will be
               returned
     """
     klass = self._getClass(elemClass)

@@ -38,10 +38,10 @@ Required Python dependencies will be installed along side the main package.
 
 Get the code
 -------------
-1. Download the code from the GitHub `repo <https://github.com/robinandeer/chanjo2/releases>`_::
+1. Download the code from the GitHub `repo <https://github.com/robinandeer/chanjo/releases>`_::
 
-    $ git clone https://github.com/robinandeer/chanjo2.git
-    $ cd chanjo2
+    $ git clone https://github.com/robinandeer/chanjo.git
+    $ cd chanjo
 
 2. Preferably in a `virtualenv <http://www.virtualenv.org/en/latest/>`_, run::
 
