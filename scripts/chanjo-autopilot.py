@@ -53,28 +53,40 @@ def main(args):
 
   if args["--pipe"]:
     # Get all genes with matching hgnc symbols from stdin
-    genes = [hub.db.get("gene", hgnc) for hgnc in sys.stdin]
+    genes = [hub.db.get("gene", hgnc.strip()) for hgnc in sys.stdin]
 
   elif args["--read"]:
     # Read HGCN symbols from a file
     with open(args["--read"], "r") as f:
-      genes = [hub.db.get("gene", hgnc) for hgnc in f.readlines()]
+      genes = [hub.db.get("gene", hgnc.strip()) for hgnc in f.readlines()]
 
   else:
     # Get all genes
     genes = hub.db.get("gene")
-  
+
   for gene in genes:
-    # Annotate the gene
-    hub.annotate(gene, cutoff)
+    # Skip genes with false HGNC
+    if gene is not None:
+      # Annotate the gene
+      hub.annotate(gene, cutoff)
 
-    # Also make the same coverage calculations for transcripts, based on the
-    # annotations for the exons
-    for tx in gene.transcripts:
-      tx.extendAnnotations()
+  # Extend annotations to transcripts
+  txsData = hub.db.transcriptStats()
+  for tx in txsData:
+    # Get the object
+    transcript = hub.db.get("transcript", tx[0])
 
-    # Lastly extend annotations to genes
-    gene.extendAnnotations()
+    # Update
+    transcript.coverage = tx[1]
+    transcript.completeness = tx[2]
+
+  # Extend annotations to genes
+  for gs in hub.db.geneStats():
+    gene = hub.db.get("gene", gs[0])
+
+    # Update
+    gene.coverage = gs[1]
+    gene.completeness = gs[2]
 
   # Persist all annotations
   hub.db.commit()

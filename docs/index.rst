@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Chanjo: Clinical sequencing coverage. Evolved.
-=======================================
+===============================================
 Release |version|.
 
 Chanjo is a coverage analysis tool for clinical DNA sequencing.
