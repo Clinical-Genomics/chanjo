@@ -35,8 +35,8 @@ class Hub(object):
     cov_path = "/path/to/sqlite.db"
     hub.connect(CoverageAdapter(bam_path), ElementAdapter(cov_path))
 
-  :param coverageAdapter: (optional) Plug in the adapter during init
-  :param elementAdapter: (optional) Plug in the adapter during init
+  :param str coverageAdapter: (optional) Plug in the adapter during init
+  :param str elementAdapter: (optional) Plug in the adapter during init
 
   """
   def __init__(self, coverageAdapter=None, elementAdapter=None):
@@ -61,8 +61,8 @@ class Hub(object):
       cov_path = "/path/to/sqlite.db"
       hub.connect(CoverageAdapter(bam_path), ElementAdapter(cov_path))
 
-    :param coverageAdapter: An instance of a :class:`CoverageAdapter`
-    :param elementAdapter:  An instance of a :class:`ElementAdapter`
+    :param str coverageAdapter: An instance of a :class:`CoverageAdapter`
+    :param str elementAdapter:  An instance of a :class:`ElementAdapter`
     """
     # Customizable adapters
     self.cov = coverageAdapter
@@ -78,7 +78,7 @@ class Hub(object):
       for gene in genes:
         hub.annotate(gene, 15)
 
-    :param element: One element object (gene/transcript)
+    :param object element: One element object (gene/transcript)
     :param cutoff: (optional) The min read depth to use for completeness
                    (Default: 10)
     """
@@ -111,8 +111,8 @@ class Hub(object):
       hub.coverage(gene.chrom, gene.intervals, 15)
       #=> (13.43522398231, 0.434122133123, None)
 
-    :param depths: List/array of the read depth for each position/base
-    :param cutoff: The cutoff for lowest passable read depth (completeness)
+    :param list depths: List/array of the read depth for each position/base
+    :param int cutoff: The cutoff for lowest passable read depth (completeness)
     :returns: Coverage (float), completeness (float), compressed levels (str)
     """
     # Initialize
@@ -141,7 +141,7 @@ class Hub(object):
     Because of how compression works I believe this will be sort of the same
     as generating BEDGraph intervals to compress the information.
 
-    :param depths: Array of read depth (float or int)
+    :param list depths: Array of read depth (float or int)
     :returns: Compressed string of read depths
     """
     # Turn floats to ints, then to strings, then concat with "|"-separator

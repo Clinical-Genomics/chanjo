@@ -37,8 +37,8 @@ class ElementAdapter(object):
     For testing pourposes; use ":memory:" as the `path` argument to set up
     in-memory version of the database.
 
-  :param path: Path to the database to connect to
-  :param debug: (optional) Whether to print logging information
+  :param str path: Path to the database to connect to
+  :param bool debug: Whether to print logging information (optional)
   """
   def __init__(self, path, debug=False):
     super(ElementAdapter, self).__init__()
@@ -97,9 +97,9 @@ class ElementAdapter(object):
       # Get a specific gene from the database
       gene = adapter.get("gene", "GIT1")
 
-    :param elemClass: Elemet to get: "gene", "transcript" or "exon"
-    :param elemID: (optional) Element ID of interest. Default case fetches all
-                   elements of the ``elemClass``.
+    :param str elemClass: Elemet to get: "gene", "transcript" or "exon"
+    :param str elemID: Element ID of interest. Default case fetches all
+                       elements of the ``elemClass`` (optional)
     :returns: One or all element objects of ``elemClass``
     """
     # Get the ORM class
@@ -128,6 +128,7 @@ class ElementAdapter(object):
     changes. Chainable.
 
     :param elements: New ORM object instance or list of such
+    :type elements: object or list
     :returns: ``self`` for chainability
     """
     if isinstance(elements, Base):
@@ -147,9 +148,9 @@ class ElementAdapter(object):
     If attributes is a tuple they must be in the correct order. Supplying a
     `dict` doesn't require the attributes to be in any particular order.
 
-    :param elemClass: Choice between "gene", "transcript", "exon"
+    :param str elemClass: Choice between "gene", "transcript", "exon"
     :param \*args: List the element attributes in the *correct order*
-    :param \*kwargs: Element attributes in whatever order you like
+    :param \**kwargs: Element attributes in whatever order you like
     :returns: The new ORM instance object
     """
     if args:
@@ -217,10 +218,11 @@ class ElementAdapter(object):
     elements of that class. This is specifically intended for coverage and
     completeness. It's also possible to group the results by e.g. chromosome.
 
-    :param elemClass: String representing the element class ("gene",
+    :param str elemClass: String representing the element class ("gene",
                       "transcript", or "exon")
-    :param attr: String version of the attribute to calculate average for
-    :param groupby: What attribute to group the elements by (Default: ``None``)
+    :param str attr: String version of the attribute to calculate average for
+    :param str groupby: What attribute to group the elements by (Default:
+                        ``None``)
     :returns: ``int``, if grouping a list of ``int`` mapped to a key will be
               returned
     """
@@ -243,10 +245,10 @@ class ElementAdapter(object):
     """
     <public> Counts the number of elements that pass a threashold, e.g. how many genes have a completeness of greater than .95?
 
-    :param elemClass: String representing the element class ("gene",
-                      "transcript", or "exon")
-    :param attr: String version of the attribute to filter by
-    :param cutoff: The threashold, lowest acceptable value to pass
+    :param str elemClass: String representing the element class ("gene",
+                          "transcript", or "exon")
+    :param str attr: String version of the attribute to filter by
+    :param int cutoff: The threashold, lowest acceptable value to pass
     :returns: ``int``, the number of passed elements
     """
     klass = self._getClass(elemClass)
@@ -259,9 +261,9 @@ class ElementAdapter(object):
     can be made for any element class and you can decide what annotations to
     target.
 
-    :param elemClass: String representing the element class ("gene",
+    :param str elemClass: String representing the element class ("gene",
                       "transcript", or "exon")
-    :param attr: String version of the attribute to filter by
+    :param str attr: String version of the attribute to filter by
     :returns: The number of rows with ``attr`` filled in (int).
     """
     # Fetch the element class ORM object
