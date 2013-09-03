@@ -253,6 +253,10 @@ class ElementAdapter(object):
     return self.session.query(klass).filter(getattr(klass, attr) >= cutoff)\
                                     .count()
 
+  def numAnnotatedElements(self, elemClass, attr="coverage"):
+    klass = self._getClass(elemClass)
+    return self.session.query(klass).filter(getattr(klass, attr) != None).count()
+
 # =============================================================================
 #   Association tables
 # -----------------------------------------------------------------------------

@@ -82,7 +82,7 @@ def main(args):
 
   # Extend annotations to genes
   for gs in hub.db.geneStats():
-    gene = hub.db.get("gene", gx[0])
+    gene = hub.db.get("gene", gs[0])
 
     # Update
     gene.coverage = gs[1]
