@@ -254,8 +254,22 @@ class ElementAdapter(object):
                                     .count()
 
   def numAnnotatedElements(self, elemClass, attr="coverage"):
+    """
+    <public> Counts the total number of annotated elements. This calculation
+    can be made for any element class and you can decide what annotations to
+    target.
+
+    :param elemClass: String representing the element class ("gene",
+                      "transcript", or "exon")
+    :param attr: String version of the attribute to filter by
+    :returns: The number of rows with ``attr`` filled in (int).
+    """
+    # Fetch the element class ORM object
     klass = self._getClass(elemClass)
-    return self.session.query(klass).filter(getattr(klass, attr) != None).count()
+
+    # Filter by "WHERE ``attr`` IS NOT NULL".
+    return self.session.query(klass).filter(getattr(klass, attr) != None)\
+                                    .count()
 
 # =============================================================================
 #   Association tables
