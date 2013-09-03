@@ -30,11 +30,11 @@ Don't forget to copy at least `samtools` from `misc` to a location in your ``$PA
 
 Installing Chanjo
 ------------------
-Finally! Simply run::
+Simply run::
 
     $ pip install chanjo
 
-Required Python dependencies will be installed along side the main package.
+Required Python dependencies will be installed alongside the main package.
 
 Get the code
 -------------
@@ -46,3 +46,7 @@ Get the code
 2. Preferably in a `virtualenv <http://www.virtualenv.org/en/latest/>`_, run::
 
     $ python setup.py install
+
+.. note::
+
+    If you are new to virtual environments, I can recommend the excellent `Python Guide <http://docs.python-guide.org/en/latest/>`_ which has `more information <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ on the topic.

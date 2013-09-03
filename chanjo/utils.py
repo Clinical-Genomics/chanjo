@@ -14,7 +14,16 @@ from bx.intervals.intersection import IntervalTree
 
 class Interval(object):
   """
-  (Genomic) Interval object. Note that both start and end is 0-based.
+  (Genomic) Interval object. Note that both start and end are 0-based. If you
+  don't provide an ``end`` parameter, a single position interval with be
+  created.
+
+  :param int start: The 0-based start position of the interval
+  :param int end: The 0-based end position of the interval (optional)
+  :param number value: A number representing the read depth across the
+                       interval (optional)
+  :param str chrom: The ID of the chromosome the interval belongs to
+                    (optional)
   """
   def __init__(self, start, end=None, value=None, chrom=None):
     super(Interval, self).__init__()
@@ -55,9 +64,9 @@ class CoverageTree(IntervalTree):
     beyond (start, end).
     ----------
 
-    :param start: [int]  The start of the input range
-    :param end:   [int]  The end of the input range
-    :returns:     [list] List of `Interval` objects between `start`-`end`.
+    :param int start: The start of the input range
+    :param int end: The end of the input range
+    :returns list: List of `Interval` objects between `start`-`end`.
     """
     # Use default `find` method to return all intervals overlapping the given
     # range (start, end)

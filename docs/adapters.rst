@@ -12,7 +12,7 @@ If you know your way around python you totally build your own adapter! However, 
 
 Coverage Adapter
 ^^^^^^^^^^^^^^^^^^^^^
-A Coverage Adapter needs to:
+A :class:`CoverageAdapter` needs to:
 
 1. accept a path as an argument when setting up the adapter::
 
@@ -54,4 +54,4 @@ A Element Adapter needs to:
 
 Further information
 --------------------
-To find out more details about the default adapters in Chanjo you should read...
+To find out more details about the default adapters in Chanjo you should read the :ref:`source documentation <api>`.
