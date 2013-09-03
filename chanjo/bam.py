@@ -20,11 +20,12 @@ class CoverageAdapter(pysam.Samfile):
   Adapter for interfacing directly with BAM alignment files.
 
   Usage::
+
     from chanjo.bam import CoverageAdapter
     path = "/path/to/bam/file.bam"
     adapter = CoverageAdapter(path)
 
-  :param bamPath: Path to the BAM alignment file
+  :param str bamPath: Path to the BAM alignment file
   """
 
   def __init__(self, bamPath):
@@ -39,13 +40,14 @@ class CoverageAdapter(pysam.Samfile):
       Positions are 0,0-based throughout Chanjo. If start=0, end=9 you should
       expect the 10 read depths for position 1-10 to be returned.
 
-    Usage:
+    Usage::
+
       adapter.read("17", 0, 5)
       #=> array([3., 3., 4., 4., 5., 4.])
 
-    :param chrom: The chromosome ID (str) of interest
-    :param start: The first position of the interval (0-based)
-    :param end: The last position of the interval (0-based)
+    :param str chrom: The chromosome ID (str) of interest
+    :param int start: The first position of the interval (0-based)
+    :param int end: The last position of the interval (0-based)
     :returns: A numpy array of read depths for *each* position in the interval
     """
     # Generate a list of 0 read depth for each position

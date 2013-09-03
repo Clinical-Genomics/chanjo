@@ -20,9 +20,11 @@ class Importer(object):
   Setup class that takes a CCDS database file and pushes it through to form the
   basis of a SQLite database. Should take only a few minutes to complete.
 
-  :param dbPath: Full path to the new database
-  :param ccdsPath: (optional) Path to location of the CCDS file (Def: `None`)
-  :param debug: (optional) Debug info is printed to the console (Def. `False`)
+  :param str dbPath: Full path to the new database
+  :param str ccdsPath: Path to location of the CCDS file (Default: ``None``,
+                       optional)
+  :param bool debug: Debug info is printed to the console (Def. `False`,
+                     optional)
   """
   def __init__(self, dbPath, ccdsPath=None, debug=False):
     super(Importer, self).__init__()
@@ -41,7 +43,7 @@ class Importer(object):
     """
     Public: Sets the path to the CCDS reference file
 
-    :param ccdsPath: Path to the CCDS file
+    :param str ccdsPath: Path to the CCDS file
     :returns: ``self`` for chainability
     """
     self.ccdsPath = ccdsPath
@@ -150,7 +152,7 @@ class Importer(object):
     """
     Private: Extracts the useful information from one CCDS file row.
 
-    :param row: A list of strings from split row
+    :param list row: A list of strings from split row
     :returns: A bunch of strings and ints (see order below)
     """
     # Chrom, HGNC, Transcript ID, strand, Transcript start, end, exon coords
@@ -163,7 +165,7 @@ class Importer(object):
     and turns it into a more managable list of lists with int start, end
     coordinates for each exon.
 
-    :param rowData: A csv string of (start,end) pairs
+    :param str rowData: A csv string of (start,end) pairs
     :returns: A list of lists with the start, end pairs (int)
     """
     # Remove the "[]"

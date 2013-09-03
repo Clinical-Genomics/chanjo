@@ -37,8 +37,8 @@ class ElementAdapter(object):
     For testing pourposes; use ":memory:" as the `path` argument to set up
     in-memory version of the database.
 
-  :param path: Path to the database to connect to
-  :param debug: (optional) Whether to print logging information
+  :param str path: Path to the database to connect to
+  :param bool debug: Whether to print logging information (optional)
   """
   def __init__(self, path, debug=False):
     super(ElementAdapter, self).__init__()
@@ -59,7 +59,9 @@ class ElementAdapter(object):
     self.classes = {
       "gene": Gene,
       "transcript": Transcript,
-      "exon": Exon
+      "exon": Exon,
+      "exon_gene": Exon_Gene,
+      "exon_transcript": Exon_Transcript
     }
 
   def setup(self):
@@ -95,9 +97,9 @@ class ElementAdapter(object):
       # Get a specific gene from the database
       gene = adapter.get("gene", "GIT1")
 
-    :param elemClass: Elemet to get: "gene", "transcript" or "exon"
-    :param elemID: (optional) Element ID of interest. Default case fetches all
-                   elements of the ``elemClass``.
+    :param str elemClass: Elemet to get: "gene", "transcript" or "exon"
+    :param str elemID: Element ID of interest. Default case fetches all
+                       elements of the ``elemClass`` (optional)
     :returns: One or all element objects of ``elemClass``
     """
     # Get the ORM class
@@ -126,6 +128,7 @@ class ElementAdapter(object):
     changes. Chainable.
 
     :param elements: New ORM object instance or list of such
+    :type elements: object or list
     :returns: ``self`` for chainability
     """
     if isinstance(elements, Base):
@@ -145,9 +148,9 @@ class ElementAdapter(object):
     If attributes is a tuple they must be in the correct order. Supplying a
     `dict` doesn't require the attributes to be in any particular order.
 
-    :param elemClass: Choice between "gene", "transcript", "exon"
+    :param str elemClass: Choice between "gene", "transcript", "exon"
     :param \*args: List the element attributes in the *correct order*
-    :param \*kwargs: Element attributes in whatever order you like
+    :param \**kwargs: Element attributes in whatever order you like
     :returns: The new ORM instance object
     """
     if args:
@@ -170,9 +173,62 @@ class ElementAdapter(object):
 
     return self
 
+  def transcriptStats(self):
+    """
+    What's happening is that we are summing read depths and passed bases for
+    each exon in a transcript and then dividing those numbers by the total
+    exon length of the transcript.
+
+    .. note::
+      This needs to be carried out before annotating genes!
+    """
+
+    # I might turn this into a proper SQLAlchemy verison but for now.
+    rawSQL = """
+    SELECT Exon_Transcript.transcript_id,
+    sum((Exon.end - Exon.start + 1) * Exon.coverage) / sum(Exon.end - Exon.start + 1) AS coverage,
+    sum((Exon.end - Exon.start + 1) * Exon.completeness) / sum(Exon.end - Exon.start + 1) AS completeness
+    FROM Exon
+    INNER JOIN Exon_Transcript
+    ON Exon.id=Exon_Transcript.exon_id
+    GROUP BY Exon_Transcript.transcript_id
+    """
+
+    return self.session.execute(rawSQL).fetchall()
+
+  def geneStats(self):
+    """
+    .. note::
+      Annotation of transcripts needs to be acomplished before annotating genes!
+    """
+
+    rawSQL = """
+    SELECT Gene.id, avg(Transcript.coverage), avg(Transcript.completeness)
+    FROM Gene
+    INNER JOIN Transcript
+    ON Gene.id=Transcript.gene_id
+    GROUP BY Transcript.gene_id
+    """
+
+    return self.session.execute(rawSQL).fetchall()
+
   def average(self, elemClass, attr, groupby=None):
+    """
+    <public> Calculates the average of a given element attribute across all
+    elements of that class. This is specifically intended for coverage and
+    completeness. It's also possible to group the results by e.g. chromosome.
+
+    :param str elemClass: String representing the element class ("gene",
+                      "transcript", or "exon")
+    :param str attr: String version of the attribute to calculate average for
+    :param str groupby: What attribute to group the elements by (Default:
+                        ``None``)
+    :returns: ``int``, if grouping a list of ``int`` mapped to a key will be
+              returned
+    """
     klass = self._getClass(elemClass)
 
+    # Generate the base query
     query = self.session.query(sql.sql.func.avg(getattr(klass, attr)))
 
     # We can also perform a "group by" operation, for example by "chrom"
@@ -186,8 +242,35 @@ class ElementAdapter(object):
     return res[0][0]
 
   def passing(self, elemClass, attr, cutoff):
+    """
+    <public> Counts the number of elements that pass a threashold, e.g. how many genes have a completeness of greater than .95?
+
+    :param str elemClass: String representing the element class ("gene",
+                          "transcript", or "exon")
+    :param str attr: String version of the attribute to filter by
+    :param int cutoff: The threashold, lowest acceptable value to pass
+    :returns: ``int``, the number of passed elements
+    """
     klass = self._getClass(elemClass)
-    return self.session.query(klass).filter(getattr(klass, attr) > cutoff)\
+    return self.session.query(klass).filter(getattr(klass, attr) >= cutoff)\
+                                    .count()
+
+  def numAnnotatedElements(self, elemClass, attr="coverage"):
+    """
+    <public> Counts the total number of annotated elements. This calculation
+    can be made for any element class and you can decide what annotations to
+    target.
+
+    :param str elemClass: String representing the element class ("gene",
+                      "transcript", or "exon")
+    :param str attr: String version of the attribute to filter by
+    :returns: The number of rows with ``attr`` filled in (int).
+    """
+    # Fetch the element class ORM object
+    klass = self._getClass(elemClass)
+
+    # Filter by "WHERE ``attr`` IS NOT NULL".
+    return self.session.query(klass).filter(getattr(klass, attr) != None)\
                                     .count()
 
 # =============================================================================

@@ -76,9 +76,10 @@ Many times we are interested in coverage across more than a handful of genes. To
 
 What you have now is a very handy SQLite database containing all the annotations you have made. Because of the embedded nature of SQLite you can simply share the whole database with collegues. You should also be able to e.g. import it into `pandas <http://pandas.pydata.org/>`_ to further process the data.
 
-You can also run pretty simple commands SQL commands to calculate average coverage across all exons::
+Now that we have the basic annotations we can easily get the average coverage across all exons::
 
-    SELECT AVG(coverage) AS AverageCoverage FROM Exon;
+    >>> hub.db.average("exon", "coverage")
+    13.2344554234
 
 Or simply continue using the :class:`ElementAdapter` to extract data of interest::
 
@@ -91,4 +92,24 @@ Or simply continue using the :class:`ElementAdapter` to extract data of interest
 
 Command line interface (CLI)
 -----------------------------
-If you just want to stick to the standards and plug in Chanjo in your existing pipeline you can use the included `chanjo-autopilot.py` script. Coming soon.
+If you just want to stick to the standards and plug in Chanjo in your existing pipeline you can use the included `chanjo-autopilot.py` script.::
+
+    $ chanjo-autopilot.py /path/to/sqlite.db /path/to/align.bam --cutoff 10
+
+This command will process all genes, transcripts, and exons for coverage according to "align.bam". The annotations will be saved in "sqlite.db" and will use 10 reads as a cutoff when calculating completeness.
+
+To specify a list of genes to limit the annotations and speed up the process you can add the ``--read`` option::
+
+    $ chanjo-autopilot.py /path/to/sqlite.db /path/to/align.bam --cutoff 10 --read hgnc_ids.txt
+
+"hgnc_ids.txt" should be a list of valid HGNC symbols, one per line. It's also possible to pipe this list with the ``--pipe`` option.
+
+If you don't already have a SQLite database filled with basic information you can do this with the "autopilot" as well. It shouldn't add more than a couple of minutes to the overall runtime. Run::
+
+    $ chanjo-autopilot.py /path/to/sqlite.db /path/to/align.bam --ccds /path/to/CCDS.current.txt
+
+Simply download the CCDS database dump and reference it with the ``--ccds`` option and a brand new database will be created in the location of the first argument.
+
+For more details you can read the full documentation for the `command line interface <cli>`_ of run::
+
+    $ chanjo-autopilot.py -h

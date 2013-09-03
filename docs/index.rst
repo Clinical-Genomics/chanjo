@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Chanjo: Clinical sequencing coverage. Evolved.
-=======================================
+===============================================
 Release |version|.
 
 Chanjo is a coverage analysis tool for clinical DNA sequencing.
@@ -13,13 +13,13 @@ Chanjo is a coverage analysis tool for clinical DNA sequencing.
 
 ::
 
-   >>> gene = hub.get("gene", "GIT1")
+   >>> gene = hub.db.get("gene", "GIT1")
    >>> hub.annotate(gene)
    >>> gene.coverage  # Average coverage across the gene
    9.2131342342
    >>> gene.completeness  # Percent of bases covered at x read depth
    0.8234234234
-   >>> hub.commit()  # Persists annotation(s) to data store
+   >>> hub.db.commit()  # Persists annotation(s) to data store
 
 Chanjo sets out be part of a new breed of tools aimed at solving problems more or less specific to *clinical* sequencing. Chanjo follows a few general guidelines:
 
@@ -30,6 +30,10 @@ Chanjo sets out be part of a new breed of tools aimed at solving problems more o
 .. note::
 
    Download the official Chanjo `wallpapers <https://dl.dropboxusercontent.com/u/116686/chanjo-wp.zip>`_!
+
+   **Preview**
+
+   .. image:: _static/chanjo-wp.001.small.jpg
 
 This resource will help get :ref:`up and running <installation>`, :ref:`introduce <quickstart>` you to working with Chanjo, provide a :ref:`deeper look <api>` at the guts of Chanjo, :ref:`design philosophies <design>` for those looking for a broader overview, and lastly catch you up on :ref:`development <development>`.
 
@@ -52,6 +56,7 @@ API reference
    :maxdepth: 2
 
    api
+   cli
 
 .. Indices and tables
 .. ==================
