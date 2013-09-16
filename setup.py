@@ -23,7 +23,6 @@ setup(
         "numpy",
         "sqlalchemy",
         "interval",
-        "bx-python",
         "docopt"
     ],
     packages=["chanjo"],
