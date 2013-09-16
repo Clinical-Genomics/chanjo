@@ -467,6 +467,7 @@ class Exon(Base):
   end = sql.Column(sql.Integer)
   strand = sql.Column(sql.String)
 
+  levels = sql.Column(sql.String)
   coverage = sql.Column(sql.Float)
   completeness = sql.Column(sql.Float)
   cutoff = sql.Column(sql.Integer)
