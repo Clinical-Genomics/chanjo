@@ -27,7 +27,6 @@ from __future__ import print_function
 from docopt import docopt
 import time
 import sys
-sys.path.append("/Users/robinandeer/SciLife/modules/chanjo")
 
 import chanjo
 from chanjo import core, sql, bam, ccds2sql
