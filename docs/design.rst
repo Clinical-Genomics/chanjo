@@ -6,9 +6,14 @@ In building Chanjo I've had to make assumptions in designing the package. The fo
 
 Overview
 ------------------
+Chanjo will only ever do three things: 1. set up a sane and powerful datastore of genetic elements, 2. read coverage depths across a genomic interval, 3. annotate elements with relevant coverage metrics. Everything else is beyond the scope of Chanjo and will be provided through additional software.
+
+I believe this will keep Chanjo focused and enable any one developer to easily overview all operations at a glance. This promotes maintainability and makes it less of a chore to optimize and continue work on the project.
 
 .. image:: _static/overview.png
    :alt: A brief overview of the workflow
+
+As an example of additional functionality would be data analysis of the output from Chanjo. This will be provided in the future, but as part of a separate project.
 
 Use of adapters
 ------------------

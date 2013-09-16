@@ -13,6 +13,7 @@
 """
 
 import zlib
+import itertools
 
 
 class Hub(object):
@@ -145,7 +146,7 @@ class Hub(object):
     :returns: Compressed string of read depths
     """
     # Turn floats to ints, then to strings, then concat with "|"-separator
-    str_depths = "|".join(map(str, map(int, depths)))
+    str_depths = "|".join(itertools.imap(str, map(int, depths)))
 
     # Compress and return compressed string
     return zlib.compress(str_depths)

@@ -273,6 +273,20 @@ class ElementAdapter(object):
     return self.session.query(klass).filter(getattr(klass, attr) != None)\
                                     .count()
 
+  def inadequateBaseEstimate(self, elemClass="Exon"):
+    """
+    Calculates an estimate number of bases with inadequate coverage baesd on
+    the completeness score and the cutoff used. Not perfectly accurate since
+    there is overlap between all elements.
+    """
+    rawSQL = """
+    SELECT sum(completeness * (end-start))/sum(end-start)
+    FROM {elem}
+    """.format(elem=elemClass.capitalize())
+
+    return self.session.execute(rawSQL).fetchall()
+
+
 # =============================================================================
 #   Association tables
 # -----------------------------------------------------------------------------
@@ -453,6 +467,7 @@ class Exon(Base):
   end = sql.Column(sql.Integer)
   strand = sql.Column(sql.String)
 
+  levels = sql.Column(sql.BLOB)
   coverage = sql.Column(sql.Float)
   completeness = sql.Column(sql.Float)
   cutoff = sql.Column(sql.Integer)

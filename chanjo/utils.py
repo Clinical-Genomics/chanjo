@@ -9,8 +9,6 @@
   :copyright: (c) 2013 by Robin Andeer
   :license: MIT, see LICENSE for more details
 """
-from bx.intervals.intersection import IntervalTree
-
 
 class Interval(object):
   """
@@ -45,44 +43,3 @@ class Interval(object):
     # This compares Interval instances by matches values
     return (self.start == other.start and self.end == other.end and
             self.value == other.value and self.chrom == other.chrom)
-
-
-class CoverageTree(IntervalTree):
-  """
-  Superset of IntervalTree implementation (bx-python) that wraps the default
-  `find` method so as to only return intervals trimmed to the original input
-  start + end arguments.
-  ----------
-  """
-  def __init__(self):
-    super(CoverageTree, self).__init__()
-    
-  def get(self, start, end):
-    """
-    Public: Return trimmed intervals overlapping the given input range. Wraps
-    the default find method that otherwise returns intervals that can extend
-    beyond (start, end).
-    ----------
-
-    :param int start: The start of the input range
-    :param int end: The end of the input range
-    :returns list: List of `Interval` objects between `start`-`end`.
-    """
-    # Use default `find` method to return all intervals overlapping the given
-    # range (start, end)
-    intervals = self.find(start, end)
-
-    try:
-      # Check if first interval begins before the input (start), trim!
-      if intervals[0].start < start:
-        intervals[0].start = start
-
-      # Check if last BEDGraph interval ends after the input interval, trim!
-      if intervals[-1].end > end:
-        intervals[-1].end = end
-
-    except IndexError:
-      # Apparently we didn't find any intervals matching the given range
-      return []
-
-    return intervals
