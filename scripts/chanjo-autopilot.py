@@ -6,9 +6,9 @@ Process all or a subset of exons, get coverage from a BAM alignment and
 commit changes to a SQLite database.
 
 Usage:
-  chanjo.py <sql_path> <bam_path> [--ccds=<ccds_path>] [--cutoff=<int>] [--read=<path> | --pipe] [-p | --print]
-  chanjo.py -h | --help
-  chanjo.py --version
+  chanjo-autopilot.py <sql_path> <bam_path> [--ccds=<ccds_path>] [--cutoff=<int>] [--read=<path> | --pipe] [-p | --print]
+  chanjo-autopilot.py -h | --help
+  chanjo-autopilot.py --version
 
 Arguments:
   <sql_path>  path to the SQLite database file
