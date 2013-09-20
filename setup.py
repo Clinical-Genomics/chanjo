@@ -36,8 +36,9 @@ setup(
         "numpy",
         "sqlalchemy",
         "interval",
-        "docopt"
+        "docopt",
+        "elemental"
     ],
     packages=["chanjo"],
-    scripts=["scripts/chanjo-autopilot.py"]
+    scripts=["scripts/chanjo-autopilot"]
 )

@@ -69,7 +69,7 @@ class Hub(object):
     self.cov = coverageAdapter
     self.db = elementAdapter
 
-  def annotate(self, element, cutoff=10):
+  def annotate(self, element, cutoff=10, sample_id=None, group_id=None):
     """
     Public: Annotates each related exon with coverage data.
 
@@ -86,8 +86,11 @@ class Hub(object):
     # Both transcripts and genes can be used to select exons to annotate
     depth = self.cov.read(element.chrom, element.start, element.end)
 
+    # Preallocate list for each exon of the element
+    exons = [None]*len(element.exons)
+
     # Get the exons related to the element
-    for exon in element.exons:
+    for i, exon in enumerate(element.exons):
       # Relative start and end positions to slice the ``depth`` array
       start = exon.start - element.start
       end = exon.end - element.start
@@ -97,12 +100,17 @@ class Hub(object):
       (coverage, completeness,
        levels) = self.calculate(depth[start:end+1], cutoff)
 
-      exon.coverage = coverage
-      exon.completeness = completeness
-      exon.cutoff = cutoff
-      exon.levels = levels
+      exons[i] = self.db.create("exon_data",
+        element_id=exon.id,
+        coverage=coverage,
+        completeness=completeness,
+        sample_id=sample_id,
+        group_id=group_id
+      )
 
-  def calculate(self, depths, cutoff):
+    return exons
+
+  def calculate(self, depths, cutoff, levels=False):
     """
     Public: Calculates both coverage and completeness for a interval.
 
@@ -129,8 +137,11 @@ class Hub(object):
       if depth >= cutoff:
         passedCount += 1
 
-    # Stringify and compress the levels to enable storage in SQL database
-    str_levels = self.stringify(depths)
+    if levels:
+      # Stringify and compress the levels to enable storage in SQL database
+      str_levels = self.stringify(depths)
+    else:
+      str_levels = None
 
     # totBaseCount should never be able to be 0! Exons be >= 1 bp long
     return readCount / totBaseCount, passedCount / totBaseCount, str_levels
