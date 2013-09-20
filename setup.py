@@ -13,6 +13,19 @@ setup(
     description="A coverage analysis package for clinical sequencing.",
     author="Robin Andeer",
     author_email="robin.andeer@gmail.com",
+    license="MIT",
+    maintainer="Robin Andeer",
+    keywords=["coverage", "sequencing", "clinical", "exome"],
+    platform="UNIX",
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 2.7",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
+        "Topic :: Scientific/Engineering :: Medical Science Apps"
+    ],
     url="http://chanjo.readthedocs.org/",
     download_url="https://github.com/robinandeer/chanjo",
     version=chanjo.__version__,
@@ -23,8 +36,9 @@ setup(
         "numpy",
         "sqlalchemy",
         "interval",
-        "docopt"
+        "docopt",
+        "elemental"
     ],
     packages=["chanjo"],
-    scripts=["scripts/chanjo-autopilot.py"]
+    scripts=["scripts/chanjo-autopilot"]
 )

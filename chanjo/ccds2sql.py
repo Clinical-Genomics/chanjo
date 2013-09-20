@@ -2,7 +2,7 @@
 # coding: utf-8
 """
   chanjo.ccds2sql
-  ~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~
 
   Official importer module for the SQL :class:`ElementAdapter`. Works off of a
   CCDS database dump and extracts all the nessesary data to build up a complete

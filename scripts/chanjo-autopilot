@@ -1,0 +1,124 @@
+#!/usr/bin/env python
+# coding: utf-8
+"""Chanjo CLI
+Process all or a subset of exons, get coverage from a BAM alignment and commit changes to a SQLite database.
+
+Usage:
+  chanjo-autopilot <sql_path> <bam_path> [--ccds=<path>] [--cutoff=<int>] [--sample=<str>] [--group=<int>] [--read=<path>] [-p | --print]
+  chanjo-autopilot -h | --help
+  chanjo-autopilot --version
+
+Arguments:
+  <sql_path>  path to the SQLite database file.
+  <bam_path>  path to the BAM alignment file.
+
+Options:
+  -h --help          Show this screen.
+  --version          Show version.
+  --ccds=<path>      Path to CCDS txt file, initiates creation of new database.
+  --cutoff=<int>     Lowest read depth to pass [default: 10].
+  -s --sample=<str>  Optional sample ID [default: 0-0-0A].
+  -g --group=<int>   Optional group ID [default: 0].
+  --read=<path>      Path to file with HGNC symbols.
+  -p --print         Just print the variables to the console (debug)
+"""
+from __future__ import print_function
+from docopt import docopt
+import time
+import itertools
+
+from elemental.adapters import ccds
+
+import chanjo
+from chanjo import core, bam, sql
+
+
+def main(args):
+  # Start a timer to be able to print out the runtime
+  start = time.time()
+
+  # Setup adapters and the main Hub
+  hub = core.Hub(bam.CoverageAdapter(args["<bam_path>"]),
+                 sql.ElementAdapter(args["<sql_path>"]))
+
+  # We can set up a brand new database if the user wants to
+  if args["--ccds"]:
+    # Parse the provided CCDS database dump
+    parser = ccds.CCDSAdapter()
+
+    # Parse information from the CCDS txt-file
+    genes, txs, exons = parser.connect(args["--ccds"]).parse()
+
+    # 1. Setup the new database with tables etc.
+    # 2. Import elements into the database by converting to ORM objects
+    # 3. Commit all elements added during the setup session
+    hub.db.setup().convert(genes, txs, exons).commit()
+
+  # Convert cutoff to int (Default: 10 reads)
+  cutoff = int(args["--cutoff"])
+  sample_id = args["--sample"]
+  group_id = int(args["--group"])
+
+  # =======================================================
+  #   This is the part where we figure out which genes to
+  #   annotate in this session.
+  # -------------------------------------------------------
+  if args["--read"]:
+    # Read HGCN symbols from a file
+    with open(args["--read"], "r") as f:
+      genes = hub.db.find("gene",
+                          query=[hgnc.strip() for hgnc in f.readlines()])
+  else:
+    # Get all genes
+    genes = hub.db.find("gene")
+
+  # =======================================================
+  #   This is where we actually annotate the exons based on
+  #   the selection of genes above.
+  # -------------------------------------------------------
+  genes = [gene for gene in genes if gene is not None]
+  exonData = [None]*len(genes)
+  for i, gene in enumerate(genes):
+    # Annotate the gene
+    exonData[i] = hub.annotate(gene, cutoff, sample_id=sample_id,
+                               group_id=group_id)
+
+  # Flatten the 2D list
+  flatExonData = list(itertools.chain.from_iterable(exonData))
+  # Add to session and commit so that the upcoming queries will work
+  hub.db.add(flatExonData).commit()
+
+  # ======================================================
+  #   Now we can extend the annotations from exons to
+  #   transcripts and genes. Not ready yet.
+  #   N.B. We commit so the next query works!
+  # ------------------------------------------------------
+  hub.db.add([hub.db.create("transcript_data", element_id=tx[0],
+                            sample_id=sample_id, group_id=group_id,
+                            coverage=tx[1], completeness=tx[2])
+              for tx in hub.db.transcriptStats(sample_id)]).commit()
+
+  # Extend annotations to genes
+  hub.db.add([hub.db.create("gene_data", element_id=gs[0], sample_id=sample_id,
+                            group_id=group_id, coverage=gs[1],
+                            completeness=gs[2])
+              for gs in hub.db.geneStats(sample_id)])
+
+  # =======================================================
+  #   And if everything when okey, we persist all
+  #   annotations via the :class:`ElementAdapter`.
+  # -------------------------------------------------------
+  hub.db.commit()
+
+  end = time.time()
+  print("Elapsed time: {time} seconds".format(time=(end-start)))
+
+if __name__ == "__main__":
+  # Parse arguments based on docstring above
+  args = docopt(__doc__, version="Chanjo {v}".format(v=chanjo.__version__))
+
+  if args["--print"]:
+    print(args)
+
+  else:
+    main(args)
