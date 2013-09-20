@@ -33,14 +33,14 @@ class GeneData(Base):
   group_id = sa.Column(sa.Integer)
 
   # Genetic relationship
-  gene_id = sa.Column(sa.String, sa.ForeignKey("Gene.id"))
-  gene = relationship("Gene", backref=backref("data"))
+  element_id = sa.Column(sa.String, sa.ForeignKey("Gene.id"))
+  element = relationship("Gene", backref=backref("data"))
 
-  def __init__(self, gene_id, sample_id=None, group_id=None,
+  def __init__(self, element_id, sample_id=None, group_id=None,
                coverage=None, completeness=None):
     super(GeneData, self).__init__()
     
-    self.gene_id = gene_id
+    self.element_id = element_id
     self.sample_id = sample_id
     self.group_id = group_id
     self.coverage = coverage
@@ -60,14 +60,14 @@ class TranscriptData(Base):
   group_id = sa.Column(sa.Integer)
 
   # Genetic relationship
-  transcript_id = sa.Column(sa.String, sa.ForeignKey("Transcript.id"))
-  transcript = relationship("Transcript", backref=backref("data"))
+  element_id = sa.Column(sa.String, sa.ForeignKey("Transcript.id"))
+  element = relationship("Transcript", backref=backref("data"))
 
-  def __init__(self, tx_id, sample_id=None, group_id=None,
+  def __init__(self, element_id, sample_id=None, group_id=None,
                coverage=None, completeness=None):
     super(TranscriptData, self).__init__()
     
-    self.transcript_id = tx_id
+    self.element_id = element_id
     self.sample_id = sample_id
     self.group_id = group_id
     self.coverage = coverage
@@ -87,14 +87,14 @@ class ExonData(Base):
   group_id = sa.Column(sa.Integer)
 
   # Genetic relationship
-  exon_id = sa.Column(sa.String, sa.ForeignKey("Exon.id"))
-  exon = relationship("Exon", backref=backref("data"))
+  element_id = sa.Column(sa.String, sa.ForeignKey("Exon.id"))
+  element = relationship("Exon", backref=backref("data"))
 
-  def __init__(self, exon_id, sample_id=None, group_id=None,
+  def __init__(self, element_id, sample_id=None, group_id=None,
                coverage=None, completeness=None):
     super(ExonData, self).__init__()
     
-    self.exon_id = exon_id
+    self.element_id = element_id
     self.sample_id = sample_id
     self.group_id = group_id
     self.coverage = coverage
