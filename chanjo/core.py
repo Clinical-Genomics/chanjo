@@ -101,7 +101,7 @@ class Hub(object):
        levels) = self.calculate(depth[start:end+1], cutoff)
 
       exons[i] = self.db.create("exon_data",
-        exon_id=exon.id,
+        element_id=exon.id,
         coverage=coverage,
         completeness=completeness,
         sample_id=sample_id,

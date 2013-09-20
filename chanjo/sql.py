@@ -142,14 +142,14 @@ class ElementAdapter(ElementalDB):
            sum((Exon.end-Exon.start+1) * ExonData.completeness) / sum(Exon.end-Exon.start+1) AS completeness
     FROM Exon
     INNER JOIN Exon_Transcript ON Exon.id=Exon_Transcript.exon_id
-    INNER JOIN ExonData ON Exon.id=ExonData.exon_id
+    INNER JOIN ExonData ON Exon.id=ExonData.element_id
     WHERE ExonData.sample_id="{sample_id}"
     GROUP BY Exon_Transcript.transcript_id
     """.format(sample_id=sample_id)
 
     return self.session.execute(rawSQL).fetchall()
 
-  def geneStats(self):
+  def geneStats(self, sample_id):
     """
     .. note::
       Annotation of transcripts needs to be acomplished before annotating genes!
@@ -160,8 +160,9 @@ class ElementAdapter(ElementalDB):
            avg(TranscriptData.completeness)
     FROM Transcript
     INNER JOIN Gene ON Transcript.gene_id=Gene.id
-    INNER JOIN TranscriptData ON Transcript.id=TranscriptData.transcript_id
+    INNER JOIN TranscriptData ON Transcript.id=TranscriptData.element_id
+    WHERE TranscriptData.sample_id="{sample_id}"
     GROUP BY Transcript.gene_id
-    """
+    """.format(sample_id=sample_id)
 
     return self.session.execute(rawSQL).fetchall()

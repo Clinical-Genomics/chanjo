@@ -21,6 +21,7 @@ Options:
   -g --group=<int>   Optional group ID [default: 0].
   --read=<path>      Path to file with HGNC symbols.
   --pipe             Read piped list of HGNC symbols.
+  -p --print         Just print the variables to the console (debug)
 """
 from __future__ import print_function
 from docopt import docopt
@@ -90,22 +91,24 @@ def main(args):
 
   # Flatten the 2D list
   flatExonData = list(itertools.chain.from_iterable(exonData))
-  hub.db.add(flatExonData)
+  # Add to session and commit so that the upcoming queries will work
+  hub.db.add(flatExonData).commit()
 
   # ======================================================
   #   Now we can extend the annotations from exons to
   #   transcripts and genes. Not ready yet.
+  #   N.B. We commit so the next query works!
   # ------------------------------------------------------
-  hub.db.add([hub.db.create("TranscriptData", transcript_id=tx[0],
+  hub.db.add([hub.db.create("transcript_data", element_id=tx[0],
                             sample_id=sample_id, group_id=group_id,
                             coverage=tx[1], completeness=tx[2])
-              for tx in hub.db.transcriptStats()])
+              for tx in hub.db.transcriptStats(sample_id)]).commit()
 
   # Extend annotations to genes
-  hub.db.add([hub.db.create("GeneData", gene_id=gs[0], sample_id=sample_id,
+  hub.db.add([hub.db.create("gene_data", element_id=gs[0], sample_id=sample_id,
                             group_id=group_id, coverage=gs[1],
                             completeness=gs[2])
-              for gs in hub.db.geneStats()])
+              for gs in hub.db.geneStats(sample_id)])
 
   # =======================================================
   #   And if everything when okey, we persist all
@@ -120,4 +123,8 @@ if __name__ == "__main__":
   # Parse arguments based on docstring above
   args = docopt(__doc__, version="Chanjo {v}".format(v=chanjo.__version__))
 
-  main(args)
+  if args["--print"]:
+    print(args)
+
+  else:
+    main(args)
