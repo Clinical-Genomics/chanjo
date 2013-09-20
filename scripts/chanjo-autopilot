@@ -4,7 +4,7 @@
 Process all or a subset of exons, get coverage from a BAM alignment and commit changes to a SQLite database.
 
 Usage:
-  chanjo-autopilot <sql_path> <bam_path> [--ccds=<path>] [--cutoff=<int>] [--sample=<str>] [--group=<int>] [--read=<path> | --pipe] [-p | --print]
+  chanjo-autopilot <sql_path> <bam_path> [--ccds=<path>] [--cutoff=<int>] [--sample=<str>] [--group=<int>] [--read=<path>] [-p | --print]
   chanjo-autopilot -h | --help
   chanjo-autopilot --version
 
@@ -20,13 +20,11 @@ Options:
   -s --sample=<str>  Optional sample ID [default: 0-0-0A].
   -g --group=<int>   Optional group ID [default: 0].
   --read=<path>      Path to file with HGNC symbols.
-  --pipe             Read piped list of HGNC symbols.
   -p --print         Just print the variables to the console (debug)
 """
 from __future__ import print_function
 from docopt import docopt
 import time
-import sys
 import itertools
 
 from elemental.adapters import ccds
@@ -65,11 +63,7 @@ def main(args):
   #   This is the part where we figure out which genes to
   #   annotate in this session.
   # -------------------------------------------------------
-  if args["--pipe"]:
-    # Get all genes with matching hgnc symbols from stdin
-    genes = hub.db.find("gene", query=[hgnc.strip() for hgnc in sys.stdin])
-
-  elif args["--read"]:
+  if args["--read"]:
     # Read HGCN symbols from a file
     with open(args["--read"], "r") as f:
       genes = hub.db.find("gene",
