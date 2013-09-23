@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+# coding: utf-8
+"""Chanjo CLI
+Process all or a subset of exons, get coverage from a BAM alignment and commit changes to a SQLite database.
+
+Usage:
+  chanjo read <bam_path> <chrom> <start> <end> [--cutoff=<int>]
+  chanjo -h | --help
+  chanjo --version
+
+Arguments:
+  <bam_path>  Path to the BAM alignment file.
+  <chrom>     Chromosome ID
+  <start>     Starting interval position (1-based)
+  <end>       Ending interval position (1-based)
+
+Options:
+  -h --help          Show this screen.
+  --version          Show version.
+  -p --print         Just print the variables to the console (debug)
+  -c --cutoff=<int>  Cutoff to use for calculating completeness
+"""
+from __future__ import print_function
+from docopt import docopt
+
+import chanjo
+from chanjo import core, bam, sql
+
+
+def main(args):
+  chrom = args["<chrom>"]
+  start = int(args["<start>"])
+  end = int(args["<end>"])
+  cutoff = int(args["--cutoff"])
+
+  # Setup adapters and the main Hub
+  hub = core.Hub(bam.CoverageAdapter(args["<bam_path>"]),
+                 sql.ElementAdapter(":memory:"))
+
+  depths = hub.cov.read(chrom, start, end)
+  (coverage, completeness, _) = hub.calculate(depths, cutoff)
+
+  print("""
+    Interval: {chrom}-{start}-{end}
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Coverage:     {cov}
+    Completeness: {comp}
+  """.format(chrom=chrom, start=start, end=end,
+             cov=coverage, comp=completeness))
+
+if __name__ == "__main__":
+  # Parse arguments based on docstring above
+  args = docopt(__doc__, version="Chanjo {v}".format(v=chanjo.__version__))
+
+  if args["--print"]:
+    print(args)
+
+  else:
+    main(args)
