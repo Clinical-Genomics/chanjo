@@ -7,7 +7,7 @@ Central CLI for various Chanjo functionality.
 * "peak": Peak into a SQLite database to look at coverage for a given gene.
 
 Usage:
-  chanjo annotate <store> using <source> [<gene>... | --read=<file>] [--ccds=<file>] [--cutoff=<int>] [--sample=<str>] [--text=<file>] [--group=<int>] [--verbose] [-p | --print]
+  chanjo annotate <store> using <source> [<gene>... | --read=<file>] [--ccds=<file>] [--cutoff=<int>] [--sample=<str>] [--group=<int>] [--json=<file>] [--verbose] [-p | --print]
   chanjo read <chrom> <start> <end> using <source> [--cutoff=<int>] [--verbose]
   chanjo peak <store> <gene>... [--verbose] [--sample=<str>] [--group=<int>]
   chanjo build <store> using <ccds_path>
@@ -33,7 +33,7 @@ Options:
   -c --cutoff=<int>  Cutoff to use for calculating completeness [default: 10].
   -s --sample=<str>  The sample ID to annotate with or peak at [default: 0-0-0U].
   -g --group=<int>   The sample ID to annotate with or peak at [default: 0].
-  -t --text=<file>   Chanjo will write a temporary text-file that can be imported later. This is useful when parallelizing Chanjo.
+  -j --json=<file>   Chanjo will write a temporary JSON-file that can be imported later. This is useful when parallelizing Chanjo.
   -v --verbose       Show more extensive information about transcripts & exons.
   -p --print         Just print the variables to the console (debug).
 """
@@ -131,7 +131,7 @@ def build(storePath, ccdsPath, db=None):
   # 3. Commit all elements added during the setup session
   db.setup().convert(genes, txs, exons).commit()
 
-def import_(annotations, db, cutoff=None, sample_id=None, group_id=None):
+def import_(annotations, db, sample_id=None, group_id=None, cutoff=None):
   """
   Imports annotations stored in text-files for example when running Chanjo in
   parallel.
@@ -200,8 +200,7 @@ def annotate(storePath, bamPath, cutoff, sample_id, group_id, ccdsPath=None,
   exonData = [None]*len(genes)
   for i, gene in enumerate(genes):
     # Annotate the gene
-    exonData[i] = hub.annotate(gene, cutoff, sample_id=sample_id,
-                               group_id=group_id)
+    exonData[i] = hub.annotate(gene, cutoff)
 
     if verbose:
       print("Annotated: {}".format(gene.id), end="\r")
@@ -209,10 +208,10 @@ def annotate(storePath, bamPath, cutoff, sample_id, group_id, ccdsPath=None,
   # Flatten the 2D list
   flatExonData = list(itertools.chain.from_iterable(exonData))
 
-  if args["--text"]:
+  if args["--json"]:
     # We should save a temp version of the exon annotations to a text-file
     # rather than persisting to the datastore. We use JSON.
-    with open(args["--text"], "w") as handle:
+    with open(args["--json"], "w") as handle:
       json.dump({
         "cutoff": cutoff,
         "sample_id": sample_id,
@@ -222,7 +221,7 @@ def annotate(storePath, bamPath, cutoff, sample_id, group_id, ccdsPath=None,
 
   else:
     # Add to session and commit so that the upcoming queries will work
-    import_(flatExonData, hub.db, cutoff, sample_id, group_id)
+    import_(flatExonData, hub.db, sample_id, group_id, cutoff)
 
 def main(args):
   # First command will determine which path to take
@@ -260,8 +259,9 @@ def main(args):
       # Open the file
       with open(txtPath, "r") as handle:
 
-        # Each row contains an element annotation
-        import_(json.load(handle), store=db)
+        data = json.load(handle)
+        import_(data["annotations"], db, data["sample_id"], data["group_id"],
+                data["cutoff"])
 
   else:
 
