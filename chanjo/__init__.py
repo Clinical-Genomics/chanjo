@@ -5,7 +5,7 @@ from core import Hub
 
 
 __title__ = "chanjo"
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __author__ = "Robin Andeer"
 __license__ = "MIT"
 __copyright__ = "Copyright 2013 Robin Andeer"
