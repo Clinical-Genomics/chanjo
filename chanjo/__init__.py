@@ -1,5 +1,8 @@
 from __future__ import print_function
 
+# Relative import shortcut
+from core import Hub
+
 
 __title__ = "chanjo"
 __version__ = "0.1.0"
