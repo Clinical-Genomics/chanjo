@@ -7,16 +7,20 @@ Central CLI for various Chanjo functionality.
 * "peak": Peak into a SQLite database to look at coverage for a given gene.
 
 Usage:
-  chanjo annotate <sql_path> from <bam_path> [<hgnc>... | --read=<path>] [--ccds=<path>] [--cutoff=<int>] [--sample=<str>] [--group=<int>] [--verbose] [-p | --print]
-  chanjo read <bam_path> <chrom> <start> <end> [--cutoff=<int>] [--verbose]
-  chanjo peak <sql_path> <hgnc>... [--verbose] [--sample=<str>] [--group=<int>]
+  chanjo annotate <store> using <source> [<gene>... | --read=<file>] [--ccds=<file>] [--cutoff=<int>] [--sample=<str>] [--text=<file>] [--group=<int>] [--verbose] [-p | --print]
+  chanjo read <chrom> <start> <end> using <source> [--cutoff=<int>] [--verbose]
+  chanjo peak <store> <gene>... [--verbose] [--sample=<str>] [--group=<int>]
+  chanjo build <store> using <ccds_path>
+  chanjo <store> import <txt_path>...
   chanjo -h | --help
   chanjo --version
 
 Arguments:
-  <sql_path>  Path to new or existing SQLite database.
-  <bam_path>  Path to the BAM alignment file.
-  <hgnc>      List of HGNC symbols for genes to annotate or peak at.
+  <store>  Path to new or existing SQLite database.
+  <source>  Path to the BAM alignment file.
+  <ccds_path> Path to CCDS database dump (text-file).
+  <gene>      List of HGNC symbols for genes to annotate or peak at.
+  <txt_path>  List of generated text-files to be imported into a datastore. See <store> for further info.
   <chrom>     Chromosome ID.
   <start>     Starting interval position (1-based).
   <end>       Ending interval position (1-based).
@@ -24,11 +28,12 @@ Arguments:
 Options:
   -h --help          Show this screen.
   --version          Show version.
-  -r --read=<path>   Path to txt-file with one HGNC symbol per line.
-  --ccds=<path>      Path to CCDS database dump. Also functions as a flag to signal building a new SQLite database.
+  -r --read=<file>   Path to txt-file with one HGNC symbol per line.
+  --ccds=<file>      Path to CCDS database dump. Also functions as a flag to signal building a new SQLite database.
   -c --cutoff=<int>  Cutoff to use for calculating completeness [default: 10].
   -s --sample=<str>  The sample ID to annotate with or peak at [default: 0-0-0U].
   -g --group=<int>   The sample ID to annotate with or peak at [default: 0].
+  -t --text=<file>   Chanjo will write a temporary text-file that can be imported later. This is useful when parallelizing Chanjo.
   -v --verbose       Show more extensive information about transcripts & exons.
   -p --print         Just print the variables to the console (debug).
 """
@@ -74,11 +79,11 @@ def read(bamPath, chrom, start, end, cutoff, verbose=False):
 
   print(json.dumps(output, indent=4))
 
-def peak(sqlPath, genes, sample=None, group=None, verbose=False):
+def peak(storePath, genes, sample=None, group=None, verbose=False):
   """
   Prints out a JSON string of the data you have requested based on genes.
   """
-  db = sql.ElementAdapter(sqlPath)
+  db = sql.ElementAdapter(storePath)
 
   # How many decimals to print?
   if verbose:
@@ -106,41 +111,89 @@ def peak(sqlPath, genes, sample=None, group=None, verbose=False):
 
   print(json.dumps(output, indent=4))
 
+def build(storePath, ccdsPath, db=None):
+  """
+  Builds a new database instance with barebones structure and relationships,
+  no annotations. This is useful when you plan to run Chanjo in parallel and
+  need a reference database.
+  """
+  if db is None:
+    db = sql.ElementAdapter(storePath)
 
-def annotate(sqlPath, bamPath, cutoff, sample_id, group_id, ccdsPath=None,
+  # Parse the provided CCDS database dump
+  parser = ccds.CCDSAdapter()
+
+  # Parse information from the CCDS txt-file
+  genes, txs, exons = parser.connect(ccdsPath).parse()
+
+  # 1. Setup the new database with tables etc.
+  # 2. Import elements into the database by converting to ORM objects
+  # 3. Commit all elements added during the setup session
+  db.setup().convert(genes, txs, exons).commit()
+
+def import_(txtPaths, storePath):
+  """
+  Imports annotations stored in text-files for example when running Chanjo in
+  parallel.
+  """
+  # Set up the store
+  db = sql.ElementAdapter(storePath)
+
+  # Import one text-file at a time
+  for txtPath in txtPaths:
+
+    # Open the file
+    with open(txtPath, "r") as handle:
+
+      # Each row contains an element annotation
+      data = json.load(handle)
+
+      # Extract general data
+      #cutoff = data["cutoff"]
+      sample = data["sample_id"]
+      group = data["group_id"]
+
+      # Now for each of the element data types
+      for data_id in data["annotations"].keys():
+
+        # And for each of the annotations
+        db.add([db.create(data_id,
+
+          element_id=anno["element_id"],
+          coverage=anno["coverage"],
+          completeness=anno["completeness"],
+          sample_id=sample,
+          group_id=group
+
+        ) for anno in data["annotations"]["data_id"]]).commit()
+
+def annotate(storePath, bamPath, cutoff, sample_id, group_id, ccdsPath=None,
              geneIDs=None, verbose=False):
   # Setup adapters and the main Hub
-  hub = core.Hub(bam.CoverageAdapter(bamPath), sql.ElementAdapter(sqlPath))
+  hub = core.Hub(bam.CoverageAdapter(bamPath), sql.ElementAdapter(storePath))
 
   # We can set up a brand new database if the user wants to
   if ccdsPath:
-    # Parse the provided CCDS database dump
-    parser = ccds.CCDSAdapter()
-
-    # Parse information from the CCDS txt-file
-    genes, txs, exons = parser.connect(ccdsPath).parse()
-
-    # 1. Setup the new database with tables etc.
-    # 2. Import elements into the database by converting to ORM objects
-    # 3. Commit all elements added during the setup session
-    hub.db.setup().convert(genes, txs, exons).commit()
+    # Use the build command function but supply "our" Hub-db
+    build(storePath, ccdsPath, db=hub.db)
 
   # =======================================================
   #   This is the part where we figure out which genes to
   #   annotate in this session.
   # -------------------------------------------------------
-  if genes is None:
+  if geneIDs is None:
     # Get all genes in the datastore
     genes = hub.db.find("gene")
 
   else:
     # The user was nice enough to supply a list of genes to annotate
-    genes = hub.db.find("gene", query=[hgnc for hgnc in genes])
+    genes = hub.db.find("gene", query=geneIDs)
 
   # =======================================================
   #   This is where we actually annotate the exons based on
   #   the selection of genes above.
   # -------------------------------------------------------
+  # This step filters out `None` that come from invalid HGNC symbols
   genes = [gene for gene in genes if gene is not None]
   exonData = [None]*len(genes)
   for i, gene in enumerate(genes):
@@ -173,7 +226,7 @@ def annotate(sqlPath, bamPath, cutoff, sample_id, group_id, ccdsPath=None,
               for gs in hub.db.geneStats(sample_id)])
 
   # =======================================================
-  #   And if everything when okey, we persist all
+  #   And if everything went OK, we persist all
   #   annotations via the :class:`ElementAdapter`.
   # -------------------------------------------------------
   hub.db.commit()
@@ -189,15 +242,20 @@ def main(args):
     cutoff = int(args["--cutoff"])
 
     # Read the BAM-file, calculate coverage, and print to console.
-    read(args["<bam_path>"], chrom, start, end, cutoff, args["--verbose"])
+    read(args["<source>"], chrom, start, end, cutoff, args["--verbose"])
 
   elif args["peak"]:
 
     # Prepare the input arguments
     group = int(args["--group"])
 
-    peak(args["<sql_path>"], args["<hgnc>"], args["--sample"], group,
+    peak(args["<store>"], args["<gene>"], args["--sample"], group,
          args["--verbose"])
+
+  elif args["build"]:
+
+    # Build up a barebones database structure
+    build(args["<store>"], args["<ccds_path>"])
 
   else:
 
@@ -220,10 +278,10 @@ def main(args):
     else:
       # The user either supplied a list of HGNC symbols or wants to annotate
       # all genes.
-      genes = args["<hgnc>"] or None
+      genes = args["<gene>"] or None
 
     # Call the function which does the annotation of the genes
-    annotate(args["<sql_path>"], args["<bam_path>"], cutoff, sample_id, group_id, args["--ccds"], genes, verbose=args["--verbose"])
+    annotate(args["<store>"], args["<source>"], cutoff, sample_id, group_id, args["--ccds"], genes, verbose=args["--verbose"])
 
     # End the timer (mohahaha...)
     end = time.time()
