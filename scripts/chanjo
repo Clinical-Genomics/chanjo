@@ -7,10 +7,10 @@ Central CLI for various Chanjo functionality.
 * "peak": Peak into a SQLite database to look at coverage for a given gene.
 
 Usage:
-  chanjo annotate <store> using <source> [<gene>... | --read=<file>] [--ccds=<file>] [--cutoff=<int>] [--sample=<str>] [--group=<int>] [--json=<file>] [--verbose] [-p | --print]
+  chanjo annotate <store> using <source> [<gene>... | --read=<file>] [--ccds=<file>] [--cutoff=<int>] [--sample=<str>] [--group=<int>] [--json=<file>] [--verbose] [-p | --print] [--force]
   chanjo read <chrom> <start> <end> using <source> [--cutoff=<int>] [--verbose]
   chanjo peak <store> <gene>... [--verbose] [--sample=<str>] [--group=<int>]
-  chanjo build <store> using <ccds_path>
+  chanjo build <store> using <ccds_path> [--force]
   chanjo <store> import <txt_path>...
   chanjo -h | --help
   chanjo --version
@@ -34,6 +34,7 @@ Options:
   -s --sample=<str>  The sample ID to annotate with or peak at [default: 0-0-0U].
   -g --group=<int>   The sample ID to annotate with or peak at [default: 0].
   -j --json=<file>   Chanjo will write a temporary JSON-file that can be imported later. This is useful when parallelizing Chanjo.
+  -f --force         Overwrite existing files without warning.
   -v --verbose       Show more extensive information about transcripts & exons.
   -p --print         Just print the variables to the console (debug).
 """
@@ -42,12 +43,23 @@ from docopt import docopt
 import time
 import itertools
 import json
+import sys
+from path import path
 
 from elemental.adapters import ccds
 
 import chanjo
 from chanjo import core, bam, sql
 
+
+def fileCheck(file_path, force):
+  """
+  Checks a path for an existing file before overwrite.
+  """
+  f = path(file_path)
+  if f.exists() and not force:
+    sys.exit("{path} already exists. Use '--force' to overwrite."
+             .format(path=f))
 
 def read(bamPath, chrom, start, end, cutoff, verbose=False):
   """
@@ -246,6 +258,9 @@ def main(args):
 
   elif args["build"]:
 
+    # Check path
+    fileCheck(args["<store>"])
+
     # Build up a barebones database structure
     build(args["<store>"], args["<ccds_path>"])
 
@@ -267,6 +282,14 @@ def main(args):
 
     # Start a timer to be able to print out the runtime
     start = time.time()
+
+    if args["--ccds"]:
+      # Check path
+      fileCheck(args["--ccds"])
+
+    if args["--json"]:
+      # Check path
+      fileCheck(args["--json"])
 
     # Lets annotate some genes!
     # Prepare the input arguments
