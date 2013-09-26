@@ -115,12 +115,12 @@ def main(args):
   print("Elapsed time: {time} seconds".format(time=(end-start)))
 
 if __name__ == "__main__":
-  print("""
+  print("""\033[93m
   ****************************************
   *   Deprecation warning!               *
   *   ==============================     *
   *   - Please use "chanjo -h"           *
-  ****************************************""")
+  ****************************************\033[0m""")
 
   # Parse arguments based on docstring above
   args = docopt(__doc__, version="Chanjo {v}".format(v=chanjo.__version__))
