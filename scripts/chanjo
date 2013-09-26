@@ -58,7 +58,7 @@ def fileCheck(file_path, force):
   """
   f = path(file_path)
   if f.exists() and not force:
-    sys.exit("{path} already exists. Use '--force' to overwrite."
+    sys.exit("\033[93mWARNING: {path} already exists. Use '--force' to overwrite.\033[0m"
              .format(path=f))
 
 def read(bamPath, chrom, start, end, cutoff, verbose=False):
@@ -259,7 +259,7 @@ def main(args):
   elif args["build"]:
 
     # Check path
-    fileCheck(args["<store>"])
+    fileCheck(args["<store>"], args["--force"])
 
     # Build up a barebones database structure
     build(args["<store>"], args["<ccds_path>"])
@@ -285,11 +285,11 @@ def main(args):
 
     if args["--ccds"]:
       # Check path
-      fileCheck(args["--ccds"])
+      fileCheck(args["--ccds"], args["--force"])
 
     if args["--json"]:
       # Check path
-      fileCheck(args["--json"])
+      fileCheck(args["--json"], args["--force"])
 
     # Lets annotate some genes!
     # Prepare the input arguments
