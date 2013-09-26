@@ -40,5 +40,8 @@ setup(
         "path.py"
     ],
     packages=["chanjo"],
-    scripts=["scripts/chanjo-autopilot"]
+    scripts=[
+        "scripts/chanjo-autopilot",
+        "scripts/chanjo"
+    ]
 )
