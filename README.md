@@ -2,33 +2,42 @@
 
 [![PyPI version](https://badge.fury.io/py/chanjo.png)](http://badge.fury.io/py/chanjo)
 
-Chanjo is a coverage analysis tool for clinical sequencing.
+**Tagline**: A sane coverage analysis tool for clinical sequencing.
 
-*BEDtools* and *PicardTools* are both powerful and universally used in DNA sequencing analysis. However, they were built for doing research, not clinic analysis. This means that simple tasks like finding out coverage for a gene are obscrured behind abstract BED intervals.
+**Motivation**: *BEDtools* and *PicardTools* are both powerful and universally used in DNA sequencing analysis. However, they were built for doing research, not continuous clinic quality checking. This means that simple tasks like finding out coverage for a gene are obscured behind abstract BED intervals. Chanjo chooses genes over intervals and handles the rest behind the scenes.
 
-```python
->>> gene = hub.db.get("gene", "GIT1")
->>> hub.annotate(gene)
->>> gene.coverage  # Average coverage across the gene
-9.2131342342
->>> gene.completeness  # Percent of bases covered at x read depth
-0.8234234234
->>> hub.db.commit()  # Persists annotation(s) to data store
+```bash
+  $ chanjo annotate db.sqlite using test.bam EGFR ALB CD4 BRCA1 --sample "my_fancy_sample_id"
+  $ chanjo peak db.sqlite EGFR
+{
+    "EGFR": [
+        {
+            "sample": "my_fancy_sample_id",
+            "completeness": 1.0,
+            "coverage": 227.64
+        }
+    ]
+}
 ```
 
-Chanjo sets out be part of a new breed of tools aimed at solving problems more or less specific to *clinical* sequencing. Chanjo follows a few general guidelines:
+Are you more interested in the Python API? Check out the [official documentation](https://chanjo.readthedocs.org/en/latest/).
 
-One concrete new feature you will get for free using Chanjo is to set a lower limit for what you consider acceptable coverage and determine what percentage of each element (gene, transcript, exon) is covered to that degree. This is a new way of looking at coverage and is a more fair assessment of the success of sequencing than average coverage.
+### Guidelines
+**Chanjo** sets out be part of a new breed of tools aimed at solving problems with a focus on *clinical* sequencing. Chanjo follows a few made up guidelines:
 
-| Feature            | Description   |
-| ------------------ | ------------- |
-| BAM support        | Generate coverage directly from BAM alignments. Fit's right into your genomics pipeline. |
-| Just what you need | Limit calculations to a list of genes of interest. |
-| % coverage         | The bredth of coverage at sufficient coverage is treated as important as depth of coverage. |
-| Test report export | Simple output that can be parsed to generate a genetic test report. |
+* Terminology that a clinician should feel comfortable with.
+* Flexible and powerful output structure to that can be treated as an API by itself.
+* A modular structure so that adapters for various data stores and sources of coverage can be used interchangably.
+
+### Completeness (NEW)
+The *completeness* metric is one concrete new feature you will get for free using Chanjo. It's meant as a complement to average coverage as a measure of the success of coverage.
+
+Completeness works as such. Decide on a cutoff "X" representing the lower limit of adequate coverage (e.g. 10x reads). Completeness is simply the percentage of bases across an element/interval that with coverage >= X.
+
+I believe completeness to be a more useful assessment of coverage success than average coverage for at least many clinical purposes.
 
 ### Contribute
-If you feel like learning more about the project and contributing you should check out the [extended documentation](https://chanjo.readthedocs.org/en/latest/).
+Test and submit issues. Learn more and point out shortcomings in the [extended documentation](https://chanjo.readthedocs.org/en/latest/). For more details I'll try to keep issues and milestones up-to-date as a source of what needs to be worked on.
 
 ### Contributor list
 Robin Andeer

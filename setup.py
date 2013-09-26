@@ -23,8 +23,7 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Programming Language :: Python :: 2.7",
-        "Topic :: Scientific/Engineering :: Bio-Informatics",
-        "Topic :: Scientific/Engineering :: Medical Science Apps"
+        "Topic :: Scientific/Engineering :: Bio-Informatics"
     ],
     url="http://chanjo.readthedocs.org/",
     download_url="https://github.com/robinandeer/chanjo",
@@ -37,7 +36,8 @@ setup(
         "sqlalchemy",
         "interval",
         "docopt",
-        "elemental"
+        "elemental",
+        "path.py"
     ],
     packages=["chanjo"],
     scripts=["scripts/chanjo-autopilot"]

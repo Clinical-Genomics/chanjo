@@ -7,7 +7,11 @@ Chanjo: Clinical sequencing coverage. Evolved.
 ===============================================
 Release |version|.
 
-Chanjo is a coverage analysis tool for clinical DNA sequencing.
+.. note::
+
+   I promise that the documentation will be a priority for the next release and will be brought up to speed on the latest development.
+
+Chanjo is a sane coverage analysis tool for clinical DNA sequencing.
 
 `BEDtools` and `PicardTools` are both powerful and universally used in DNA sequencing. However, they were built for doing research, not clinic analysis. This means that simple tasks like finding out coverage for a gene are obscrured behind abstract BED intervals.
 
