@@ -11,19 +11,27 @@ Release |version|.
 
    I promise that the documentation will be a priority for the next release and will be brought up to speed on the latest development.
 
-Chanjo is a sane coverage analysis tool for clinical DNA sequencing.
+A sane coverage analysis tool for clinical DNA sequencing.
 
-`BEDtools` and `PicardTools` are both powerful and universally used in DNA sequencing. However, they were built for doing research, not clinic analysis. This means that simple tasks like finding out coverage for a gene are obscrured behind abstract BED intervals.
+**Motivation**: `BEDtools` and `PicardTools` are both powerful and universally used in DNA sequencing analysis. However, they were built for doing research, not continuous clinic quality checking. This means that simple tasks like finding out coverage for a gene are obscured behind abstract BED intervals. Chanjo chooses genes over intervals and handles the rest behind the scenes.
+
+Command line interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-   >>> gene = hub.db.get("gene", "GIT1")
-   >>> hub.annotate(gene)
-   >>> gene.coverage  # Average coverage across the gene
-   9.2131342342
-   >>> gene.completeness  # Percent of bases covered at x read depth
-   0.8234234234
-   >>> hub.db.commit()  # Persists annotation(s) to data store
+   $ chanjo annotate db.sqlite using test.bam EGFR ALB CD4 BRCA1 --sample "my_fancy_sample_id"
+   $ chanjo peak db.sqlite EGFR
+   {
+      "EGFR": [
+         {
+            "sample": "my_fancy_sample_id",
+            "completeness": 1.0,
+            "coverage": 227.64
+         }
+      ]
+   }
+
 
 Chanjo sets out be part of a new breed of tools aimed at solving problems more or less specific to *clinical* sequencing. Chanjo follows a few general guidelines:
 
