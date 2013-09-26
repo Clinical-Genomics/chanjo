@@ -131,41 +131,43 @@ def build(storePath, ccdsPath, db=None):
   # 3. Commit all elements added during the setup session
   db.setup().convert(genes, txs, exons).commit()
 
-def import_(txtPaths, storePath):
+def import_(annotations, db, cutoff=None, sample_id=None, group_id=None):
   """
   Imports annotations stored in text-files for example when running Chanjo in
   parallel.
   """
-  # Set up the store
-  db = sql.ElementAdapter(storePath)
+  # And for each of the annotations
+  db.add([db.create("exon_data",
 
-  # Import one text-file at a time
-  for txtPath in txtPaths:
+            element_id=anno["element_id"],
+            coverage=anno["coverage"],
+            completeness=anno["completeness"],
+            sample_id=sample_id,
+            group_id=group_id
 
-    # Open the file
-    with open(txtPath, "r") as handle:
+          ) for anno in annotations]).commit()
 
-      # Each row contains an element annotation
-      data = json.load(handle)
+  # ======================================================
+  #   Now we can extend the annotations from exons to
+  #   transcripts and genes. Not ready yet.
+  #   N.B. We commit so the next query works!
+  # ------------------------------------------------------
+  db.add([db.create("transcript_data",
+            element_id=tx[0],
+            sample_id=sample_id,
+            group_id=group_id,
+            coverage=tx[1],
+            completeness=tx[2]
+          ) for tx in db.transcriptStats(sample_id)]).commit()
 
-      # Extract general data
-      #cutoff = data["cutoff"]
-      sample = data["sample_id"]
-      group = data["group_id"]
-
-      # Now for each of the element data types
-      for data_id in data["annotations"].keys():
-
-        # And for each of the annotations
-        db.add([db.create(data_id,
-
-          element_id=anno["element_id"],
-          coverage=anno["coverage"],
-          completeness=anno["completeness"],
-          sample_id=sample,
-          group_id=group
-
-        ) for anno in data["annotations"]["data_id"]]).commit()
+  # Extend annotations to genes
+  db.add([db.create("gene_data",
+            element_id=gs[0],
+            sample_id=sample_id,
+            group_id=group_id,
+            coverage=gs[1],
+            completeness=gs[2]
+          ) for gs in db.geneStats(sample_id)]).commit()
 
 def annotate(storePath, bamPath, cutoff, sample_id, group_id, ccdsPath=None,
              geneIDs=None, verbose=False):
@@ -206,30 +208,21 @@ def annotate(storePath, bamPath, cutoff, sample_id, group_id, ccdsPath=None,
 
   # Flatten the 2D list
   flatExonData = list(itertools.chain.from_iterable(exonData))
-  # Add to session and commit so that the upcoming queries will work
-  hub.db.add(flatExonData).commit()
 
-  # ======================================================
-  #   Now we can extend the annotations from exons to
-  #   transcripts and genes. Not ready yet.
-  #   N.B. We commit so the next query works!
-  # ------------------------------------------------------
-  hub.db.add([hub.db.create("transcript_data", element_id=tx[0],
-                            sample_id=sample_id, group_id=group_id,
-                            coverage=tx[1], completeness=tx[2])
-              for tx in hub.db.transcriptStats(sample_id)]).commit()
+  if args["--text"]:
+    # We should save a temp version of the exon annotations to a text-file
+    # rather than persisting to the datastore. We use JSON.
+    with open(args["--text"], "w") as handle:
+      json.dump({
+        "cutoff": cutoff,
+        "sample_id": sample_id,
+        "group_id": group_id,
+        "annotations": flatExonData
+      }, handle)
 
-  # Extend annotations to genes
-  hub.db.add([hub.db.create("gene_data", element_id=gs[0], sample_id=sample_id,
-                            group_id=group_id, coverage=gs[1],
-                            completeness=gs[2])
-              for gs in hub.db.geneStats(sample_id)])
-
-  # =======================================================
-  #   And if everything went OK, we persist all
-  #   annotations via the :class:`ElementAdapter`.
-  # -------------------------------------------------------
-  hub.db.commit()
+  else:
+    # Add to session and commit so that the upcoming queries will work
+    import_(flatExonData, hub.db, cutoff, sample_id, group_id)
 
 def main(args):
   # First command will determine which path to take
@@ -256,6 +249,19 @@ def main(args):
 
     # Build up a barebones database structure
     build(args["<store>"], args["<ccds_path>"])
+
+  elif args["import"]:
+    # Set up the store
+    db = sql.ElementAdapter(args["<store>"])
+
+    # Import one text-file at a time
+    for txtPath in args["<txt_path>"]:
+
+      # Open the file
+      with open(txtPath, "r") as handle:
+
+        # Each row contains an element annotation
+        import_(json.load(handle), store=db)
 
   else:
 

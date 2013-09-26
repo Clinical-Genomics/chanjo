@@ -69,7 +69,7 @@ class Hub(object):
     self.cov = coverageAdapter
     self.db = elementAdapter
 
-  def annotate(self, element, cutoff=10, sample_id=None, group_id=None):
+  def annotate(self, element, cutoff=10):
     """
     Public: Annotates each related exon with coverage data.
 
@@ -100,13 +100,11 @@ class Hub(object):
       (coverage, completeness,
        levels) = self.calculate(depth[start:end+1], cutoff)
 
-      exons[i] = self.db.create("exon_data",
-        element_id=exon.id,
-        coverage=coverage,
-        completeness=completeness,
-        sample_id=sample_id,
-        group_id=group_id
-      )
+      exons[i] = {
+        "element_id": exon.id,
+        "coverage": coverage,
+        "completeness": completeness
+      }
 
     return exons
 
