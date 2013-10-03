@@ -2,51 +2,62 @@
 
 Installation
 ================
-This section will instruct you on how to install Chanjo and get set up properly. Please read through carefulle as Chanjo depends on some C libraries that can be tricky to get working just right.
+This section will sequentially instruct you on how to install Chanjo.
 
-Chanjo is developed on Mac OSX and is targeted to run on UNIX platforms including Linux running Python 2.7.x.
+FYI: Chanjo is developed on Mac OSX and is targeted to run on UNIX platforms, including Linux, running Python 2.7.x.
 
 Non-python dependencies
 ------------------------
-These should be installed before attempting to install Chanjo.
+C-compiler
+~~~~~~~~~~~
+You need to have a C-compiler installed on your system.
 
-**C-compiler**. First of all you need to have a C-compiler installed on your system. On OSX you can download the `Apple Developer Command Line Tools <https://developer.apple.com/downloads/index.action>`_. That option requires you to sign up for a free Apple developer account but is the most pain free solution.
+On OSX, the easiet way is to install `Apple Developer Command Line Tools <https://developer.apple.com/downloads/index.action>`_. If you don't want to sign up for a free developer account you could try `this installer <https://github.com/kennethreitz/osx-gcc-installer>`_.
 
-`SAMtools <http://samtools.sourceforge.net/>`_ provides various utilities for manipulating alignments in the SAM format, including sorting, merging, indexing and generating alignments in a per-position format. Note that version 0.1.19 or above is required. `SAMtools` is used by the default :class:`CoverageAdapter` to interface with BAM alignment files.
+SAMtools
+~~~~~~~~~~
+`SAMtools <http://samtools.sourceforge.net/>`_ provides various utilities for manipulating alignments in the SAM/BAM format, including sorting, merging, indexing and generating alignments in a per-position format. **Version 0.1.19** or above is required.
 
-::
+To install you need to download the latest release from `this page <http://sourceforge.net/projects/samtools/files/>`_.
+
+.. code-block:: console
 
   $ cd samtools-0.1.19/
   $ make
 
-Don't forget to copy at least `samtools` from `misc` to a location in your ``$PATH``.
+Don't forget to add/copy the `samtools` binary from the `misc` folder to a location in your ``$PATH``.
 
-`SQLite <http://www.sqlite.org/>`_ is an embedded SQL database that ships with most operating systems. You probably don't have to worry about installing it yourself. However, if you are already setting up a new Python installation it doesn't hurt to include the newest version. In Chanjo, it is used by the default :class:`ElementAdapter`.
-
-::
-
-  $ brew install sqlite
-  $ brew install python --framework
+SQLite
+~~~~~~~
+`SQLite <http://www.sqlite.org/>`_ is an embedded SQL database that ships with most operating systems. You probably don't have to worry about installing it yourself.
 
 Installing Chanjo
 ------------------
-Simply run::
+Preferably in a virtualenv_, simply run:
+
+.. code-block:: console
 
     $ pip install chanjo
 
-Required Python dependencies will be installed alongside the main package.
+Required Python dependencies will be installed alongside the main package. The ``chanjo`` command line tool will (probably) be automatically added to your ``$PATH``.
+
+.. note::
+
+  I recommend installing `Chanjo` in a virtual environment. Don't know what they are? The excellent `Python Guide <http://docs.python-guide.org/en/latest/>`_ has `more information <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ on the topic.
 
 Get the code
 -------------
-1. Download the code from the GitHub `repo <https://github.com/robinandeer/chanjo/releases>`_::
+1. Download the code from the GitHub `repo <https://github.com/robinandeer/chanjo/releases>`_.
+
+.. code-block:: console
 
     $ git clone https://github.com/robinandeer/chanjo.git
     $ cd chanjo
 
-2. Preferably in a `virtualenv <http://www.virtualenv.org/en/latest/>`_, run::
+2. Preferably in a virtualenv_, run:
 
-    $ python setup.py install
+.. code-block:: console
 
-.. note::
+  $ python setup.py install
 
-    If you are new to virtual environments, I can recommend the excellent `Python Guide <http://docs.python-guide.org/en/latest/>`_ which has `more information <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ on the topic.
+.. _virtualenv: http://www.virtualenv.org/en/latest/
