@@ -34,7 +34,6 @@ setup(
         "pysam",
         "numpy",
         "sqlalchemy",
-        "interval",
         "docopt",
         "elemental",
         "path.py"
