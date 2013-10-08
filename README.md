@@ -1,6 +1,7 @@
 ![Chanjo Avatar](https://raw.github.com/robinandeer/chanjo2/master/assets/chanjo_logo.png)
 
 [![PyPI version](https://badge.fury.io/py/chanjo.png)](http://badge.fury.io/py/chanjo)
+[![Build Status](https://travis-ci.org/robinandeer/chanjo.png?branch=develop)](https://travis-ci.org/robinandeer/chanjo)
 
 **Tagline**: A sane coverage analysis tool for clinical sequencing.
 
