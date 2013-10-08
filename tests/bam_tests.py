@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+from __future__ import print_function
 from nose.tools import *
 from chanjo.bam import CoverageAdapter
 
@@ -14,10 +15,10 @@ class TestCoverageAdapter:
     self.depths = [2., 4., 5., 5., 5., 5., 6., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 8., 8., 7., 7., 7., 7., 7., 7., 7., 6., 4., 4., 3., 3., 2., 2.]
 
   def setUp(self):
-    print "SETUP!"
+    print("SETUP!")
 
   def tearDown(self):
-    print "TEAR DOWN!"
+    print("TEAR DOWN!")
 
   def test_read(self):
     # Read BAM from position [1,10]
@@ -39,5 +40,6 @@ class TestCoverageAdapter:
     # Test submitting a false chromosome ID
     try:
       bgi = self.adapter.read("crh1", 10, 20)
+
     except ValueError, e:
       assert_true(e.message == "invalid reference `crh1`")
