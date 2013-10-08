@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+from __future__ import print_function
 from nose.tools import *
 from chanjo.sql import ElementAdapter
 
@@ -12,7 +13,7 @@ class TestCoverageAdapter:
     pass
 
   def setUp(self):
-    print "SETUP!"
+    print("SETUP!")
 
   def tearDown(self):
-    print "TEAR DOWN!"
+    print("TEAR DOWN!")
