@@ -69,11 +69,11 @@ class Hub(object):
     self.cov = coverageAdapter
     self.db = elementAdapter
 
-  def annotate(self, element, cutoff=10):
+  def annotate(self, element, cutoff=10, splice=False):
     """
     Public: Annotates each related exon with coverage data.
 
-    Useage::
+    Usage::
 
       genes = hub.db.get("gene", ["GIT1", "EGFR", "BRCA1"])
       for gene in genes:
@@ -83,22 +83,38 @@ class Hub(object):
     :param cutoff: (optional) The min read depth to use for completeness
                    (Default: 10)
     """
+    start = element.start
+    end = element.end
+
+    # Include splice sites (+/- 2 bases)
+    if splice:
+      start -= 2
+      end += 2
+
     # Both transcripts and genes can be used to select exons to annotate
-    depth = self.cov.read(element.chrom, element.start, element.end)
+    depth = self.cov.read(element.chrom, start, end)
 
     # Preallocate list for each exon of the element
     exons = [None]*len(element.exons)
 
     # Get the exons related to the element
     for i, exon in enumerate(element.exons):
+      ex_start = exon.start
+      ex_end = exon.end
+
+      # Include splice sites
+      if splice:
+        ex_start -= 2
+        ex_end += 2
+
       # Relative start and end positions to slice the ``depth`` array
-      start = exon.start - element.start
-      end = exon.end - element.start
+      rel_start = ex_start - start
+      rel_end = ex_end - start
 
       # Do the heavy lifting
       # +1 to end because ``end`` is 0-based and slicing is 0,1-based
       (coverage, completeness,
-       levels) = self.calculate(depth[start:end+1], cutoff)
+       levels) = self.calculate(depth[rel_start:rel_end+1], cutoff)
 
       exons[i] = {
         "element_id": exon.id,
