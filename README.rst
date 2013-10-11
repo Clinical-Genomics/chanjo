@@ -1,4 +1,4 @@
-.. image:: https://raw.github.com/robinandeer/chanjo2/master/assets/chanjo_logo.png
+.. image:: https://raw.github.com/robinandeer/chanjo2/develop/assets/chanjo-banner.png
   :alt: Chanjo banner
 
 .. image:: https://badge.fury.io/py/chanjo.png
