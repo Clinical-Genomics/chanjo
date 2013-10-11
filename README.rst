@@ -1,51 +1,70 @@
-![Chanjo Avatar](https://raw.github.com/robinandeer/chanjo2/master/assets/chanjo_logo.png)
+.. image:: https://raw.github.com/robinandeer/chanjo2/master/assets/chanjo_logo.png
+  :alt: Chanjo banner
 
-[![PyPI version](https://badge.fury.io/py/chanjo.png)](http://badge.fury.io/py/chanjo)
-[![Build Status](https://travis-ci.org/robinandeer/chanjo.png?branch=develop)](https://travis-ci.org/robinandeer/chanjo)
+.. image:: https://badge.fury.io/py/chanjo.png
+  :target: http://badge.fury.io/py/chanjo
+  :alt: PyPI version
 
-**Tagline**: A sane coverage analysis tool for clinical sequencing.
+.. image:: https://travis-ci.org/robinandeer/chanjo.png?branch=develop
+  :target: https://travis-ci.org/robinandeer/chanjo
+  :alt: Build Status
 
-**Motivation**: *BEDtools* and *PicardTools* are both powerful and universally used in DNA sequencing analysis. However, they were built for doing research, not continuous clinic quality checking. This means that simple tasks like finding out coverage for a gene are obscured behind abstract BED intervals. Chanjo chooses genes over intervals and handles the rest behind the scenes.
+.. image:: https://d2weczhvl823v0.cloudfront.net/robinandeer/chanjo/trend.png
+  :target: https://bitdeli.com/free
+  :alt: Bitdeli Badge
 
-```bash
-  $ chanjo annotate db.sqlite using test.bam EGFR ALB CD4 BRCA1 --sample "my_fancy_sample_id"
+*Chanjo* (Swahili, lit. *vaccine*) is a sane coverage analysis tool focusing on clinical sequencing. It aims to simplify answering clinically relevant questions like: *how well is my gene of interest covered?*.
+
+.. code-block:: console
+
+  $ chanjo annotate db.sqlite using test.bam EGFR ALB CD4 BRCA1 --sample "fancy_sample_id"
   $ chanjo peak db.sqlite EGFR
-{
-    "EGFR": [
-        {
-            "sample": "my_fancy_sample_id",
-            "completeness": 1.0,
-            "coverage": 227.64
-        }
-    ]
-}
-```
+  {
+      "EGFR": [
+          {
+              "sample": "fancy_sample_id",
+              "completeness": 1.0,
+              "coverage": 227.64
+          }
+      ]
+  }
 
-Are you more interested in the Python API? Check out the [official documentation](https://chanjo.readthedocs.org/en/latest/).
+Are you more interested in the Python API? Check out the official documentation_.
 
-### Guidelines
-**Chanjo** sets out be part of a new breed of tools aimed at solving problems with a focus on *clinical* sequencing. Chanjo follows a few made up guidelines:
+Introduction
+--------------
+Verifying adequate read coverage is an `important task`_ to ensure robustness in clinical sequencing. Enabling this in collaboration with clinicians demand new software developed with physicians rather than researchers in mind.
 
-* Terminology that a clinician should feel comfortable with.
-* Flexible and powerful output structure to that can be treated as an API by itself.
-* A modular structure so that adapters for various data stores and sources of coverage can be used interchangably.
+`Alternative tools`_ often hide intuitive genetic concepts such as genes, transcripts, and exons behind more fundamental, less descriptive abstractions. When it comes to the most well defined `genetic elements`_, this can be likened to requiring knowledge of programming to use a computer.
 
-### Completeness (NEW)
+*Chanjo* reads coverage directly from a BAM alignment making it a good fit in most bioinformatic pipelines. A portable yet powerful SQLite database consolidates the output. The ambitions is to create a `standardized API`_ for coverage across the exome.
+
+Completeness (NEW)
+~~~~~~~~~~~~~~~~~~~
 The *completeness* metric is one concrete new feature you will get for free using Chanjo. It's meant as a complement to average coverage as a measure of the success of coverage.
 
 Completeness works as such. Decide on a cutoff "X" representing the lower limit of adequate coverage (e.g. 10x reads). Completeness is simply the percentage of bases across an element/interval that with coverage >= X.
 
 I believe completeness to be a more useful assessment of coverage success than average coverage for at least many clinical purposes.
 
-### Contribute
+Contribute
+-----------
 Test and submit issues. Learn more and point out shortcomings in the [extended documentation](https://chanjo.readthedocs.org/en/latest/). For more details I'll try to keep issues and milestones up-to-date as a source of what needs to be worked on.
 
-### Contributor list
+Contributors
+-------------
 Robin Andeer
 
-### License
+License
+--------
 MIT
 
+.. _documentation: https://chanjo.readthedocs.org/en/latest/
 
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/robinandeer/chanjo/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+.. _important task: http://www.pnas.org/content/106/45/19096.abstract
 
+.. _Alternative tools: http://bedtools.readthedocs.org/en/latest/
+
+.. _genetic elements: http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2704439/
+
+.. _standardized API: http://gemini.readthedocs.org/en/latest/
