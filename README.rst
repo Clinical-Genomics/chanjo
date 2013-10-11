@@ -49,7 +49,7 @@ I believe completeness to be a more useful assessment of coverage success than a
 
 Contribute
 -----------
-Test and submit issues. Learn more and point out shortcomings in the [extended documentation](https://chanjo.readthedocs.org/en/latest/). For more details I'll try to keep issues and milestones up-to-date as a source of what needs to be worked on.
+Test and submit issues. Learn more and point out shortcomings in the extended documentation_. For more details I'll try to keep issues and milestones up-to-date as a source of what needs to be worked on.
 
 Contributors
 -------------
