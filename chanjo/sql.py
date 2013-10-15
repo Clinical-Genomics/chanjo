@@ -4,24 +4,38 @@
   chanjo.sql
   ~~~~~~~~~~~~~
 
-  The default :class:`ElementAdapter` that ships with Chanjo. Provides an
-  interface to a SQLite database using the SQLAlchemy ORM.
+  The default :class:`ElementAdapter` that ships with Chanjo. Provides a basic
+  interface to a `SQLite` database using the `SQLAlchemy` ORM. The SQL
+  structure extends a parallel project `Elemental` that provides the tables
+  and relationships between genes, transcripts, and exons.
 
-  This module also defines the ORM objects and adds nessesary methods.
+  The module defines a few extra ORM objects for adding sample specific
+  coverage annotations.
 
   :copyright: (c) 2013 by Robin Andeer
   :license: MIT, see LICENSE for more details
 """
-from elemental.core import Base, ElementalDB
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship, backref
 
+from elemental.core import Base, ElementalDB
 
-# =========================================================
-#   Data ORM classes
+
+# ---------------------------------------------------------
+#  Data ORM classes
 # ---------------------------------------------------------
 class GeneData(Base):
-  """docstring for GeneData"""
+  """
+  Stores coverage metrics for a single gene and a given sample. It has a
+  many-to-one relationship with it's parent gene object through it's
+  ``element_id`` attribute.
+
+  :param str element_id: HGNC gene symbol
+  :param str sample_id: Unique sample identifier
+  :param int group_id: "Unique" group identifier
+  :param float coverage: Average coverage for the gene
+  :param float completeness: Ratio of adequately covered bases
+  """
   __tablename__ = "GeneData"
 
   id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
@@ -48,7 +62,17 @@ class GeneData(Base):
 
 
 class TranscriptData(Base):
-  """docstring for TranscriptData"""
+  """
+  Stores coverage metrics for a single transcript and a given sample. It has a
+  many-to-one relationship with it's parent transcript object through it's
+  ``element_id`` attribute.
+
+  :param str element_id: Unique CCDS transcript identifier
+  :param str sample_id: Unique sample identifier
+  :param int group_id: "Unique" group identifier
+  :param float coverage: Average coverage for the transcript
+  :param float completeness: Ratio of adequately covered bases
+  """
   __tablename__ = "TranscriptData"
 
   id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
@@ -75,7 +99,17 @@ class TranscriptData(Base):
 
 
 class ExonData(Base):
-  """docstring for ExonData"""
+  """
+  Stores coverage metrics for a single exon and a given sample. It has a
+  many-to-one relationship with it's parent exon object through it's
+  ``element_id`` attribute.
+
+  :param str element_id: HGNC gene symbol
+  :param str sample_id: Unique sample identifier
+  :param int group_id: "Unique" group identifier
+  :param float coverage: Average coverage for the exon
+  :param float completeness: Ratio of adequately covered bases
+  """
   __tablename__ = "ExonData"
 
   id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
@@ -106,12 +140,13 @@ class ExonData(Base):
 # ---------------------------------------------------------
 class ElementAdapter(ElementalDB):
   """
-  SQLAlchemy-based :class:`ElementAdapter` for Chanjo.
+  SQLAlchemy-based :class:`ElementAdapter` for Chanjo. Inherits the basic SQL
+  table structure from `ElementalDB`.
 
   .. note::
 
-    For testing pourposes; use ":memory:" as the `path` argument to set up
-    in-memory version of the database.
+    For testing pourposes; use ":memory:" as the ``path`` parameter to set up
+    an in-memory instance of the database.
 
   :param str path: Path to the database to connect to
   :param bool debug: Whether to print logging information (optional)
@@ -119,7 +154,7 @@ class ElementAdapter(ElementalDB):
   def __init__(self, path, debug=False):
     super(ElementAdapter, self).__init__(path, debug=debug)
 
-    # Add new classes to the supported ORM classes
+    # Add new data classes to the supported ORM classes
     self.classes.update({
       "gene_data": GeneData,
       "transcript_data": TranscriptData,
@@ -128,12 +163,19 @@ class ElementAdapter(ElementalDB):
 
   def transcriptStats(self, sample_id):
     """
-    What's happening is that we are summing read depths and passed bases for
-    each exon in a transcript and then dividing those numbers by the total
-    exon length of the transcript.
+    <public> Calculates transcript level metrics to annotate transcripts.
+    Requires all related exons to already be properly annotated.
+
+    What's happening is that we are summing read depths and adequately covered
+    bases for each exon in a transcript and then dividing those numbers by the
+    total exon length of the transcript.
 
     .. note::
-      This needs to be carried out before annotating genes!
+
+      Transcript annotation needs to be carried out before annotating genes!
+
+    :param str sample_id: Sample ID to match with coverage annotations
+    :returns: List of tuples: ``(<tx_id>, <coverage>, <completeness>)``
     """
     # I might turn this into a proper SQLAlchemy verison but for now.
     rawSQL = """
@@ -151,8 +193,19 @@ class ElementAdapter(ElementalDB):
 
   def geneStats(self, sample_id):
     """
+    <public> Calculates gene level metrics to annotate genes. Requires all
+    related transcripts to already be properly annotated.
+
+    What's happening is that we are simply taking the average of the metrics
+    on the transcript level and applying that as gene metrics. This gives a
+    decent, albeit not perfect, represenation of gene level metrics.
+
     .. note::
+
       Annotation of transcripts needs to be acomplished before annotating genes!
+
+    :param str sample_id: Sample ID to match with coverage annotations
+    :returns: List of tuples: ``(<gene_id>, <coverage>, <completeness>)``
     """
     rawSQL = """
     SELECT Gene.id,

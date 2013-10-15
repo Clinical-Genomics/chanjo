@@ -62,9 +62,6 @@ class TestCoverageAdapter:
               completeness=gs[2]
             ) for gs in self.db.geneStats(sample_id)]).commit()
 
-  def tearDown(self):
-    print("TEAR DOWN!")
-
   def test_exons(self):
     exon = self.db.get("exon", "7-55231424-55231514")
     assert_equal(exon.chrom, "7")

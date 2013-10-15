@@ -3,7 +3,7 @@
 """Chanjo CLI
 
 Usage:
-  chanjo annotate <store> using <source> [<gene>... | --read=<file>] [--ccds=<file>] [--cutoff=<int>] [--sample=<str>] [--group=<int>] [--json=<file>] [--verbose] [-p | --print] [--force]
+  chanjo annotate <store> using <source> [<gene>... | --read=<file>] [--ccds=<file>] [--cutoff=<int>] [--splice-sites] [--sample=<str>] [--group=<int>] [--json=<file>] [--verbose] [-p | --print] [--force]
   chanjo read <chrom> <start> <end> using <source> [--cutoff=<int>] [--verbose]
   chanjo peak <store> <gene>... [--verbose] [--sample=<str>] [--group=<int>]
   chanjo build <store> using <ccds_path> [--force]
@@ -34,11 +34,12 @@ Options:
   -r --read=<file>    Text file with one HGNC symbol per line
   --ccds=<file>       Path to CCDS database dump (build new database)
   -c --cutoff=<int>   Cutoff for completeness [default: 10]
+  -ss --splice-sites  Include splice sites (+/- 2 bases) for each exon
   -s --sample=<str>   Sample ID [default: 0-0-0U]
   -g --group=<int>    Group/Family ID [default: 0]
   -j --json=<file>    Write temp JSON-file for later import (parallel)
   -f --force          Force overwrite of existing files
-  -v --verbose        Show more print info
+  -v --verbose        Print more liberally
   -p --print          *Only* print CLI parameters (debug)
 """
 from __future__ import print_function
@@ -80,7 +81,7 @@ def read(bamPath, chrom, start, end, cutoff, verbose=False):
     decimals = 2
 
   depths = hub.cov.read(chrom, start, end)
-  (coverage, completeness, _) = hub.calculate(depths, cutoff)
+  coverage, completeness = hub.calculate(depths, cutoff)
 
   output = {
     "interval": {
@@ -215,7 +216,7 @@ def annotate(storePath, bamPath, cutoff, sample_id, group_id, ccdsPath=None,
   exonData = [None]*len(genes)
   for i, gene in enumerate(genes):
     # Annotate the gene
-    exonData[i] = hub.annotate(gene, cutoff)
+    exonData[i] = hub.annotate(gene, cutoff, splice=args["--splice-sites"])
 
     if verbose:
       print("Annotated: {}".format(gene.id), end="\r")
@@ -313,7 +314,8 @@ def main(args):
       genes = args["<gene>"] or None
 
     # Call the function which does the annotation of the genes
-    annotate(args["<store>"], args["<source>"], cutoff, sample_id, group_id, args["--ccds"], genes, verbose=args["--verbose"])
+    annotate(args["<store>"], args["<source>"], cutoff, sample_id, group_id,
+             args["--ccds"], genes, verbose=args["--verbose"])
 
     # End the timer (mohahaha...)
     end = time.time()
