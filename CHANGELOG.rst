@@ -13,3 +13,12 @@ New CLI!
 * New command line option: reading coverage from any interval from BAM-file
 * Many small bugfixes and minor improvements
 * New dependency: path.py
+
+v0.3.0
+-----------------
+* NEW: API - annotate: splice sites option
+* NEW: CLI - annotate: splice sites option
+* UPDATE: Much improved documentation
+* UPDATE: Modern setuptools only installation
+* UPDATE: New cleaner banner
+* NEW: travis integration
