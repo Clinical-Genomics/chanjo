@@ -1,3 +1,5 @@
+.. _cli:
+
 Command Line Interface
 =======================
 
@@ -46,4 +48,3 @@ Command Line Interface
     -f --force          Force overwrite of existing files
     -v --verbose        Print more liberally
     -p --print          *Only* print CLI parameters (debug)
-
