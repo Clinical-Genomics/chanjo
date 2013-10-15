@@ -80,8 +80,8 @@ class Hub(object):
         hub.annotate(gene, 15)
 
     :param object element: One element object (gene/transcript)
-    :param cutoff: (optional) The min read depth to use for completeness
-                   (Default: 10)
+    :param int cutoff: (optional) Min read depth for completeness [default: 10]
+    :param bool splice: (optional) Include splice sites for each exon (+/- 2)
     """
     start = element.start
     end = element.end
