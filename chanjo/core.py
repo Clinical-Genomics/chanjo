@@ -4,37 +4,31 @@
   chanjo.core
   ~~~~~~~~~~~~~
 
-  This module implements the glue and controlling hub. The :class:`Hub` is
-  also where the adapters are plugged in to. This will likely be pretty much
-  the only part of the package you directly interact with.
+  This module implements the glue and controlling hub of `Chanjo`. The
+  :class:`Hub` is also where the adapters are plugged in to. This will likely
+  be pretty much the only part of the package you directly interact with if
+  you decide to use the Pythonic API.
 
   :copyright: (c) 2013 by Robin Andeer
   :license: MIT, see LICENSE for more details
 """
 
-import zlib
-import itertools
-
 
 class Hub(object):
   """
-  The :class:`Hub` is the core component of Chanjo. When you plug in the
-  adapters, it will create handy shortcuts to easily reach common methods.
+  The :class:`Hub` is the core component of `Chanjo`. It's able to prepare
+  data and annotate elements, calculate coverage for a range of genomic
+  positions, and interact with the element data store.
 
-  The :class:`Hub` is able to prepare data and annotate elements, calculate
-  coverage for a range of genomic positions, and interact with the
-  element data store.
-
-  Usage::
+  .. code-block:: python
 
     from chanjo.core import Hub
     from chanjo.bam import CoverageAdapter
     from chanjo.sqlite import ElementAdapter
 
-    hub = Hub()
-    bam_path = "/path/to/file.bam"
-    cov_path = "/path/to/sqlite.db"
-    hub.connect(CoverageAdapter(bam_path), ElementAdapter(cov_path))
+    bam = CoverageAdapter("/path/to/file.bam")
+    sql = ElementAdapter("/path/to/sqlite.db")
+    hub = Hub(bam, sql)
 
   :param str coverageAdapter: (optional) Plug in the adapter during init
   :param str elementAdapter: (optional) Plug in the adapter during init
@@ -49,18 +43,13 @@ class Hub(object):
 
   def connect(self, coverageAdapter, elementAdapter):
     """
-    Public: Plugs in the required adapters and sets up a few shortcuts.
+    <public> Plugs in the required adapters.
 
-    Usage::
+    .. code-block:: python
 
-      from chanjo.core import Hub
-      from chanjo.bam import CoverageAdapter
-      from chanjo.sqlite import ElementAdapter
-
-      hub = Hub()
-      bam_path = "/path/to/file.bam"
-      cov_path = "/path/to/sqlite.db"
-      hub.connect(CoverageAdapter(bam_path), ElementAdapter(cov_path))
+      >>> bam_path = "/path/to/file.bam"
+      >>> cov_path = "/path/to/sqlite.db"
+      >>> hub.connect(CoverageAdapter(bam_path), ElementAdapter(cov_path))
 
     :param str coverageAdapter: An instance of a :class:`CoverageAdapter`
     :param str elementAdapter:  An instance of a :class:`ElementAdapter`
@@ -71,13 +60,13 @@ class Hub(object):
 
   def annotate(self, element, cutoff=10, splice=False):
     """
-    Public: Annotates each related exon with coverage data.
+    <public> Annotates each related exon with coverage data.
 
-    Usage::
+    .. code-block:: python
 
-      genes = hub.db.get("gene", ["GIT1", "EGFR", "BRCA1"])
-      for gene in genes:
-        hub.annotate(gene, 15)
+      >>> genes = hub.db.get("gene", ["GIT1", "EGFR", "BRCA1"])
+      >>> for gene in genes:
+      >>>   hub.annotate(gene, 15)
 
     :param object element: One element object (gene/transcript)
     :param int cutoff: (optional) Min read depth for completeness [default: 10]
@@ -86,7 +75,7 @@ class Hub(object):
     start = element.start
     end = element.end
 
-    # Include splice sites (+/- 2 bases)
+    # Include splice sites (+/- 2 bases) when reading from BAM-file
     if splice:
       start -= 2
       end += 2
@@ -102,7 +91,7 @@ class Hub(object):
       ex_start = exon.start
       ex_end = exon.end
 
-      # Include splice sites
+      # Include splice sites for the exon
       if splice:
         ex_start -= 2
         ex_end += 2
@@ -113,8 +102,8 @@ class Hub(object):
 
       # Do the heavy lifting
       # +1 to end because ``end`` is 0-based and slicing is 0,1-based
-      (coverage, completeness,
-       levels) = self.calculate(depth[rel_start:rel_end+1], cutoff)
+      (coverage,
+       completeness) = self.calculate(depth[rel_start:rel_end+1], cutoff)
 
       exons[i] = {
         "element_id": exon.id,
@@ -124,19 +113,20 @@ class Hub(object):
 
     return exons
 
-  def calculate(self, depths, cutoff, levels=False):
+  def calculate(self, depths, cutoff):
     """
-    Public: Calculates both coverage and completeness for a interval.
+    <public> Calculates both coverage and completeness for an interval.
 
-    Usage::
+    .. code-block::
 
-      gene = hub.db.get("gene", "C3")
-      hub.coverage(gene.chrom, gene.intervals, 15)
-      #=> (13.43522398231, 0.434122133123, None)
+      >>> gene = hub.db.get("gene", "C3")
+      >>> hub.coverage(gene.chrom, gene.intervals, 15)
+      (13.43522398231, 0.434122133123)
 
     :param list depths: List/array of the read depth for each position/base
     :param int cutoff: The cutoff for lowest passable read depth (completeness)
-    :returns: Coverage (float), completeness (float), compressed levels (str)
+    :returns: ``(<coverage (float)>, <completeness (float)>)``
+    :rtype: tuple
     """
     # Initialize
     totBaseCount = float(len(depths))
@@ -151,27 +141,5 @@ class Hub(object):
       if depth >= cutoff:
         passedCount += 1
 
-    if levels:
-      # Stringify and compress the levels to enable storage in SQL database
-      str_levels = self.stringify(depths)
-    else:
-      str_levels = None
-
     # totBaseCount should never be able to be 0! Exons be >= 1 bp long
-    return readCount / totBaseCount, passedCount / totBaseCount, str_levels
-
-  def stringify(self, depths):
-    """
-    Public: Compresses the string of read depths.
-
-    Because of how compression works I believe this will be sort of the same
-    as generating BEDGraph intervals to compress the information.
-
-    :param list depths: Array of read depth (float or int)
-    :returns: Compressed string of read depths
-    """
-    # Turn floats to ints, then to strings, then concat with "|"-separator
-    str_depths = "|".join(itertools.imap(str, map(int, depths)))
-
-    # Compress and return compressed string
-    return zlib.compress(str_depths)
+    return readCount / totBaseCount, passedCount / totBaseCount
