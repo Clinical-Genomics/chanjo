@@ -52,10 +52,17 @@ ElementAdapter Object
 .. autoclass:: ElementAdapter
    :members:
 
-.. module:: chanjo.ccds2sql
+GeneData Object
+----------------
+.. autoclass:: GeneData
+  :members:
 
-Importer Object
+TranscriptData Object
 -----------------------
-.. autoclass:: Importer
-   :members:
+.. autoclass:: TranscriptData
+  :members:
 
+ExonData Object
+----------------
+.. autoclass:: ExonData
+  :members:

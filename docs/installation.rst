@@ -2,34 +2,12 @@
 
 Installation
 ================
-This section will sequentially instruct you on how to install Chanjo.
+This section will instruct you, step-by-step, on how to install Chanjo.
 
-FYI: Chanjo is developed on Mac OSX and is targeted to run on UNIX platforms, including Linux, running Python 2.7.x.
+.. note::
 
-Non-python dependencies
-------------------------
-C-compiler
-~~~~~~~~~~~
-You need to have a C-compiler installed on your system.
+  Chanjo is developed on Mac OSX and is targeted to run on UNIX platforms, including Linux, running Python 2.7.x.
 
-On OSX, the easiet way is to install `Apple Developer Command Line Tools <https://developer.apple.com/downloads/index.action>`_. If you don't want to sign up for a free developer account you could try `this installer <https://github.com/kennethreitz/osx-gcc-installer>`_.
-
-SAMtools
-~~~~~~~~~~
-`SAMtools <http://samtools.sourceforge.net/>`_ provides various utilities for manipulating alignments in the SAM/BAM format, including sorting, merging, indexing and generating alignments in a per-position format. **Version 0.1.19** or above is required.
-
-To install you need to download the latest release from `this page <http://sourceforge.net/projects/samtools/files/>`_.
-
-.. code-block:: console
-
-  $ cd samtools-0.1.19/
-  $ make
-
-Don't forget to add/copy the `samtools` binary from the `misc` folder to a location in your ``$PATH``.
-
-SQLite
-~~~~~~~
-`SQLite <http://www.sqlite.org/>`_ is an embedded SQL database that ships with most operating systems. You probably don't have to worry about installing it yourself.
 
 Installing Chanjo
 ------------------
@@ -43,11 +21,40 @@ Required Python dependencies will be installed alongside the main package. The `
 
 .. note::
 
-  I recommend installing `Chanjo` in a virtual environment. Don't know what they are? The excellent `Python Guide <http://docs.python-guide.org/en/latest/>`_ has `more information <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ on the topic.
+  I recommend installing `Chanjo` in a virtual environment. Don't know what that is? The excellent `Python Guide`_ has `more information`_ on the topic.
 
-Get the code
--------------
-1. Download the code from the GitHub `repo <https://github.com/robinandeer/chanjo/releases>`_.
+
+Non-python dependencies
+------------------------
+C-compiler
+~~~~~~~~~~~
+You need to have a C-compiler installed on your system.
+
+On OSX, the easiet way is to install Apple's `Developer command line tools`_. If you don't want to sign up for a free developer account you could try Kenneth Reitz's `GCC Installer for OSX`_.
+
+SAMtools
+~~~~~~~~~~
+SAMtools_ provides various utilities for manipulating alignments in the SAM/BAM format, including sorting, merging, indexing and generating alignments in a per-position format. **>=v0.1.19** is required.
+
+Technically SAMtools should be automatically installed alongside Chanjo. If you wish to assert more controll over the process, however, or are experience problems, this is how you would install it manually. It's actually not that difficult.
+
+To install you need to download the latest release from Samtools' `downloads page`_.
+
+.. code-block:: console
+
+  $ cd samtools-0.1.19/
+  $ make
+
+Don't forget to add/copy the `samtools` binary from the `misc` folder to a location in your ``$PATH``.
+
+SQLite
+~~~~~~~
+`SQLite <http://www.sqlite.org/>`_ is an embedded SQL database that ships with most operating systems. You probably don't have to worry about installing it yourself.
+
+
+Getting the code
+------------------
+1. Download the code from the `GitHub repo`_.
 
 .. code-block:: console
 
@@ -61,3 +68,10 @@ Get the code
   $ python setup.py install
 
 .. _virtualenv: http://www.virtualenv.org/en/latest/
+.. _Developer command line tools: https://developer.apple.com/downloads/index.action
+.. _GCC Installer for OSX: https://github.com/kennethreitz/osx-gcc-installer
+.. _Samtools: http://samtools.sourceforge.net/
+.. _downloads page: http://sourceforge.net/projects/samtools/files/
+.. _Python Guide: http://docs.python-guide.org/en/latest/
+.. _more information: http://docs.python-guide.org/en/latest/dev/virtualenvs/
+.. _GitHub repo: https://github.com/robinandeer/chanjo/releases

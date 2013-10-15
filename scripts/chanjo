@@ -39,7 +39,7 @@ Options:
   -g --group=<int>    Group/Family ID [default: 0]
   -j --json=<file>    Write temp JSON-file for later import (parallel)
   -f --force          Force overwrite of existing files
-  -v --verbose        Show more print info
+  -v --verbose        Print more liberally
   -p --print          *Only* print CLI parameters (debug)
 """
 from __future__ import print_function
@@ -81,7 +81,7 @@ def read(bamPath, chrom, start, end, cutoff, verbose=False):
     decimals = 2
 
   depths = hub.cov.read(chrom, start, end)
-  (coverage, completeness, _) = hub.calculate(depths, cutoff)
+  coverage, completeness = hub.calculate(depths, cutoff)
 
   output = {
     "interval": {
@@ -314,7 +314,8 @@ def main(args):
       genes = args["<gene>"] or None
 
     # Call the function which does the annotation of the genes
-    annotate(args["<store>"], args["<source>"], cutoff, sample_id, group_id, args["--ccds"], genes, verbose=args["--verbose"])
+    annotate(args["<store>"], args["<source>"], cutoff, sample_id, group_id,
+             args["--ccds"], genes, verbose=args["--verbose"])
 
     # End the timer (mohahaha...)
     end = time.time()

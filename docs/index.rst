@@ -7,7 +7,7 @@ Chanjo: A sane sequence coverage analysis tool
 ===============================================
 Release |version|. (:ref:`Installation <installation>`)
 
-Chanjo is a sane coverage analysis tool for DNA sequencing. It's written in Python and aims to make it easy to answer clinically relevant questions related to coverage in sequencing.
+Chanjo is a sane coverage analysis tool for DNA sequencing. It's written in Python and aims to make it easy to answer clinically relevant questions.
 
 .. code-block:: console
 
@@ -23,19 +23,22 @@ Chanjo is a sane coverage analysis tool for DNA sequencing. It's written in Pyth
       ]
    }
 
+
 User's Guide:
 ----------------
-This resource will cover everything from getting setup and started, diving into the Python API, offer a deeper understanding of how Chanjo is built and why, as well as catch you up on the latest developments. 
+This resource aims to cover everything from getting setup and started, diving into the Python API, forging a deeper understanding of Chanjo, as well as catching up on the latest developments.
 
 .. toctree::
    :maxdepth: 2
 
    installation
    quickstart
+   python-api
    parallel
    adapters
    design
    development
+
 
 API reference
 --------------
@@ -46,13 +49,13 @@ API reference
    api
    cli
 
-.. note::
 
-   Download the official Chanjo `wallpapers <https://dl.dropboxusercontent.com/u/116686/chanjo-wp.zip>`_!
+Wallpapers
+-----------
+Download the official Chanjo `wallpapers <https://dl.dropboxusercontent.com/u/116686/chanjo-wp.zip>`_!
 
-   **Preview**
+.. image:: _static/chanjo-wp.001.small.jpg
 
-   .. image:: _static/chanjo-wp.001.small.jpg
 
 .. Indices and tables
 .. ==================
