@@ -8,7 +8,7 @@ Command Line Interface
   Chanjo CLI
 
   Usage:
-    chanjo annotate <store> using <source> [<gene>... | --read=<file>] [--ccds=<file>] [--cutoff=<int>] [--sample=<str>] [--group=<int>] [--json=<file>] [--verbose] [-p | --print] [--force]
+    chanjo annotate <store> using <source> [<gene>... | --read=<file>] [--ccds=<file>] [--cutoff=<int>] [--splice-sites] [--sample=<str>] [--group=<int>] [--json=<file>] [--verbose] [-p | --print] [--force]
     chanjo read <chrom> <start> <end> using <source> [--cutoff=<int>] [--verbose]
     chanjo peak <store> <gene>... [--verbose] [--sample=<str>] [--group=<int>]
     chanjo build <store> using <ccds_path> [--force]
@@ -39,9 +39,11 @@ Command Line Interface
     -r --read=<file>    Text file with one HGNC symbol per line
     --ccds=<file>       Path to CCDS database dump (build new database)
     -c --cutoff=<int>   Cutoff for completeness [default: 10]
+    -ss --splice-sites  Include splice sites (+/- 2 bases) for each exon
     -s --sample=<str>   Sample ID [default: 0-0-0U]
     -g --group=<int>    Group/Family ID [default: 0]
     -j --json=<file>    Write temp JSON-file for later import (parallel)
     -f --force          Force overwrite of existing files
-    -v --verbose        Show more print info
+    -v --verbose        Print more liberally
     -p --print          *Only* print CLI parameters (debug)
+

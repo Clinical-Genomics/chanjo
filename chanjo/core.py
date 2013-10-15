@@ -117,7 +117,7 @@ class Hub(object):
     """
     <public> Calculates both coverage and completeness for an interval.
 
-    .. code-block::
+    .. code-block:: python
 
       >>> gene = hub.db.get("gene", "C3")
       >>> hub.coverage(gene.chrom, gene.intervals, 15)
