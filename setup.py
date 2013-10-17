@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Bootstrap distribute unless already installed
-from distribute_setup import use_setuptools
+from chanjo.distribute_setup import use_setuptools
 use_setuptools()
 
 import os
@@ -39,10 +39,6 @@ setup(
   tests_require = [
     "nose"
   ],
-
-  package_data={
-    "": ["distribute_setup.py", "requirements.txt"]
-  },
 
   # Metadate for upload to Pypi
   author="Robin Andeer",
