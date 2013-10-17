@@ -40,6 +40,10 @@ setup(
     "nose"
   ],
 
+  package_data={
+    "": ["distribute_setup.py", "requirements.txt"]
+  },
+
   # Metadate for upload to Pypi
   author="Robin Andeer",
   author_email="robin.andeer@gmail.com",
