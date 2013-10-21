@@ -15,6 +15,7 @@
   :copyright: (c) 2013 by Robin Andeer
   :license: MIT, see LICENSE for more details
 """
+import datetime
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship, backref
 
@@ -43,7 +44,8 @@ class GeneData(Base):
   completeness = sa.Column(sa.Float)
 
   # These column maps coverage/completeness to an individual+group
-  sample_id = sa.Column(sa.String)
+  sample_id = sa.Column(sa.String, sa.ForeignKey("Sample.id"))
+  sample = relationship("Sample", backref=backref("genes"))
   group_id = sa.Column(sa.Integer)
 
   # Genetic relationship
@@ -80,7 +82,8 @@ class TranscriptData(Base):
   completeness = sa.Column(sa.Float)
 
   # These column maps coverage/completeness to an individual+group
-  sample_id = sa.Column(sa.String)
+  sample_id = sa.Column(sa.String, sa.ForeignKey("Sample.id"))
+  sample = relationship("Sample", backref=backref("transcripts"))
   group_id = sa.Column(sa.Integer)
 
   # Genetic relationship
@@ -117,7 +120,8 @@ class ExonData(Base):
   completeness = sa.Column(sa.Float)
 
   # These column maps coverage/completeness to an individual+group
-  sample_id = sa.Column(sa.String)
+  sample_id = sa.Column(sa.String, sa.ForeignKey("Sample.id"))
+  sample = relationship("Sample", backref=backref("exons"))
   group_id = sa.Column(sa.Integer)
 
   # Genetic relationship
@@ -133,6 +137,37 @@ class ExonData(Base):
     self.group_id = group_id
     self.coverage = coverage
     self.completeness = completeness
+
+class Sample(Base):
+  """
+  Stores meta-data about each sample. This helps out in consolidating all
+  important information in one place.
+
+  :param str sample_id: The unique sample ID
+  :param str group_id: The unique group ID
+  :param int cutoff: The cutoff used for completeness
+  :param bool splice_sites: ANS: Splice sites were included
+  :param str bam_file: Path to the bam file used
+  """
+  __tablename__ = "Sample"
+
+  id = sa.Column(sa.String, primary_key=True)
+  group_id = sa.Column(sa.Integer)
+
+  cutoff = sa.Column(sa.Integer)
+  splice_sites = sa.Column(sa.Boolean)
+  bam_file = sa.Column(sa.String)
+  created_at = sa.Column(sa.DateTime, default=datetime.datetime.now)
+  updated_at = sa.Column(sa.DateTime, onupdate=datetime.datetime.now)
+
+  def __init__(self, sample_id, group_id, cutoff=10, splice_sites=False,
+               bam_file=None):
+    super(Sample, self).__init__()
+
+    self.sample_id = sample_id
+    self.group_id = group_id
+    self.cutoff = cutoff
+    self.splice_sites = splice_sites
 
 
 # =========================================================
