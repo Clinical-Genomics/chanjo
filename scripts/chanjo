@@ -3,7 +3,9 @@
 """Chanjo CLI
 
 Usage:
-  chanjo annotate <store> using <source> [<gene>... | --read=<file>] [--ccds=<file>] [--cutoff=<int>] [--splice-sites] [--sample=<str>] [--group=<int>] [--json=<file>] [--verbose] [-p | --print] [--force]
+  chanjo annotate <store> using <source> [<gene>... | --read=<file>]
+         [--ccds=<file>] [--cutoff=<int>] [--splice-sites] [--sample=<str>]
+         [--group=<int>] [--json=<file>] [--verbose] [-p | --print] [--force]
   chanjo read <chrom> <start> <end> using <source> [--cutoff=<int>] [--verbose]
   chanjo peak <store> <gene>... [--verbose] [--sample=<str>] [--group=<int>]
   chanjo build <store> using <ccds_path> [--force]
