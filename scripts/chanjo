@@ -147,9 +147,9 @@ def build(storePath, ccdsPath, db=None):
   # 3. Commit all elements added during the setup session
   db.setup().convert(genes, txs, exons).commit()
 
-def import_(annotations, db, sample_id=None, group_id=None, cutoff=None):
+def import_(annotations, db, sample_id, group_id, cutoff, source, splice):
   """
-  Imports annotations stored in text-files for example when running Chanjo in
+  Imports annotations stored in JSON-files for example after running Chanjo in
   parallel.
   """
   # And for each of the annotations
@@ -184,6 +184,15 @@ def import_(annotations, db, sample_id=None, group_id=None, cutoff=None):
             coverage=gs[1],
             completeness=gs[2]
           ) for gs in db.geneStats(sample_id)]).commit()
+
+  # Add a Sample entry with meta-data
+  db.add(db.create("sample",
+    sample=sample_id,
+    group=group_id,
+    cutoff=cutoff,
+    source=source,
+    splice=splice
+  )).commit()
 
 def annotate(storePath, bamPath, cutoff, sample_id, group_id, ccdsPath=None,
              geneIDs=None, verbose=False):
@@ -229,15 +238,18 @@ def annotate(storePath, bamPath, cutoff, sample_id, group_id, ccdsPath=None,
     # rather than persisting to the datastore. We use JSON.
     with open(args["--json"], "w") as handle:
       json.dump({
-        "cutoff": cutoff,
         "sample_id": sample_id,
         "group_id": group_id,
+        "cutoff": cutoff,
+        "source": bamPath,
+        "splice": args["--splice-sites"],
         "annotations": flatExonData
       }, handle)
 
   else:
     # Add to session and commit so that the upcoming queries will work
-    import_(flatExonData, hub.db, sample_id, group_id, cutoff)
+    import_(flatExonData, hub.db, sample_id, group_id, cutoff, bamPath,
+            args["--splice-sites"])
 
 def main(args):
   # First command will determine which path to take
@@ -280,7 +292,7 @@ def main(args):
 
         data = json.load(handle)
         import_(data["annotations"], db, data["sample_id"], data["group_id"],
-                data["cutoff"])
+                data["cutoff"], data["source"], data["splice"])
 
   else:
 

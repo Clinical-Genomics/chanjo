@@ -15,7 +15,7 @@
   :copyright: (c) 2013 by Robin Andeer
   :license: MIT, see LICENSE for more details
 """
-import datetime
+from datetime import datetime
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship, backref
 
@@ -143,11 +143,11 @@ class Sample(Base):
   Stores meta-data about each sample. This helps out in consolidating all
   important information in one place.
 
-  :param str sample_id: The unique sample ID
-  :param str group_id: The unique group ID
+  :param str sample: The unique sample ID
+  :param str group: The unique group ID
   :param int cutoff: The cutoff used for completeness
-  :param bool splice_sites: ANS: Splice sites were included
-  :param str bam_file: Path to the bam file used
+  :param bool splice: ANS: Splice sites were included
+  :param str bam_file: Path to the BAM file used
   """
   __tablename__ = "Sample"
 
@@ -155,19 +155,20 @@ class Sample(Base):
   group_id = sa.Column(sa.Integer)
 
   cutoff = sa.Column(sa.Integer)
-  splice_sites = sa.Column(sa.Boolean)
-  bam_file = sa.Column(sa.String)
-  created_at = sa.Column(sa.DateTime, default=datetime.datetime.now)
-  updated_at = sa.Column(sa.DateTime, onupdate=datetime.datetime.now)
+  splice = sa.Column(sa.Boolean)
+  source = sa.Column(sa.String)
+  created_at = sa.Column(sa.DateTime, default=datetime.now)
+  updated_at = sa.Column(sa.DateTime, default=datetime.now,
+                         onupdate=datetime.now)
 
-  def __init__(self, sample_id, group_id, cutoff=10, splice_sites=False,
-               bam_file=None):
+  def __init__(self, sample, group, cutoff=10, source=None, splice=False):
     super(Sample, self).__init__()
 
-    self.sample_id = sample_id
-    self.group_id = group_id
+    self.sample_id = sample
+    self.group_id = group
     self.cutoff = cutoff
-    self.splice_sites = splice_sites
+    self.source = source
+    self.splice = splice
 
 
 # =========================================================
@@ -193,7 +194,8 @@ class ElementAdapter(ElementalDB):
     self.classes.update({
       "gene_data": GeneData,
       "transcript_data": TranscriptData,
-      "exon_data": ExonData
+      "exon_data": ExonData,
+      "sample": Sample
     })
 
   def transcriptStats(self, sample_id):
