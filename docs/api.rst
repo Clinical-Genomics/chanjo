@@ -66,3 +66,8 @@ ExonData Object
 ----------------
 .. autoclass:: ExonData
   :members:
+
+Sample Object
+---------------
+.. autoclass:: Sample
+  :members:

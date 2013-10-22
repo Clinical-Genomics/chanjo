@@ -143,6 +143,8 @@ class Sample(Base):
   Stores meta-data about each sample. This helps out in consolidating all
   important information in one place.
 
+  .. versionadded:: 0.4.0
+
   :param str sample: The unique sample ID
   :param str group: The unique group ID
   :param int cutoff: The cutoff used for completeness
