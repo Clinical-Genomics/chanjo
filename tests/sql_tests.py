@@ -3,13 +3,14 @@
 
 from __future__ import print_function
 import json
+import datetime
 from nose.tools import *
 
 from chanjo.sql import ElementAdapter
 from elemental.adapters.ccds import CCDSAdapter
 
 
-class TestCoverageAdapter:
+class TestElementAdapter:
   def __init__(self):
     pass
 
@@ -125,3 +126,5 @@ class TestCoverageAdapter:
     assert_equal(sample.cutoff, 10)
     assert_equal(sample.source, "align.bam")
     assert_equal(sample.splice, False)
+
+    assert_equal(sample.created_at.date(), datetime.date.today())
