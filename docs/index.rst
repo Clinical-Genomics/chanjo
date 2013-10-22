@@ -36,6 +36,7 @@ This resource aims to cover everything from getting setup and started, diving in
    python-api
    parallel
    adapters
+   sql
    design
    development
 
