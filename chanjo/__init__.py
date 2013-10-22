@@ -4,7 +4,7 @@ from __future__ import print_function
 from core import Hub
 
 __title__ = "chanjo"
-__version__ = "0.3.2"
+__version__ = "0.4.0"
 __author__ = "Robin Andeer"
 __license__ = "MIT"
 __copyright__ = "Copyright 2013 Robin Andeer"

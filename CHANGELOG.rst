@@ -22,3 +22,11 @@ v0.3.0
 * UPDATE: Modern setuptools only installation
 * UPDATE: New cleaner banner
 * NEW: travis integration
+
+v0.4.0
+-----------------
+* NEW: Table with Sample meta-data
+* UPDATE: CLI creates sample entries
+* UPDATE: SQL structure in docs
+* UPDATE: Updated tests
+* UPDATE: included test data (MANIFEST.in) - more on this later...
