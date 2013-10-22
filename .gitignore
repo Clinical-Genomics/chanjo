@@ -73,6 +73,7 @@ nosetests.xml
 .project
 .pydevproject
 .env
+*.tar.gz
 
 # Databses
 *.db*
