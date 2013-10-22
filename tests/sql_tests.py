@@ -33,6 +33,9 @@ class TestCoverageAdapter:
 
       sample_id = data["sample_id"]
       group_id = data["group_id"]
+      cutoff = data["cutoff"]
+      source = data["source"]
+      splice = data["splice"]
 
     # Import ExonData examples
     self.db.add([self.db.create("exon_data",
@@ -61,6 +64,14 @@ class TestCoverageAdapter:
               coverage=gs[1],
               completeness=gs[2]
             ) for gs in self.db.geneStats(sample_id)]).commit()
+
+    self.db.add(self.db.create("sample",
+      sample=sample_id,
+      group=group_id,
+      cutoff=cutoff,
+      source=source,
+      splice=splice
+    ))
 
   def test_exons(self):
     exon = self.db.get("exon", "7-55231424-55231514")
@@ -105,3 +116,12 @@ class TestCoverageAdapter:
     # Test averages
     assert_almost_equal(data.coverage, 84.306843228796211)
     assert_almost_equal(data.completeness, 0.95173900970166092)
+
+  def test_sample(self):
+    sample = self.db.get("sample", "99-1-1A")
+
+    assert_equal(len(sample.genes), 4)
+    assert_equal(sample.group_id, 99)
+    assert_equal(sample.cutoff, 10)
+    assert_equal(sample.source, "align.bam")
+    assert_equal(sample.splice, False)

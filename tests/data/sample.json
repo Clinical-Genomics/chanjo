@@ -1,6 +1,9 @@
 {
-  "cutoff": 10,
+  "sample_id": "99-1-1A",
   "group_id": 99,
+  "cutoff": 10,
+  "source": "align.bam",
+  "splice": false,
   "annotations": [
     {
       "element_id": "22-40742561-40742713",
@@ -332,6 +335,5 @@
       "completeness": 1,
       "coverage": 134.125
     }
-  ],
-  "sample_id": "99-1-1A"
+  ]
 }

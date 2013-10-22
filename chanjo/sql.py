@@ -164,7 +164,7 @@ class Sample(Base):
   def __init__(self, sample, group, cutoff=10, source=None, splice=False):
     super(Sample, self).__init__()
 
-    self.sample_id = sample
+    self.id = sample
     self.group_id = group
     self.cutoff = cutoff
     self.source = source
