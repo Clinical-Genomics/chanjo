@@ -19,6 +19,7 @@ from datetime import datetime
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship, backref
 
+from elemental.adapters import ccds
 from elemental.core import Base, ElementalDB
 
 
@@ -199,6 +200,23 @@ class ElementAdapter(ElementalDB):
       "exon_data": ExonData,
       "sample": Sample
     })
+
+  def quickBuild(self, ccdsPath):
+    """
+    <public> Builds a new database instance with barebones structure and relationships,
+    no annotations. This is useful when you plan to run Chanjo in parallel and
+    need a reference database.
+    """
+    # Parse the provided CCDS database dump
+    parser = ccds.CCDSAdapter()
+
+    # Parse information from the CCDS txt-file
+    genes, txs, exons = parser.connect(ccdsPath).parse()
+
+    # 1. Setup the new database with tables etc.
+    # 2. Import elements into the database by converting to ORM objects
+    # 3. Commit all elements added during the setup session
+    self.db.setup().convert(genes, txs, exons).commit()
 
   def transcriptStats(self, sample_id):
     """
