@@ -62,9 +62,6 @@ def intervals(grouped_intervals, read_depths, cutoff=10):
     rStart = iStart - start
     rEnd = iEnd - start
 
-    print(read_depths)
-    print(rStart, rEnd)
-
     # Do the heavy lifting
     # +1 to end because ``end`` is 0-based and slicing is 0,1-based
     values[i] = coverageMetrics(read_depths[rStart:rEnd+1], cutoff)
