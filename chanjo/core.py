@@ -12,6 +12,7 @@
   :copyright: (c) 2013 by Robin Andeer
   :license: MIT, see LICENSE for more details
 """
+from utils.calculate import coverageMetrics
 
 
 class Hub(object):
@@ -103,7 +104,7 @@ class Hub(object):
       # Do the heavy lifting
       # +1 to end because ``end`` is 0-based and slicing is 0,1-based
       (coverage,
-       completeness) = self.calculate(depth[rel_start:rel_end+1], cutoff)
+       completeness) = coverageMetrics(depth[rel_start:rel_end+1], cutoff)
 
       exons[i] = {
         "element_id": exon.id,
@@ -112,34 +113,3 @@ class Hub(object):
       }
 
     return exons
-
-  def calculate(self, depths, cutoff):
-    """
-    <public> Calculates both coverage and completeness for an interval.
-
-    .. code-block:: python
-
-      >>> gene = hub.db.get("gene", "C3")
-      >>> hub.coverage(gene.chrom, gene.intervals, 15)
-      (13.43522398231, 0.434122133123)
-
-    :param list depths: List/array of the read depth for each position/base
-    :param int cutoff: The cutoff for lowest passable read depth (completeness)
-    :returns: ``(<coverage (float)>, <completeness (float)>)``
-    :rtype: tuple
-    """
-    # Initialize
-    totBaseCount = float(len(depths))
-    readCount = 0
-    passedCount = 0
-
-    for depth in depths:
-      # Add the number of overlapping reads
-      readCount += depth
-
-      # Add the position if it passes `cutoff`
-      if depth >= cutoff:
-        passedCount += 1
-
-    # totBaseCount should never be able to be 0! Exons be >= 1 bp long
-    return readCount / totBaseCount, passedCount / totBaseCount

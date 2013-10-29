@@ -73,8 +73,7 @@ def read(bamPath, chrom, start, end, cutoff, verbose=False):
   the results as JSON string.
   """
   # Setup adapters and the main Hub
-  hub = core.Hub(bam.CoverageAdapter(bamPath),
-                 sql.ElementAdapter(":memory:"))
+  hub = core.Hub(bam.CoverageAdapter(bamPath), sql.ElementAdapter(":memory:"))
 
   # How many decimals to print?
   if verbose:
