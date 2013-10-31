@@ -33,7 +33,7 @@ def coverageMetrics(depths, cutoff):
   return readCount / totBaseCount, passedCount / totBaseCount
 
 
-def intervals(grouped_intervals, read_depths, cutoff=10):
+def intervals(grouped_intervals, depths, cutoff=10):
   """
   Calculates coverage metrics for a grouped set of intervals. Intervals are
   expected to be from the same chromosome and sorted by start position.
@@ -42,7 +42,7 @@ def intervals(grouped_intervals, read_depths, cutoff=10):
   calculates metrics for *each* of the individual intervals.
 
   :param list grouped_intervals: Sorted intervals to calculate metrics for
-  :param list read_depths: Read depth data for each position
+  :param list depths: Read depth data for each position
   :param int cutoff: Threshold to use for completeness [default: 10]
   :returns: Coverage and completeness per grouped interval
   :rtype: list
@@ -64,6 +64,6 @@ def intervals(grouped_intervals, read_depths, cutoff=10):
 
     # Do the heavy lifting
     # +1 to end because ``end`` is 0-based and slicing is 0,1-based
-    values[i] = coverageMetrics(read_depths[rStart:rEnd+1], cutoff)
+    values[i] = coverageMetrics(depths[rStart:rEnd+1], cutoff) + interval[:2]
 
   return values
