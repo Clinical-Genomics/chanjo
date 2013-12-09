@@ -5,9 +5,9 @@
   ~~~~~~~~~~~~~
 
   The default :class:`ElementAdapter` that ships with Chanjo. Provides a basic
-  interface to a `SQLite` database using the `SQLAlchemy` ORM. The SQL
-  structure extends a parallel project `Elemental` that provides the tables
-  and relationships between genes, transcripts, and exons.
+  interface to a SQL database using the `SQLAlchemy` ORM. The SQL structure
+  extends a parallel project `Elemental` that provides the tables and
+  relationships between genes, transcripts, and exons.
 
   The module defines a few extra ORM objects for adding sample specific
   coverage annotations.
@@ -187,10 +187,11 @@ class ElementAdapter(ElementalDB):
     an in-memory instance of the database.
 
   :param str path: Path to the database to connect to
+  :param str dialect: Type of database to use: 'sqlite' or 'mysql' (optional)
   :param bool debug: Whether to print logging information (optional)
   """
-  def __init__(self, path, debug=False):
-    super(ElementAdapter, self).__init__(path, debug=debug)
+  def __init__(self, path, dialect="sqlite", debug=False):
+    super(ElementAdapter, self).__init__(path, debug=debug, dialect=dialect)
 
     # Add new data classes to the supported ORM classes
     self.classes.update({
