@@ -13,7 +13,7 @@ def group(intervals, threshold=1000, extend=0):
   iEnd = interval[1]
 
   # This is where we store grouped intervals
-  group = [(iStart-extend, iEnd+extend, interval)]
+  group = [(iStart-extend, iEnd+extend)]
 
   for interval in it:
 
@@ -33,14 +33,14 @@ def group(intervals, threshold=1000, extend=0):
       yield group
 
       # Start a new combined interval
-      group = [(start, end, interval)]
+      group = [(start, end)]
 
       # Reset the combined interval bounderies
       iStart, iEnd = start, end
 
     else:
       # Extend the current combined interval
-      group.append((start, end, interval))
+      group.append((start, end))
 
   # Return the last group
   yield group
