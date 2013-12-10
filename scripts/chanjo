@@ -53,10 +53,15 @@ import chanjo
 from chanjo import bam, sql, utils
 
 
-def fileCheck(*fpaths, force=False):
+def fileCheck(*fpaths, **kwargs):
   """
   Checks a path for an existing file before overwrite.
+
+  :param bool force: Whether to skip the actual checking (optional)
   """
+  # Get optional "force" keyword argument
+  force = kwargs.get("force", False)
+
   for fpath in fpaths:
     f = path(fpath)
     if f.exists() and not force:
@@ -126,7 +131,9 @@ def main(args):
 
   # Set up adapters
   db = sql.ElementAdapter(store or ":memory:")
-  cov = bam.CoverageAdapter(source)
+
+  if source:
+    cov = bam.CoverageAdapter(source)
 
   # First command will determine which path to take
   if args["read"]:
@@ -233,8 +240,9 @@ def main(args):
       # Go straight to importing data to database
       import_(output, db)
 
-  # Print to standard out to enable piping (if --pipe)
-  print(json.dumps(output, indent=4))
+    else:
+      # Print to standard out to enable piping (if --pipe)
+      print(json.dumps(output, indent=4))
 
 if __name__ == "__main__":
   # Parse arguments based on docstring above

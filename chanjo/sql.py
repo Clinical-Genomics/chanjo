@@ -216,7 +216,7 @@ class ElementAdapter(ElementalDB):
     # 1. Setup the new database with tables etc.
     # 2. Import elements into the database by converting to ORM objects
     # 3. Commit all elements added during the setup session
-    self.db.setup().convert(genes, txs, exons).commit()
+    self.setup().convert(genes, txs, exons).commit()
 
   def transcriptStats(self, sample_id):
     """
