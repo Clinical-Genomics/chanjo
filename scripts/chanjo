@@ -50,8 +50,7 @@ import sys
 from path import path
 
 import chanjo
-from chanjo import bam, sql
-from chanjo.utils import calculate, group, chromosomes
+from chanjo import bam, sql, utils
 
 
 def fileCheck(*fpaths, force=False):
@@ -113,13 +112,7 @@ def import_(db, data):
     cutoff=data["cutoff"],
     source=data["source"],
     splice=data["splice"]
-  )).commit()
-
-def _calculateCoverage(cov, chrom, group_, cutoff):
-  # Calculate coverage for each interval
-  read_depths = cov.read(chrom, group_[0][0], group_[-1][1])
-  return calculate.intervals(group_, read_depths, cutoff=cutoff)
-  
+  )).commit()  
 
 def main(args):
   # Prepare input arguments
@@ -145,7 +138,7 @@ def main(args):
 
     # Read the BAM-file, calculate coverage, and print to console.
     depths = cov.read(chrom, start, end)
-    coverage, completeness = calculate.coverageMetrics(depths, cutoff)
+    coverage, completeness = utils.coverageMetrics(depths, cutoff)
 
     output = {
       "interval": {
@@ -199,25 +192,27 @@ def main(args):
         import_(db, data)
 
   else:
+    # ... which means we're going to annotate some coverage
     if args["--json"]:
       # Check path
       fileCheck(args["--json"], force=force)
 
+    # Splice site check
+    extend = 0
+    if args["--splice-sites"]:
+      extend = 2
+
     exon = db.get("class", "exon")
     data = [None] * 24
-    for i, chrom in enumerate(chromosomes()):
+    for i, chrom in enumerate(utils.chromosomes()):
+
       exons = db.session.query(exon.start, exon.end, exon.id)\
                 .filter_by(chrom=chrom).order_by(exon.start).all()
 
-      # Group exons
-      groups = group.group(exons, threshold=17000)
+      data[i] = utils.process(cov, chrom, exons, extend, cutoff, 17000)
 
-      data[i] = [_calculateCoverage(cov, chrom, group_, cutoff)
-                 for group_ in groups]
-
-    # Flatten the nested "3D" list
-    flat_data = list(itertools.chain.from_iterable(
-                     itertools.chain.from_iterable(data)))
+    # Flatten the nested "2D" list
+    flat_data = itertools.chain.from_iterable(data)
 
     output = {
       "sample_id": sample_id,
@@ -235,7 +230,7 @@ def main(args):
         json.dump(output, handle)
 
     elif not args["--pipe"]:
-      # Add to session and commit so that the upcoming queries will work
+      # Go straight to importing data to database
       import_(output, db)
 
   # Print to standard out to enable piping (if --pipe)
