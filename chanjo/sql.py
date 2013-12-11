@@ -44,12 +44,12 @@ class GeneData(Base):
   completeness = sa.Column(sa.Float)
 
   # These column maps coverage/completeness to an individual+group
-  sample_id = sa.Column(sa.String, sa.ForeignKey("Sample.id"))
+  sample_id = sa.Column(sa.String(32), sa.ForeignKey("Sample.id"))
   sample = relationship("Sample", backref=backref("genes"))
   group_id = sa.Column(sa.Integer)
 
   # Genetic relationship
-  element_id = sa.Column(sa.String, sa.ForeignKey("Gene.id"))
+  element_id = sa.Column(sa.String(32), sa.ForeignKey("Gene.id"))
   element = relationship("Gene", backref=backref("data"))
 
   def __init__(self, element_id, sample_id=None, group_id=None,
@@ -82,12 +82,12 @@ class TranscriptData(Base):
   completeness = sa.Column(sa.Float)
 
   # These column maps coverage/completeness to an individual+group
-  sample_id = sa.Column(sa.String, sa.ForeignKey("Sample.id"))
+  sample_id = sa.Column(sa.String(32), sa.ForeignKey("Sample.id"))
   sample = relationship("Sample", backref=backref("transcripts"))
   group_id = sa.Column(sa.Integer)
 
   # Genetic relationship
-  element_id = sa.Column(sa.String, sa.ForeignKey("Transcript.id"))
+  element_id = sa.Column(sa.String(32), sa.ForeignKey("Transcript.id"))
   element = relationship("Transcript", backref=backref("data"))
 
   def __init__(self, element_id, sample_id=None, group_id=None,
@@ -120,12 +120,12 @@ class ExonData(Base):
   completeness = sa.Column(sa.Float)
 
   # These column maps coverage/completeness to an individual+group
-  sample_id = sa.Column(sa.String, sa.ForeignKey("Sample.id"))
+  sample_id = sa.Column(sa.String(32), sa.ForeignKey("Sample.id"))
   sample = relationship("Sample", backref=backref("exons"))
   group_id = sa.Column(sa.Integer)
 
   # Genetic relationship
-  element_id = sa.Column(sa.String, sa.ForeignKey("Exon.id"))
+  element_id = sa.Column(sa.String(32), sa.ForeignKey("Exon.id"))
   element = relationship("Exon", backref=backref("data"))
 
   def __init__(self, element_id, sample_id=None, group_id=None,
@@ -153,12 +153,12 @@ class Sample(Base):
   """
   __tablename__ = "Sample"
 
-  id = sa.Column(sa.String, primary_key=True)
+  id = sa.Column(sa.String(32), primary_key=True)
   group_id = sa.Column(sa.Integer)
 
   cutoff = sa.Column(sa.Integer)
   splice = sa.Column(sa.Boolean)
-  source = sa.Column(sa.String)
+  source = sa.Column(sa.String(128))
   created_at = sa.Column(sa.DateTime, default=datetime.now)
   updated_at = sa.Column(sa.DateTime, default=datetime.now,
                          onupdate=datetime.now)
