@@ -11,14 +11,16 @@ def group(intervals, threshold=1000, extend=0):
 
   iStart = interval[0]
   iEnd = interval[1]
+  interval_id = interval[2]
 
-  # This is where we store grouped intervals
-  group = [(iStart-extend, iEnd+extend)]
+  # This is where we store grouped intervals + interval ID
+  group = [(iStart-extend, iEnd+extend, interval_id)]
 
   for interval in it:
 
     start = interval[0]
     end = interval[1]
+    interval_id = interval[2]
 
     # Optionally extend (widen) the segments
     start -= extend
@@ -33,14 +35,14 @@ def group(intervals, threshold=1000, extend=0):
       yield group
 
       # Start a new combined interval
-      group = [(start, end)]
+      group = [(start, end, interval_id)]
 
       # Reset the combined interval bounderies
       iStart, iEnd = start, end
 
     else:
       # Extend the current combined interval
-      group.append((start, end))
+      group.append((start, end, interval_id))
 
   # Return the last group
   yield group

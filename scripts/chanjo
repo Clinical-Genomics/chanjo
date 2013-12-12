@@ -217,7 +217,7 @@ def main(args):
 
       data[i] = utils.process(cov, chrom, exons, extend, cutoff, 17000)
 
-    # Flatten the nested "2D" list
+    # Flatten data list
     flat_data = itertools.chain.from_iterable(data)
 
     output = {
@@ -226,7 +226,7 @@ def main(args):
       "cutoff": cutoff,
       "source": source,
       "splice": args["--splice-sites"],
-      "annotations": flat_data
+      "annotations": list(flat_data)
     }
 
     if args["--json"]:

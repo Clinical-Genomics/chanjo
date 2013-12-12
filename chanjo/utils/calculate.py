@@ -57,6 +57,7 @@ def intervals(grouped_intervals, depths, cutoff=10):
   for i, interval in enumerate(grouped_intervals):
     iStart = interval[0]
     iEnd = interval[1]
+    interval_id = interval[2]
 
     # Relative start and end positions to slice the ``depths`` array
     rStart = iStart - start
@@ -64,6 +65,6 @@ def intervals(grouped_intervals, depths, cutoff=10):
 
     # Do the heavy lifting
     # +1 to end because ``end`` is 0-based and slicing is 0,1-based
-    values[i] = coverageMetrics(depths[rStart:rEnd+1], cutoff) + interval[:2]
+    values[i] = coverageMetrics(depths[rStart:rEnd+1], cutoff) + (interval_id,)
 
   return values

@@ -26,11 +26,12 @@ def process(bamFile, chrom, segments, extend=0, cutoff=10, threshold=10000):
   """
   groups = group(segments, threshold=threshold, extend=extend)
   list_groups = list(groups)
-  data = [0]*len(list_groups)
+  data = [0] * len(list_groups)
 
   for i, group_ in enumerate(list_groups):
-    
+
     read_depth = bamFile.read(chrom, group_[0][0], group_[-1][1])
     data[i] = intervals(group_, read_depth, cutoff=cutoff)
 
+  # Flatten the "2D" list
   return itertools.chain.from_iterable(data)
