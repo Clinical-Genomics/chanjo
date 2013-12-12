@@ -212,7 +212,6 @@ def main(args):
     exon = db.get("class", "exon")
     data = [None] * 24
     for i, chrom in enumerate(utils.chromosomes()):
-
       exons = db.session.query(exon.start, exon.end, exon.id)\
                 .filter_by(chrom=chrom).order_by(exon.start).all()
 
