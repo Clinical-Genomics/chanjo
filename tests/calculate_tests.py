@@ -60,9 +60,10 @@ class TestCalculate:
     # [(8, 8, 5, 1)]  # single base interval
 
     # Test intervals extending beyond read depths (error)
-    grouped_intervals = [(10,15), (20,100)]
+    grouped_intervals = [(10,15,"1"), (20,100,"2")]
 
     try:
       res = intervals(grouped_intervals, read_depths)
+
     except IndexError, e:
       assert_equal(e.message, "list index out of range")
