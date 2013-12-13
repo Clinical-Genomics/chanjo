@@ -81,6 +81,15 @@ def import_(db, data):
   sample_id = data["sample_id"]
   group_id = data["group_id"]
 
+  # Add a Sample entry with meta-data
+  db.add(db.create("sample",
+    sample=sample_id,
+    group=group_id,
+    cutoff=data["cutoff"],
+    source=data["source"],
+    splice=data["splice"]
+  ))
+
   # And for each of the annotations
   db.add([db.create("exon_data",
 
@@ -114,15 +123,6 @@ def import_(db, data):
             completeness=gs[2]
           ) for gs in db.geneStats(sample_id)]).commit()
 
-  # Add a Sample entry with meta-data
-  db.add(db.create("sample",
-    sample=sample_id,
-    group=group_id,
-    cutoff=data["cutoff"],
-    source=data["source"],
-    splice=data["splice"]
-  )).commit()  
-
 def main(args):
   # Prepare input arguments
   cutoff = int(args["--cutoff"])
@@ -132,9 +132,10 @@ def main(args):
   source = args["<source>"]
   force = args["--force"]
   ccds_path = args["<ccds_path>"]
+  dialect = args["--dialect"]
 
   # Set up adapters
-  db = sql.ElementAdapter(store or ":memory:")
+  db = sql.ElementAdapter(store or ":memory:", dialect=dialect)
 
   if source:
     cov = bam.CoverageAdapter(source)
