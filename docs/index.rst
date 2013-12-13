@@ -24,6 +24,13 @@ Chanjo is a sane coverage analysis tool for DNA sequencing. It's written in Pyth
    }
 
 
+What's new in |version|?
+-------------------------
+This version includes a lot of internal restructuring which hopefully will provide significant speed improvements while still moving towards saner/Pythonic code design. The main point is that Chanjo now more intelligently splits up different parts of the exome when annotating coverege.
+
+v0.5.0 also marks the first release with support for a second popular database scheme: MySQL. This is great not only because it increases flexibility but also because MySQL is more of a production ready tool compared to SQLite. More databases could be quite easily added in the future but let's start with the biggest one first.
+
+
 User's Guide:
 ----------------
 This resource aims to cover everything from getting setup and started, diving into the Python API, forging a deeper understanding of Chanjo, as well as catching up on the latest developments.

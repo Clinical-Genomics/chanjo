@@ -1,10 +1,12 @@
 ..  _sql:
 
-SQL Structure
-==============
+SQL data storage
+=================
 The SQL structure in `Chanjo` is built on-top of the Elemental_ database. It basically sets up tables and relationships for genes, transcripts, and exons. `More details <elemental_db>`_ has been mocked up over at dbpatterns_.
 
 The extensions introduced in `Chanjo` adds a number of tables that are nessesary for storing coverage information and, since v0.4.0, a separate entry per sample to keep track of various meta-data. `Full details <extended_db>`_ again has been mocked up at dbpatterns_.
+
+Chanjo works with either SQLite or MySQL since v0.5.0.
 
 .. image:: _static/extended_sql.png
 
@@ -16,7 +18,7 @@ It's obviously also connected to a single sample ID which together with the elem
 
 Sample (Meta) Data Table
 -------------------------
-The sample table is the latest addition to the SQL structure. It's a neat complement for consolidating all important information about the coverage analysis. Before you needed to keep track of e.g. the cutoff used for completeness yourself. Now this is linked to each sample directly in the SQLite database.
+The sample table is the latest addition to the SQL structure. It's a neat complement for consolidating all important information about the coverage analysis. Before you needed to keep track of e.g. the cutoff used for completeness yourself. Now this is linked to each sample directly in the SQL database.
 
 Included columns:
 

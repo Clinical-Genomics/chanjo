@@ -23,6 +23,9 @@ Required Python dependencies will be installed alongside the main package. The `
 
   I recommend installing `Chanjo` in a virtual environment. Don't know what that is? The excellent `Python Guide`_ has `more information`_ on the topic.
 
+.. note::
+  
+  The one exception to the "don't worry about Python dependencies"-rule is *database interfaces*. For example if you intend to use MySQL as data storage you should at some point run: ``pip install MySQL-python``.
 
 Non-python dependencies
 ------------------------
@@ -47,9 +50,11 @@ To install you need to download the latest release from Samtools' `downloads pag
 
 Don't forget to add/copy the `samtools` binary from the `misc` folder to a location in your ``$PATH``.
 
-SQLite
-~~~~~~~
+SQLite or MySQL
+~~~~~~~~~~~~~~~~~
 `SQLite <http://www.sqlite.org/>`_ is an embedded SQL database that ships with most operating systems. You probably don't have to worry about installing it yourself.
+
+`MySQL <http://www.mysql.com/>`_ is a more heavy duty SQL database option that happens to be the most popular open source database in the world. Finding a tutorial that adresses your setup for installing it should be relatively easy since the community of users is vast. Here are the official `instructions <http://dev.mysql.com/doc/refman/5.1/en/linux-installation.html>`_.
 
 
 Getting the code
