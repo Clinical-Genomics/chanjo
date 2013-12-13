@@ -5,9 +5,9 @@
   ~~~~~~~~~~~~~
 
   The default :class:`ElementAdapter` that ships with Chanjo. Provides a basic
-  interface to a `SQLite` database using the `SQLAlchemy` ORM. The SQL
-  structure extends a parallel project `Elemental` that provides the tables
-  and relationships between genes, transcripts, and exons.
+  interface to a SQL database using the `SQLAlchemy` ORM. The SQL structure
+  extends a parallel project `Elemental` that provides the tables and
+  relationships between genes, transcripts, and exons.
 
   The module defines a few extra ORM objects for adding sample specific
   coverage annotations.
@@ -19,6 +19,7 @@ from datetime import datetime
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship, backref
 
+from elemental.adapters import ccds
 from elemental.core import Base, ElementalDB
 
 
@@ -44,12 +45,12 @@ class GeneData(Base):
   completeness = sa.Column(sa.Float)
 
   # These column maps coverage/completeness to an individual+group
-  sample_id = sa.Column(sa.String, sa.ForeignKey("Sample.id"))
+  sample_id = sa.Column(sa.String(32), sa.ForeignKey("Sample.id"))
   sample = relationship("Sample", backref=backref("genes"))
   group_id = sa.Column(sa.Integer)
 
   # Genetic relationship
-  element_id = sa.Column(sa.String, sa.ForeignKey("Gene.id"))
+  element_id = sa.Column(sa.String(32), sa.ForeignKey("Gene.id"))
   element = relationship("Gene", backref=backref("data"))
 
   def __init__(self, element_id, sample_id=None, group_id=None,
@@ -82,12 +83,12 @@ class TranscriptData(Base):
   completeness = sa.Column(sa.Float)
 
   # These column maps coverage/completeness to an individual+group
-  sample_id = sa.Column(sa.String, sa.ForeignKey("Sample.id"))
+  sample_id = sa.Column(sa.String(32), sa.ForeignKey("Sample.id"))
   sample = relationship("Sample", backref=backref("transcripts"))
   group_id = sa.Column(sa.Integer)
 
   # Genetic relationship
-  element_id = sa.Column(sa.String, sa.ForeignKey("Transcript.id"))
+  element_id = sa.Column(sa.String(32), sa.ForeignKey("Transcript.id"))
   element = relationship("Transcript", backref=backref("data"))
 
   def __init__(self, element_id, sample_id=None, group_id=None,
@@ -120,12 +121,12 @@ class ExonData(Base):
   completeness = sa.Column(sa.Float)
 
   # These column maps coverage/completeness to an individual+group
-  sample_id = sa.Column(sa.String, sa.ForeignKey("Sample.id"))
+  sample_id = sa.Column(sa.String(32), sa.ForeignKey("Sample.id"))
   sample = relationship("Sample", backref=backref("exons"))
   group_id = sa.Column(sa.Integer)
 
   # Genetic relationship
-  element_id = sa.Column(sa.String, sa.ForeignKey("Exon.id"))
+  element_id = sa.Column(sa.String(32), sa.ForeignKey("Exon.id"))
   element = relationship("Exon", backref=backref("data"))
 
   def __init__(self, element_id, sample_id=None, group_id=None,
@@ -153,12 +154,12 @@ class Sample(Base):
   """
   __tablename__ = "Sample"
 
-  id = sa.Column(sa.String, primary_key=True)
+  id = sa.Column(sa.String(32), primary_key=True)
   group_id = sa.Column(sa.Integer)
 
   cutoff = sa.Column(sa.Integer)
   splice = sa.Column(sa.Boolean)
-  source = sa.Column(sa.String)
+  source = sa.Column(sa.String(128))
   created_at = sa.Column(sa.DateTime, default=datetime.now)
   updated_at = sa.Column(sa.DateTime, default=datetime.now,
                          onupdate=datetime.now)
@@ -187,10 +188,11 @@ class ElementAdapter(ElementalDB):
     an in-memory instance of the database.
 
   :param str path: Path to the database to connect to
+  :param str dialect: Type of database to use: 'sqlite' or 'mysql' (optional)
   :param bool debug: Whether to print logging information (optional)
   """
-  def __init__(self, path, debug=False):
-    super(ElementAdapter, self).__init__(path, debug=debug)
+  def __init__(self, path, dialect="sqlite", debug=False):
+    super(ElementAdapter, self).__init__(path, debug=debug, dialect=dialect)
 
     # Add new data classes to the supported ORM classes
     self.classes.update({
@@ -199,6 +201,23 @@ class ElementAdapter(ElementalDB):
       "exon_data": ExonData,
       "sample": Sample
     })
+
+  def quickBuild(self, ccdsPath):
+    """
+    <public> Builds a new database instance with barebones structure and relationships,
+    no annotations. This is useful when you plan to run Chanjo in parallel and
+    need a reference database.
+    """
+    # Parse the provided CCDS database dump
+    parser = ccds.CCDSAdapter()
+
+    # Parse information from the CCDS txt-file
+    genes, txs, exons = parser.connect(ccdsPath).parse()
+
+    # 1. Setup the new database with tables etc.
+    # 2. Import elements into the database by converting to ORM objects
+    # 3. Commit all elements added during the setup session
+    self.setup().convert(genes, txs, exons).commit()
 
   def transcriptStats(self, sample_id):
     """

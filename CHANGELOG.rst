@@ -30,3 +30,12 @@ v0.4.0
 * UPDATE: SQL structure in docs
 * UPDATE: Updated tests
 * UPDATE: included test data (MANIFEST.in) - more on this later...
+
+v0.5.0
+-----------------
+* NEW: MySQL support added
+* CHANGE: A lot of internal restructuring from classes to functions
+* IMPROVEMENT: New structure seems to significantly improve speed
+* UPDATE: New tests for new functions
+* UPDATE: New documentation covering new features/structure
+* UPDATE: Small updates to the command line interface

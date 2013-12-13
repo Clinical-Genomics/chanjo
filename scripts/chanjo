@@ -3,13 +3,15 @@
 """Chanjo CLI
 
 Usage:
-  chanjo annotate <store> using <source> [<gene>... | --read=<file>]
-         [--ccds=<file>] [--cutoff=<int>] [--splice-sites] [--sample=<str>]
-         [--group=<int>] [--json=<file>] [--verbose] [-p | --print] [--force]
-  chanjo read <chrom> <start> <end> using <source> [--cutoff=<int>] [--verbose]
-  chanjo peak <store> <gene>... [--verbose] [--sample=<str>] [--group=<int>]
-  chanjo build <store> using <ccds_path> [--force]
-  chanjo <store> import <json_path>...
+  chanjo annotate <store> using <source> [--cutoff=<int>] [--splice-sites]
+         [--dialect=<db>] [--sample=<str>] [--group=<int>]
+         [--json=<file> | --pipe] [--force]
+  chanjo read <chrom> <start> <end> using <source> [--cutoff=<int>]
+         [--dialect=<db>]
+  chanjo peak <store> <gene>... [--sample=<str>] [--group=<int>]
+         [--dialect=<db>]
+  chanjo build <store> using <ccds_path> [--force] [--dialect=<db>]
+  chanjo <store> import <json_path>... [--dialect=<db>]
   chanjo -h | --help
   chanjo --version
 
@@ -36,130 +38,64 @@ Options:
   -r --read=<file>    Text file with one HGNC symbol per line
   --ccds=<file>       Path to CCDS database dump (build new database)
   -c --cutoff=<int>   Cutoff for completeness [default: 10]
+  -d --dialect=<db>   Type of database: 'sqlite' or 'mysql' [default: sqlite]
   -ss --splice-sites  Include splice sites (+/- 2 bases) for each exon
   -s --sample=<str>   Sample ID [default: 0-0-0U]
   -g --group=<int>    Group/Family ID [default: 0]
   -j --json=<file>    Write temp JSON-file for later import (parallel)
+  -p --pipe           Write to standard output, see "--json" (parallel)
   -f --force          Force overwrite of existing files
-  -v --verbose        Print more liberally
-  -p --print          *Only* print CLI parameters (debug)
 """
 from __future__ import print_function
 from docopt import docopt
-import time
 import itertools
 import json
 import sys
 from path import path
 
-from elemental.adapters import ccds
-
 import chanjo
-from chanjo import core, bam, sql
+from chanjo import bam, sql, utils
 
 
-def fileCheck(file_path, force):
+def fileCheck(*fpaths, **kwargs):
   """
   Checks a path for an existing file before overwrite.
+
+  :param bool force: Whether to skip the actual checking (optional)
   """
-  f = path(file_path)
-  if f.exists() and not force:
-    sys.exit("\033[93mWARNING: {path} already exists. Use '--force' to overwrite.\033[0m"
-             .format(path=f))
+  # Get optional "force" keyword argument
+  force = kwargs.get("force", False)
 
-def read(bamPath, chrom, start, end, cutoff, verbose=False):
-  """
-  Reads coverage metrics from a BAM-file across a given interval and prints
-  the results as JSON string.
-  """
-  # Setup adapters and the main Hub
-  hub = core.Hub(bam.CoverageAdapter(bamPath),
-                 sql.ElementAdapter(":memory:"))
+  for fpath in fpaths:
+    f = path(fpath)
+    if f.exists() and not force:
+      sys.exit("\033[93mWARNING: {path} already exists. Use '--force' to"
+               "overwrite.\033[0m".format(path=f))
 
-  # How many decimals to print?
-  if verbose:
-    decimals = 10
-  else:
-    decimals = 2
-
-  depths = hub.cov.read(chrom, start, end)
-  coverage, completeness = hub.calculate(depths, cutoff)
-
-  output = {
-    "interval": {
-      "chrom": chrom,
-      "start": start,
-      "end": end
-    },
-    "coverage": round(coverage, decimals),
-    "completeness": round(completeness, decimals)
-  }
-
-  print(json.dumps(output, indent=4))
-
-def peak(storePath, genes, sample=None, group=None, verbose=False):
-  """
-  Prints out a JSON string of the data you have requested based on genes.
-  """
-  db = sql.ElementAdapter(storePath)
-
-  # How many decimals to print?
-  if verbose:
-    decimals = 10
-  else:
-    decimals = 2
-
-  output = {}
-
-  # Loop over each of the HGNC symbols
-  for gene_id in genes:
-
-    output[gene_id] = []
-
-    # Loop over each of the annotations
-    for data in db.get("gene", gene_id).data:
-
-      # Print the annotation according to what the user requests (all or one)
-      if sample == "0-0-0U" or sample == data.sample_id:
-        output[gene_id].append({
-          "sample": data.sample_id,
-          "coverage": round(data.coverage, decimals),
-          "completeness": round(data.completeness, decimals)
-        })
-
-  print(json.dumps(output, indent=4))
-
-def build(storePath, ccdsPath, db=None):
-  """
-  Builds a new database instance with barebones structure and relationships,
-  no annotations. This is useful when you plan to run Chanjo in parallel and
-  need a reference database.
-  """
-  if db is None:
-    db = sql.ElementAdapter(storePath)
-
-  # Parse the provided CCDS database dump
-  parser = ccds.CCDSAdapter()
-
-  # Parse information from the CCDS txt-file
-  genes, txs, exons = parser.connect(ccdsPath).parse()
-
-  # 1. Setup the new database with tables etc.
-  # 2. Import elements into the database by converting to ORM objects
-  # 3. Commit all elements added during the setup session
-  db.setup().convert(genes, txs, exons).commit()
-
-def import_(annotations, db, sample_id, group_id, cutoff, source, splice):
+def import_(db, data):
   """
   Imports annotations stored in JSON-files for example after running Chanjo in
   parallel.
   """
+  annotations = data["annotations"]
+  sample_id = data["sample_id"]
+  group_id = data["group_id"]
+
+  # Add a Sample entry with meta-data
+  db.add(db.create("sample",
+    sample=sample_id,
+    group=group_id,
+    cutoff=data["cutoff"],
+    source=data["source"],
+    splice=data["splice"]
+  ))
+
   # And for each of the annotations
   db.add([db.create("exon_data",
 
-            element_id=anno["element_id"],
-            coverage=anno["coverage"],
-            completeness=anno["completeness"],
+            element_id=anno[2],
+            coverage=anno[0],
+            completeness=anno[1],
             sample_id=sample_id,
             group_id=group_id
 
@@ -187,161 +123,133 @@ def import_(annotations, db, sample_id, group_id, cutoff, source, splice):
             completeness=gs[2]
           ) for gs in db.geneStats(sample_id)]).commit()
 
-  # Add a Sample entry with meta-data
-  db.add(db.create("sample",
-    sample=sample_id,
-    group=group_id,
-    cutoff=cutoff,
-    source=source,
-    splice=splice
-  )).commit()
-
-def annotate(storePath, bamPath, cutoff, sample_id, group_id, ccdsPath=None,
-             geneIDs=None, verbose=False):
-  # Setup adapters and the main Hub
-  hub = core.Hub(bam.CoverageAdapter(bamPath), sql.ElementAdapter(storePath))
-
-  # We can set up a brand new database if the user wants to
-  if ccdsPath:
-    # Use the build command function but supply "our" Hub-db
-    build(storePath, ccdsPath, db=hub.db)
-
-  # =======================================================
-  #   This is the part where we figure out which genes to
-  #   annotate in this session.
-  # -------------------------------------------------------
-  if geneIDs is None:
-    # Get all genes in the datastore
-    genes = hub.db.find("gene")
-
-  else:
-    # The user was nice enough to supply a list of genes to annotate
-    genes = hub.db.find("gene", query=geneIDs)
-
-  # =======================================================
-  #   This is where we actually annotate the exons based on
-  #   the selection of genes above.
-  # -------------------------------------------------------
-  # This step filters out `None` that come from invalid HGNC symbols
-  genes = [gene for gene in genes if gene is not None]
-  exonData = [None]*len(genes)
-  for i, gene in enumerate(genes):
-    # Annotate the gene
-    exonData[i] = hub.annotate(gene, cutoff, splice=args["--splice-sites"])
-
-    if verbose:
-      print("Annotated: {}".format(gene.id), end="\r")
-
-  # Flatten the 2D list
-  flatExonData = list(itertools.chain.from_iterable(exonData))
-
-  if args["--json"]:
-    # We should save a temp version of the exon annotations to a text-file
-    # rather than persisting to the datastore. We use JSON.
-    with open(args["--json"], "w") as handle:
-      json.dump({
-        "sample_id": sample_id,
-        "group_id": group_id,
-        "cutoff": cutoff,
-        "source": bamPath,
-        "splice": args["--splice-sites"],
-        "annotations": flatExonData
-      }, handle)
-
-  else:
-    # Add to session and commit so that the upcoming queries will work
-    import_(flatExonData, hub.db, sample_id, group_id, cutoff, bamPath,
-            args["--splice-sites"])
-
 def main(args):
+  # Prepare input arguments
+  cutoff = int(args["--cutoff"])
+  group_id = int(args["--group"])
+  sample_id = args["--sample"]
+  store = args["<store>"]
+  source = args["<source>"]
+  force = args["--force"]
+  ccds_path = args["<ccds_path>"]
+  dialect = args["--dialect"]
+
+  # Set up adapters
+  db = sql.ElementAdapter(store or ":memory:", dialect=dialect)
+
+  if source:
+    cov = bam.CoverageAdapter(source)
+
   # First command will determine which path to take
   if args["read"]:
-
-    # Prepare the input arguments
+    # Reads coverage metrics from a BAM-file across a given interval and prints
+    # the results as JSON string.
     chrom = args["<chrom>"]
     start = int(args["<start>"])
     end = int(args["<end>"])
-    cutoff = int(args["--cutoff"])
 
     # Read the BAM-file, calculate coverage, and print to console.
-    read(args["<source>"], chrom, start, end, cutoff, args["--verbose"])
+    depths = cov.read(chrom, start, end)
+    coverage, completeness = utils.coverageMetrics(depths, cutoff)
+
+    output = {
+      "interval": {
+        "chrom": chrom,
+        "start": start,
+        "end": end
+      },
+      "coverage": coverage,
+      "completeness": completeness
+    }
 
   elif args["peak"]:
+    # Prints out a JSON string of the data you have requested based on genes.
+    output = {}
 
-    # Prepare the input arguments
-    group = int(args["--group"])
+    # Loop over each of the HGNC symbols
+    for gene_id in args["<gene>"]:
 
-    peak(args["<store>"], args["<gene>"], args["--sample"], group,
-         args["--verbose"])
+      output[gene_id] = []
+
+      # Loop over each of the annotations
+      for data in db.get("gene", gene_id).data:
+
+        # Print the annotation according to what the user requests (all or one)
+        if sample_id == "0-0-0U" or sample_id == data.sample_id:
+          output[gene_id].append({
+            "sample": data.sample_id,
+            "coverage": data.coverage,
+            "completeness": data.completeness
+          })
 
   elif args["build"]:
+    # Builds a new database instance with barebones structure and
+    # relationships, no annotations. This is useful when you plan to run
+    # Chanjo in parallel and need a reference database.
 
     # Check path
-    fileCheck(args["<store>"], args["--force"])
+    fileCheck(store, force=force)
 
     # Build up a barebones database structure
-    build(args["<store>"], args["<ccds_path>"])
+    db.quickBuild(ccds_path)
 
   elif args["import"]:
-    # Set up the store
-    db = sql.ElementAdapter(args["<store>"])
-
     # Import one text-file at a time
-    for txtPath in args["<json_path>"]:
+    for txt_path in args["<json_path>"]:
 
       # Open the file
-      with open(txtPath, "r") as handle:
+      with open(txt_path, "r") as handle:
 
         data = json.load(handle)
-        import_(data["annotations"], db, data["sample_id"], data["group_id"],
-                data["cutoff"], data["source"], data["splice"])
+        import_(db, data)
 
   else:
-
-    # Start a timer to be able to print out the runtime
-    start = time.time()
-
-    if args["--ccds"]:
-      # Check path
-      fileCheck(args["--ccds"], args["--force"])
-
+    # ... which means we're going to annotate some coverage
     if args["--json"]:
       # Check path
-      fileCheck(args["--json"], args["--force"])
+      fileCheck(args["--json"], force=force)
 
-    # Lets annotate some genes!
-    # Prepare the input arguments
-    cutoff = int(args["--cutoff"])
-    sample_id = args["--sample"]
-    group_id = int(args["--group"])
+    # Splice site check
+    extend = 0
+    if args["--splice-sites"]:
+      extend = 2
 
-    # This part pre-processes the list of HGNC symbols/Gene IDs corresponding
-    # to the genes the user wants to annotate.
-    if args["--read"]:
-      # Read HGCN symbols from a txt-file
-      with open(args["--read"], "r") as f:
-        genes = [hgnc.strip() for hgnc in f.readlines()]
+    exon = db.get("class", "exon")
+    data = [None] * 24
+    for i, chrom in enumerate(utils.chromosomes()):
+      exons = db.session.query(exon.start, exon.end, exon.id)\
+                .filter_by(chrom=chrom).order_by(exon.start).all()
+
+      data[i] = utils.process(cov, chrom, exons, extend, cutoff, 17000)
+
+    # Flatten data list
+    flat_data = itertools.chain.from_iterable(data)
+
+    output = {
+      "sample_id": sample_id,
+      "group_id": group_id,
+      "cutoff": cutoff,
+      "source": source,
+      "splice": args["--splice-sites"],
+      "annotations": list(flat_data)
+    }
+
+    if args["--json"]:
+      # We should save a temp version of the exon annotations to a text-file
+      # rather than persisting to the datastore. We use JSON.
+      with open(args["--json"], "w") as handle:
+        json.dump(output, handle)
+
+    elif not args["--pipe"]:
+      # Go straight to importing data to database
+      import_(output, db)
 
     else:
-      # The user either supplied a list of HGNC symbols or wants to annotate
-      # all genes.
-      genes = args["<gene>"] or None
-
-    # Call the function which does the annotation of the genes
-    annotate(args["<store>"], args["<source>"], cutoff, sample_id, group_id,
-             args["--ccds"], genes, verbose=args["--verbose"])
-
-    # End the timer (mohahaha...)
-    end = time.time()
-    runtime = round((end-start)/float(60), 2)
-    print("Runtime: {time} min".format(time=runtime))
+      # Print to standard out to enable piping (if --pipe)
+      print(json.dumps(output, indent=4))
 
 if __name__ == "__main__":
   # Parse arguments based on docstring above
   args = docopt(__doc__, version="Chanjo {v}".format(v=chanjo.__version__))
-
-  if args["--print"]:
-    print(args)
-
-  else:
-    main(args)
+  
+  main(args)
