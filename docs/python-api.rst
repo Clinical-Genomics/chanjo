@@ -4,25 +4,26 @@ Python API
 ============
 I will introduce the Python API by explaining esentially how to accomplish the same thing as in the :ref:`quickstart` guide.
 
+.. note::
+
+  The API has undergone significant changes since v0.5.0 - so read carefully if you are user of Chanjo v0.4.0 or earlier.
+
 Boilerplate code
 -----------------
 To include Chanjo in your own project you would pretty much always do:
 
 .. code-block:: python
 
-  from chanjo.core import Hub
-  from chanjo.sql import ElementAdapter
-  from chanjo.bam import CoverageAdapter
+  from chanjo import sql, bam, utils
 
-  # This sets up a new Chanjo instance
-  hub = Hub()
-
-  # Paths to the SQLite database and alignment BAM files
+  # Paths to a SQLite database and alignment BAM files
   sql_path = "data/coverage.sqlite"
   cov_path = "bam_files/person42.bam"
 
-  # Connect the adapters to your Chanjo instance
-  hub.connect(CoverageAdapter(cov_path), ElementAdapter(sql_path))
+  # Setup the adapters
+  db = sql.ElementAdapter(sql_path, dialect="sqlite")
+  bamFile = bam.CoverageAdapter(cov_path)
+
 
 That's it! You are now ready to start using `Chanjo`.
 
@@ -44,7 +45,7 @@ For this we really only need the :class:`CoverageAdapter`, but it works either w
   # 1. Setup the new database with tables etc.
   # 2. Import elements into the database by converting to ORM objects
   # 3. Commit all elements added during the session
-  hub.db.setup().convert(genes, txs, exons).commit()
+  db.setup().convert(genes, txs, exons).commit()
 
 Now we have a basic SQLite database with genetic elements, complete with relationships and other useful annotations, all wrapped in a very functional SQLAlchemy ORM.
 
@@ -54,14 +55,14 @@ Fetching genes (or any element) from the database we just built is simple. Let's
 
 .. code-block:: python
 
-  genes = hub.db.find("gene")
+  genes = db.find("gene")
 
 \... or just a few genes we happen to be interested in:
 
 .. code-block:: python
   
   gene_ids = ["EGFR", "SMS", "MOGS", "DOLK"]
-  genes = hub.db.find("gene", query=gene_ids)
+  genes = db.find("gene", query=gene_ids)
 
 
 Annotating genes
@@ -75,28 +76,36 @@ Really what happens is that we annotate each of the exons belonging to the the g
   sample_id = "person_42"
   group_id = 3  # Family 3
 
-  all_exons = []
-  for gene in genes:
-    # Annotate exons related to the gene
-    # The method returns a list of annotations for each exon
-    exons = hub.annotate(gene, cutoff, splice=True)
+  # List all 24 different chromosomes
+  chromosomes = utils.chromosome()
 
-    # Create new exon data annotations
-    for exon in exons:
+  # Lets store all information in a list
+  data = []
 
-      exon_data = hub.db.create("exon_data",
-        element_id=exon["element_id"],
-        coverage=exon["coverage"],
-        completeness=exon["completeness"],
-        sample_id=sample_id,
-        group_id=group_id
-      )
+  # We need to process all exons for each chromosome separately
+  for chrom in chromosomes:
 
-      # Add the new exon data entry to the session
-      hub.db.add(exon_data)
+    exon = db.get("class", "exon")
+    
+    # List all exons that we want to annotate with coverage
+    # We only need some of the data about each exon
+    exons = db.session.query(exon.start, exon.end, exon.id)\
+              .filter_by(chrom=chrom).order_by(exon.start).all()
 
-  # Persist all the newly added exon data entries
-  hub.db.commit()
+    # Now we can process the exons to get coverage for each
+    # Don't worry about the "17000" number now
+    data += utils.process(cov, chrom, exons, 0, cutoff, 17000)
+
+That's the basic idea for annotating exons with coverage. Now we just need to store all this information in our SQL database of choice and extend the annotations to include transcripts and genes.
+
+.. code-block:: python
+
+  import itertools
+
+  # Flatten data list
+  flat_data = itertools.chain.from_iterable(data)
+
+  ... More to come soon!
 
 .. note::
 
@@ -138,7 +147,7 @@ Let's take a look at the "SMS" gene:
 
 .. code-block:: python
 
-  >>> gene = hub.db.find("gene", "SMS")
+  >>> gene = db.find("gene", "SMS")
 
   # Getting all coverage annotations
   >>> gene.data
@@ -167,19 +176,19 @@ What if your genomic region of interest lies outside of the known exome? Glad yo
 .. code-block:: python
 
   >>> chrom = "1"
-  >>> read_depths = hub.cov.read(chrom, 1001, 1102)
-  >>> coverage, completeness = hub.calculate(read_depths, cutoff=15)
+  >>> read_depths = bamFile.read(chrom, 1001, 1102)
+  >>> coverage, completeness = utils.calculate(read_depths, cutoff=15)
 
 Reading from a BAM file is a bottleneck when running Chanjo. It's therefore a good idea to read across *multiple* intervals (such as all exons in a gene) all at once. The returned numpy array can then be sliced acording to the exon coordinates to calculate coverage for each exon individually.
 
 .. code-block:: python
 
-  >>> gene = hub.db.find("gene", "SMS")
-  >>> read_depths = hub.cov.read(gene.chrom, gene.start, gene.end)
+  >>> gene = db.find("gene", "SMS")
+  >>> read_depths = bamFile.read(gene.chrom, gene.start, gene.end)
   >>> exon = gene.exons[0]
   # Extract the read depths for the first exon by slicing the coverage array
   >>> exon_rd = read_depths[(exon.start-gene.start):(exon.end-gene.start)]
-  >>> coverage, completeness = hub.calculate(exon_rd, cutoff=15)
+  >>> coverage, completeness = calculate(exon_rd, cutoff=15)
 
 
 .. _Elemental: https://github.com/robinandeer/elemental

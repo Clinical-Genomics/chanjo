@@ -9,7 +9,7 @@ Command line interface (CLI)
 -----------------------------
 `Chanjo` is built with the intention that most people will interact with it, through the command line interface (CLI). Therefore, most functionality is available to the user this way.
 
-The main use of `Chanjo` is to annotate genetic elements (genes, transcripts, exons) from multiple samples and store everything in a central SQLite database. Let's first set up a new skeleton database.
+The main use of `Chanjo` is to annotate genetic elements (genes, transcripts, exons) from multiple samples and store everything in a central SQL database. Let's first set up a new skeleton database.
 
 .. code-block:: console
   
@@ -20,6 +20,12 @@ The main use of `Chanjo` is to annotate genetic elements (genes, transcripts, ex
   Cloning the latest release of the CCDS database
   $ cosmid clone ccds
   $ chanjo build data/coverage.sqlite using resources/ccds/CCDS.txt
+
+If you instead prefer to use a MySQL database the last command would look something like this:
+
+.. code-block:: console
+
+  $ chanjo build username:password@localhost/coverage using resources/ccds/CCDS.txt --dialect "mysql"
 
 .. note::
 
