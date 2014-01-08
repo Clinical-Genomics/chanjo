@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 __title__ = "chanjo"
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 __author__ = "Robin Andeer"
 __license__ = "MIT"
 __copyright__ = "Copyright 2013 Robin Andeer"
