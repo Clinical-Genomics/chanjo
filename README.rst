@@ -72,7 +72,11 @@ Further, `alternative tools`_ often hide intuitive genetic concepts such as gene
 
 Future
 --------
+The closest improvement in time will be an optional configuration file that will help to declutter the command line interface (think ".chanjorc").
+
 I reworked large parts of the API before the 0.5.0 relaese. In doing so, I realized an unnessesary reliance on classes which could equally well be represented by simple, standalone functions. Taking this idea even further, I'd like to explore the possibility of a streaming/pipeable interface. It would hopefully be easier to parallelize and maintain with tests and continous improvements.
+
+I would also be open to add support for Python 3.x now that even Numpy have made the jump.
 
 Contribute
 -----------

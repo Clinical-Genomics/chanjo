@@ -12,6 +12,7 @@ def process(bamFile, chrom, segments, extend=0, cutoff=10, threshold=10000):
   <public> Annotates each related exon with coverage data.
 
   .. code-block:: python
+
     >>> from chanjo import utils, bam
     >>> bamFile = bam.CoverageAdaper("myBamFile.bam")
     >>> exons = [(1, 10, "exon1"), (15, 30, "exon2"), ...]

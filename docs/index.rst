@@ -3,11 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Chanjo: A sane sequence coverage analysis tool
-===============================================
+Chanjo
+=======
 Release |version|. (:ref:`Installation <installation>`)
 
-Chanjo is a sane coverage analysis tool for DNA sequencing. It's written in Python and aims to make it easy to answer clinically relevant questions.
+**Chanjo** is a sane coverage analysis tool focusing on clinical sequencing. Finding answers to clinically relevant questions (*how well is my favorite gene covered?*) has never been this easy:
 
 .. code-block:: console
 
@@ -33,8 +33,6 @@ v0.5.0 also marks the first release with support for a second popular database s
 
 User's Guide:
 ----------------
-This resource aims to cover everything from getting setup and started, diving into the Python API, forging a deeper understanding of Chanjo, as well as catching up on the latest developments.
-
 .. toctree::
    :maxdepth: 2
 
@@ -46,11 +44,11 @@ This resource aims to cover everything from getting setup and started, diving in
    sql
    design
    development
+   faq
 
 
 API reference
 --------------
-
 .. toctree::
    :maxdepth: 2
 

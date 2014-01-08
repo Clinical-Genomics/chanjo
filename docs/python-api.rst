@@ -2,21 +2,21 @@
 
 Python API
 ============
-I will introduce the Python API by explaining esentially how to accomplish the same thing as in the :ref:`quickstart` guide.
+This document will introduce the Python API by explaining esentially how to accomplish the same thing as in the :ref:`quickstart` guide.
 
 .. note::
 
-  The API has undergone significant changes since v0.5.0 - so read carefully if you are user of Chanjo v0.4.0 or earlier.
+  The API has undergone significant changes starting v0.5.0 - so read carefully if you are user of **Chanjo** v0.4.0 or earlier.
 
 Boilerplate code
 -----------------
-To include Chanjo in your own project you would pretty much always do:
+To include **Chanjo** in your own project you would pretty much always do:
 
 .. code-block:: python
 
   from chanjo import sql, bam, utils
 
-  # Paths to a SQLite database and alignment BAM files
+  # Paths to e.g. a SQLite database and an alignment BAM file
   sql_path = "data/coverage.sqlite"
   cov_path = "bam_files/person42.bam"
 
@@ -24,12 +24,12 @@ To include Chanjo in your own project you would pretty much always do:
   db = sql.ElementAdapter(sql_path, dialect="sqlite")
   bamFile = bam.CoverageAdapter(cov_path)
 
+That's it! You are now ready to start using **Chanjo**.
 
-That's it! You are now ready to start using `Chanjo`.
 
 Building skeleton DB
 ---------------------
-For this we really only need the :class:`CoverageAdapter`, but it works either way. We also need to grab a class from a `Chanjo` dependency: Elemental_. Building on the example setup above:
+We also need to grab a class from a **Chanjo** Python dependency: Elemental_. Building on the example setup above:
 
 .. code-block:: python
 
@@ -49,6 +49,7 @@ For this we really only need the :class:`CoverageAdapter`, but it works either w
 
 Now we have a basic SQLite database with genetic elements, complete with relationships and other useful annotations, all wrapped in a very functional SQLAlchemy ORM.
 
+
 Getting genes
 --------------
 Fetching genes (or any element) from the database we just built is simple. Let's get all genes at once.
@@ -65,16 +66,16 @@ Fetching genes (or any element) from the database we just built is simple. Let's
   genes = db.find("gene", query=gene_ids)
 
 
-Annotating genes
-------------------
-Really what happens is that we annotate each of the exons belonging to the the genes we are interested in. Extending those annotations will come later.
+Annotating elements (exons)
+----------------------------
+Really what happens is that we annotate each of the exons. Extending those annotations will come later.
 
 .. code-block:: python
 
   # The cutoff is used when calculating completeness
   cutoff = 15
   sample_id = "person_42"
-  group_id = 3  # Family 3
+  group_id = 3  # e.g. family 3
 
   # List all 24 different chromosomes
   chromosomes = utils.chromosome()
@@ -85,6 +86,7 @@ Really what happens is that we annotate each of the exons belonging to the the g
   # We need to process all exons for each chromosome separately
   for chrom in chromosomes:
 
+    # Grab an exon class reference
     exon = db.get("class", "exon")
     
     # List all exons that we want to annotate with coverage
@@ -178,17 +180,6 @@ What if your genomic region of interest lies outside of the known exome? Glad yo
   >>> chrom = "1"
   >>> read_depths = bamFile.read(chrom, 1001, 1102)
   >>> coverage, completeness = utils.calculate(read_depths, cutoff=15)
-
-Reading from a BAM file is a bottleneck when running Chanjo. It's therefore a good idea to read across *multiple* intervals (such as all exons in a gene) all at once. The returned numpy array can then be sliced acording to the exon coordinates to calculate coverage for each exon individually.
-
-.. code-block:: python
-
-  >>> gene = db.find("gene", "SMS")
-  >>> read_depths = bamFile.read(gene.chrom, gene.start, gene.end)
-  >>> exon = gene.exons[0]
-  # Extract the read depths for the first exon by slicing the coverage array
-  >>> exon_rd = read_depths[(exon.start-gene.start):(exon.end-gene.start)]
-  >>> coverage, completeness = calculate(exon_rd, cutoff=15)
 
 
 .. _Elemental: https://github.com/robinandeer/elemental
