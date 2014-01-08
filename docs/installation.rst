@@ -2,11 +2,11 @@
 
 Installation
 ================
-This section will instruct you, step-by-step, on how to install Chanjo.
+This section will instruct you, step-by-step, on how to install *Chanjo*.
 
 .. note::
 
-  Chanjo is developed on Mac OSX and is targeted to run on UNIX platforms, including Linux, running Python 2.7.x.
+  *Chanjo* is developed on Mac OSX and is targeted to run on UNIX platforms, including Linux, running Python 2.7.x.
 
 
 Installing Chanjo
@@ -17,7 +17,7 @@ Preferably in a virtualenv_, simply run:
 
     $ pip install chanjo
 
-Required Python dependencies will be installed alongside the main package. The ``chanjo`` command line tool will (probably) be automatically added to your ``$PATH``.
+Required Python dependencies will be installed alongside the main package. The ``chanjo`` commandline tool will automatically show up in your ``$PATH``.
 
 .. note::
 
@@ -25,23 +25,46 @@ Required Python dependencies will be installed alongside the main package. The `
 
 .. note::
   
-  The one exception to the "don't worry about Python dependencies"-rule is *database interfaces*. For example if you intend to use MySQL as data storage you should at some point run: ``pip install MySQL-python``.
+  The exception to the "don't worry about Python dependencies"-rule is *database interfaces*. For example if you intend to use MySQL as data storage you should at some point install a driver by running: ``pip install MySQL-python``.
 
-Non-python dependencies
+
+Setting up a new Python environment
+------------------------------------
+If you are experiencing difficult–to-fix problems (beyond installing *Chanjo*) it might be time to start fresh with a brand new copy of Python.
+
+My recommendation for easily setting up a new Python environment is to download a pre-compiled version of ActivePython_. This will work even if you lack root access to the computer you're working on.
+
+After downloading the appropriate version (Mac/Linux):
+
+.. code-block:: console
+
+  $ tar -xzf ActivePython-{{version}}.tar.gz
+  $ cd ActivePython-{{version}}
+  $ ./install.sh -I $HOME/opt/ActivePython-2.7
+  $ export PATH=$HOME/opt/ActivePython-2.7/bin:$PATH
+
+Of course, you really would need to add the last command somewhere in your ``.bash_profile`` or similar startup script to default to the ActivePython installation in the future.
+
+Another nice thing about ActivePython is that virtualenv_ and ``pip`` comes preinstalled.
+
+
+Non-Python dependencies
 ------------------------
 C-compiler
 ~~~~~~~~~~~
-You need to have a C-compiler installed on your system.
+You need a C-compiler installed on your system.
 
 On OSX, the easiet way is to install Apple's `Developer command line tools`_. If you don't want to sign up for a free developer account you could try Kenneth Reitz's `GCC Installer for OSX`_.
+
+My experience with Linux is that a proper C-compiler most often is already installed and ready to go.
 
 SAMtools
 ~~~~~~~~~~
 SAMtools_ provides various utilities for manipulating alignments in the SAM/BAM format, including sorting, merging, indexing and generating alignments in a per-position format. **>=v0.1.19** is required.
 
-Technically SAMtools should be automatically installed alongside Chanjo. If you wish to assert more controll over the process, however, or are experience problems, this is how you would install it manually. It's actually not that difficult.
+Technically *SAMtools* should be automatically installed alongside *Chanjo*. If you wish to assert more controll over the process, however, or are experience problems, this is how you would install it manually. It's actually not that difficult.
 
-To install you need to download the latest release from Samtools' `downloads page`_.
+To install *SAMtools* you need to download the latest release from SAMtools' `downloads page`_.
 
 .. code-block:: console
 
@@ -52,13 +75,15 @@ Don't forget to add/copy the `samtools` binary from the `misc` folder to a locat
 
 SQLite or MySQL
 ~~~~~~~~~~~~~~~~~
-`SQLite <http://www.sqlite.org/>`_ is an embedded SQL database that ships with most operating systems. You probably don't have to worry about installing it yourself.
+`SQLite <http://www.sqlite.org/>`_ is an embedded SQL database that ships with most operating systems. You probably don't have to worry about installing it yourself. If you've gotten Python to work, chances are you're fine.
 
 `MySQL <http://www.mysql.com/>`_ is a more heavy duty SQL database option that happens to be the most popular open source database in the world. Finding a tutorial that adresses your setup for installing it should be relatively easy since the community of users is vast. Here are the official `instructions <http://dev.mysql.com/doc/refman/5.1/en/linux-installation.html>`_.
 
 
 Getting the code
 ------------------
+If you want to take part in the development or tweak the code for any other reason you would follow these two simple steps.
+
 1. Download the code from the `GitHub repo`_.
 
 .. code-block:: console
@@ -80,3 +105,4 @@ Getting the code
 .. _Python Guide: http://docs.python-guide.org/en/latest/
 .. _more information: http://docs.python-guide.org/en/latest/dev/virtualenvs/
 .. _GitHub repo: https://github.com/robinandeer/chanjo/releases
+.. _ActivePython: http://www.activestate.com/activepython/downloads

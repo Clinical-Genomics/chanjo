@@ -1,10 +1,14 @@
 ..  _adapters:
 
 Adapters
-============
-`Chanjo` uses adapters to interface with sources of coverage and genetic elements + coverage annotations. This makes it at least theoretically possible to tailor `Chanjo` to work with any pipeline. It would for example be possible to persist coverage in a MySQL database or simply in a .txt-file.
+==========
+*Chanjo* uses adapters to interface with sources of coverage and data storage. The idea has been to create an environment where it would be possible to switch in and out adapters at will. This has during development proven to be a valuable design decision.
 
-Two default adapters are included in the package. Using these, coverage will be read directly from a BAM alignment file, and genetic elements + coverage will be stored in a SQLite database.
+.. note::
+
+  However, even if the general principle still stands (separation of concern) I believe the actual need to replace existing adapters will deminish over time.
+
+Two default adapters are included in the package. Using these, coverage will be read directly from a BAM alignment file, and genetic elements + coverage will be stored in a SQL database (SQLite or MySQL are officially supported).
 
 Requirements
 ------------------
@@ -12,48 +16,48 @@ If you know your way around python you could build your own adapter! However, to
 
 .. note::
 
-  These requirements are not complete and should be seen as merely pointing you in the right direction. They **will** be modified in the future. I would refrain from building your own adapters until I approach a stable 1.0 relase.
+  I advice against attempting to build custom adapters until *Chanjo* approaches its stable 1.0 release.
 
 Coverage Adapter
-^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~
 A :class:`CoverageAdapter` needs to:
 
-1. accept a path as an argument when setting up the adapter:
+1. accept a path as an argument when setting up the class instance:
 
 .. code-block:: python
 
-  from module import CoverageAdapter
-  adapter = CoverageAdapter("path/to/source")
+  from custom_module import CoverageAdapter
+  adapter = CoverageAdapter("path/to/source.bam")
 
-2. include a `.read(chrom, start, end)` method that returns an array-like list if depths for *each* position in the interval:
+2. include a "read"-method that returns a list-like object. The list should include the read depth for *each* position in the interval:
 
 .. code-block:: python
 
-    adapter.read("17", 0, 10)
+    adapter.read(chrom="17", start=0, end=10)
     #=> [3, 4, 4, 4, 5, 7, 7, 6, 5, 5]
 
-3. treat all interval definitions as 0,0-based in accordance with the rest of the python ecosystem.
+3. treat all interval definitions as 0,0-based in accordance with the rest of the Python ecosystem. This is important as there is no standard convention in the genomics world.
 
 Element Adapter
-^^^^^^^^^^^^^^^^^^^^^
-A Element Adapter needs to:
+~~~~~~~~~~~~~~~~~
+An :class:`ElementAdapter` needs to:
 
-1. accept a path as an argument when setting up the adapter:
+1. accept a path as an argument when setting up the class instance:
 
 .. code-block:: python
 
-    from module import ElementAdapter
-    adapter = ElementAdapter("path/to/source")
+    from custom_module import ElementAdapter
+    adapter = ElementAdapter("path/to/source.sqlite")
 
-2. implement a ``get(elem_class, [elem_ids])`` method that fetches gene, transcript, and exon objects based on the element ID(s). It should be valid to supply a single ID, a list of IDs or nothing. If no IDs are supplied, the method should return all elements matching the element class:
+2. implement a "get"-method that fetches gene, transcript, and exon objects based on the element ID(s). It should be valid to supply a single ID, a list of IDs or nothing. If no IDs are supplied, the method should return all elements matching the element class:
 
 .. code-block:: python
 
     adapter.get("gene", "GIT1")
-    #=> returns a single "gene" object matching the ID; "GIT1".
+    #=> <custom_module.Gene instance at 0x107098e18>
 
     adapter.get("gene")
-    #=> returns a list of all genes in the database
+    #=> [<custom_module.Gene instance>, <custom_module.Gene instance>, ...]
 
 3. implement a `commit()` method to persist all dirty changes made to element objects:
 

@@ -21,53 +21,60 @@ API
         ---------------------|  The Chanjo API  |---------------------
 
 
-.. module:: chanjo.core
-
-Hub Object
------------
-.. autoclass:: Hub
-   :members:
-
-
 .. module:: chanjo.utils
 
-Interval Object
-----------------
-.. autoclass:: Interval
-   :members:
+chromosomes function
+---------------------
+.. autofunction:: chromosomes
+
+coverageMetrics function
+-------------------------
+.. autofunction:: coverageMetrics
+
+intervals function
+--------------------
+.. autofunction:: intervals
+
+group function
+---------------
+.. autofunction:: group
+
+process function
+-----------------
+.. autofunction:: process
 
 
 .. module:: chanjo.bam
 
-CoverageAdapter Object
+CoverageAdapter object
 -----------------------
 .. autoclass:: CoverageAdapter
-   :members:
+  :members:
 
 
 .. module:: chanjo.sql
 
-ElementAdapter Object
------------------------
-.. autoclass:: ElementAdapter
-   :members:
-
-GeneData Object
+GeneData object
 ----------------
 .. autoclass:: GeneData
   :members:
 
-TranscriptData Object
+TranscriptData object
 -----------------------
 .. autoclass:: TranscriptData
   :members:
 
-ExonData Object
+ExonData object
 ----------------
 .. autoclass:: ExonData
   :members:
 
-Sample Object
+Sample object
 ---------------
 .. autoclass:: Sample
+  :members:
+
+ElementAdapter object
+-----------------------
+.. autoclass:: ElementAdapter
   :members:
