@@ -182,6 +182,8 @@ def main(args):
             "completeness": data.completeness
           })
 
+      print(json.dumps(output, indent=4))
+
   elif args["build"]:
     # Builds a new database instance with barebones structure and
     # relationships, no annotations. This is useful when you plan to run
