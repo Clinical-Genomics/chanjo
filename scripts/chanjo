@@ -242,7 +242,7 @@ def main(args):
 
     elif not args["--pipe"]:
       # Go straight to importing data to database
-      import_(output, db)
+      import_(db, data)
 
     else:
       # Print to standard out to enable piping (if --pipe)
