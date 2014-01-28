@@ -1,0 +1,339 @@
+{
+  "sample_id": "99-1-1A",
+  "group_id": 99,
+  "cutoff": 10,
+  "source": "align.bam",
+  "splice": false,
+  "annotations": [
+    {
+      "element_id": "22-40742561-40742713",
+      "completeness": 1,
+      "coverage": 128.81045751634
+    },
+    {
+      "element_id": "22-40745834-40746037",
+      "completeness": 1,
+      "coverage": 193.88235294118
+    },
+    {
+      "element_id": "22-40749075-40749119",
+      "completeness": 1,
+      "coverage": 135.46666666667
+    },
+    {
+      "element_id": "22-40750250-40750329",
+      "completeness": 1,
+      "coverage": 425.225
+    },
+    {
+      "element_id": "22-40754866-40755037",
+      "completeness": 1,
+      "coverage": 174.0523255814
+    },
+    {
+      "element_id": "22-40755262-40755308",
+      "completeness": 1,
+      "coverage": 477.53191489362
+    },
+    {
+      "element_id": "22-40756404-40756494",
+      "completeness": 1,
+      "coverage": 77.879120879121
+    },
+    {
+      "element_id": "22-40757275-40757344",
+      "completeness": 1,
+      "coverage": 247.61428571429
+    },
+    {
+      "element_id": "22-40757490-40757637",
+      "completeness": 1,
+      "coverage": 342.13513513514
+    },
+    {
+      "element_id": "22-40758983-40759073",
+      "completeness": 1,
+      "coverage": 306.61538461538
+    },
+    {
+      "element_id": "22-40760278-40760367",
+      "completeness": 1,
+      "coverage": 85.288888888889
+    },
+    {
+      "element_id": "22-40760882-40761058",
+      "completeness": 1,
+      "coverage": 128.10734463277
+    },
+    {
+      "element_id": "22-40762438-40762524",
+      "completeness": 1,
+      "coverage": 286.63218390805
+    },
+    {
+      "element_id": "22-51017608-51017682",
+      "completeness": 1,
+      "coverage": 247.89333333333
+    },
+    {
+      "element_id": "22-51017853-51017934",
+      "completeness": 1,
+      "coverage": 98.060975609756
+    },
+    {
+      "element_id": "22-51018154-51018257",
+      "completeness": 1,
+      "coverage": 120.58653846154
+    },
+    {
+      "element_id": "22-51018401-51018509",
+      "completeness": 1,
+      "coverage": 125.17431192661
+    },
+    {
+      "element_id": "22-51018617-51018698",
+      "completeness": 1,
+      "coverage": 97.439024390244
+    },
+    {
+      "element_id": "22-51018785-51018843",
+      "completeness": 1,
+      "coverage": 122.15254237288
+    },
+    {
+      "element_id": "22-51018992-51019087",
+      "completeness": 1,
+      "coverage": 120.91666666667
+    },
+    {
+      "element_id": "22-51019847-51019980",
+      "completeness": 1,
+      "coverage": 134.50746268657
+    },
+    {
+      "element_id": "22-51020176-51020289",
+      "completeness": 1,
+      "coverage": 200.66666666667
+    },
+    {
+      "element_id": "22-51020676-51020784",
+      "completeness": 1,
+      "coverage": 50.238532110092
+    },
+    {
+      "element_id": "22-51020985-51021208",
+      "completeness": 1,
+      "coverage": 183.02232142857
+    },
+    {
+      "element_id": "7-55086969-55087056",
+      "completeness": 1,
+      "coverage": 140.13636363636
+    },
+    {
+      "element_id": "7-55209977-55210128",
+      "completeness": 1,
+      "coverage": 221.83552631579
+    },
+    {
+      "element_id": "7-55210996-55211179",
+      "completeness": 1,
+      "coverage": 159.80434782609
+    },
+    {
+      "element_id": "7-55214297-55214431",
+      "completeness": 1,
+      "coverage": 260.14074074074
+    },
+    {
+      "element_id": "7-55218985-55219053",
+      "completeness": 1,
+      "coverage": 109.63768115942
+    },
+    {
+      "element_id": "7-55220237-55220355",
+      "completeness": 1,
+      "coverage": 231.82352941176
+    },
+    {
+      "element_id": "7-55221702-55221843",
+      "completeness": 1,
+      "coverage": 424.24647887324
+    },
+    {
+      "element_id": "7-55223521-55223637",
+      "completeness": 1,
+      "coverage": 262.89743589744
+    },
+    {
+      "element_id": "7-55224224-55224350",
+      "completeness": 1,
+      "coverage": 222.29133858268
+    },
+    {
+      "element_id": "7-55224450-55224523",
+      "completeness": 1,
+      "coverage": 265.24324324324
+    },
+    {
+      "element_id": "7-55224450-55224534",
+      "completeness": 1,
+      "coverage": 254.97647058824
+    },
+    {
+      "element_id": "7-55225354-55225444",
+      "completeness": 1,
+      "coverage": 253.24175824176
+    },
+    {
+      "element_id": "7-55227830-55228029",
+      "completeness": 1,
+      "coverage": 200.225
+    },
+    {
+      "element_id": "7-55229190-55229322",
+      "completeness": 1,
+      "coverage": 193.67669172932
+    },
+    {
+      "element_id": "7-55231424-55231514",
+      "completeness": 1,
+      "coverage": 178.37362637363
+    },
+    {
+      "element_id": "7-55232971-55233128",
+      "completeness": 1,
+      "coverage": 236.96835443038
+    },
+    {
+      "element_id": "7-55236214-55236220",
+      "completeness": 1,
+      "coverage": 123.85714285714
+    },
+    {
+      "element_id": "7-55237998-55238235",
+      "completeness": 1,
+      "coverage": 166.60504201681
+    },
+    {
+      "element_id": "7-55238866-55238904",
+      "completeness": 1,
+      "coverage": 167.82051282051
+    },
+    {
+      "element_id": "7-55240674-55240815",
+      "completeness": 1,
+      "coverage": 182.76056338028
+    },
+    {
+      "element_id": "7-55241612-55241734",
+      "completeness": 1,
+      "coverage": 161.70731707317
+    },
+    {
+      "element_id": "7-55242413-55242511",
+      "completeness": 1,
+      "coverage": 339.60606060606
+    },
+    {
+      "element_id": "7-55248984-55249169",
+      "completeness": 1,
+      "coverage": 156.76344086022
+    },
+    {
+      "element_id": "7-55259410-55259565",
+      "completeness": 1,
+      "coverage": 163.87820512821
+    },
+    {
+      "element_id": "7-55260457-55260532",
+      "completeness": 1,
+      "coverage": 347.18421052632
+    },
+    {
+      "element_id": "7-55266408-55266554",
+      "completeness": 1,
+      "coverage": 253.46258503401
+    },
+    {
+      "element_id": "7-55268007-55268104",
+      "completeness": 1,
+      "coverage": 179.55102040816
+    },
+    {
+      "element_id": "7-55268879-55269046",
+      "completeness": 1,
+      "coverage": 192.625
+    },
+    {
+      "element_id": "7-55269426-55269473",
+      "completeness": 1,
+      "coverage": 426.375
+    },
+    {
+      "element_id": "7-55270208-55270316",
+      "completeness": 1,
+      "coverage": 164.40366972477
+    },
+    {
+      "element_id": "7-55272947-55273308",
+      "completeness": 1,
+      "coverage": 300.0635359116
+    },
+    {
+      "element_id": "X-21958941-21958989",
+      "completeness": 0,
+      "coverage": 2.1020408163265
+    },
+    {
+      "element_id": "X-21985312-21985432",
+      "completeness": 1,
+      "coverage": 25.900826446281
+    },
+    {
+      "element_id": "X-21990013-21990106",
+      "completeness": 1,
+      "coverage": 22.074468085106
+    },
+    {
+      "element_id": "X-21990623-21990687",
+      "completeness": 1,
+      "coverage": 73.907692307692
+    },
+    {
+      "element_id": "X-21995177-21995352",
+      "completeness": 1,
+      "coverage": 150.94886363636
+    },
+    {
+      "element_id": "X-21996076-21996230",
+      "completeness": 1,
+      "coverage": 136.57419354839
+    },
+    {
+      "element_id": "X-21996993-21997082",
+      "completeness": 1,
+      "coverage": 38.155555555556
+    },
+    {
+      "element_id": "X-22002420-22002534",
+      "completeness": 1,
+      "coverage": 154.66086956522
+    },
+    {
+      "element_id": "X-22003260-22003339",
+      "completeness": 1,
+      "coverage": 30.425
+    },
+    {
+      "element_id": "X-22010713-22010828",
+      "completeness": 1,
+      "coverage": 20.98275862069
+    },
+    {
+      "element_id": "X-22012428-22012467",
+      "completeness": 1,
+      "coverage": 134.125
+    }
+  ]
+}
