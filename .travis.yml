@@ -1,6 +1,7 @@
 language: python
 python:
+  - "3.3"
   - "2.7"
 # Command to install dependencies
 install: python setup.py install
-script: nosetests
+script: py.test

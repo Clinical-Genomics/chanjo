@@ -1,3 +1,48 @@
+Chanjo
+- What?
+- How? Consise
+- In what order?
+
+Splash page (gives a sense of passion for the project)
+  - Logo
+  - Title
+  - Tagline
+  - Highlights
+  - Made by ...
+  - What makes it awesome (outside context of other tools)
+
+Table of Contents (overview of what you might find here)
+
+Quick introduction (generate interest and gentle introduction)
+  - Code example (follow along)
+  - Demo files
+
+In depth tutorial (flesh out concepts)
+  - Focus on command line utilities
+
+Code walkthrough (new, developer focused)
+  - Case study of the project
+  - Present conventions
+  - Generated from inline docs?
+
+What can go wrong, how to solve issues
+  - Setting up a perfered Python environment
+
+
+Bioinformaticians working with DNA sequencing
+ - Highlight difference Chanjo vs. BEDTools
+  - Clinical utility
+  - Completeness
+ - Explain where to go next with Chanjo data
+
+FAQ
+
+(Design considerations)
+
+
+
+
+
 .. image:: https://raw.github.com/robinandeer/chanjo2/develop/assets/chanjo-banner.png
   :alt: Chanjo banner
 

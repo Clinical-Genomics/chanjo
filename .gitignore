@@ -74,6 +74,8 @@ nosetests.xml
 .pydevproject
 .env
 *.tar.gz
+TRASH*
+*.sublime-*
 
 # Databses
 *.db*

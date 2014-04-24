@@ -1,71 +1,68 @@
 .. Chanjo documentation master file, created by
-   sphinx-quickstart on Thu Aug 22 16:36:15 2013.
+   sphinx-quickstart on Sun Apr 13 18:46:22 2014.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Chanjo
+mascot
 =======
-Release |version|. (:ref:`Installation <installation>`)
+.. raw:: html
+   
+   <div class="intro__wrapper">
+      <div class="logo center-content">
+         <img alt="Chanjo Mascot" src="_images/chanjo-logo@2x.png">
+      </div>
+      <div class="intro">
+         <h1>Chanjo</h1>
+         <div class="sub-header">Coverage analysis for clincal sequencing</div>
+       </div>
+     </div>
+   </div>
 
-**Chanjo** is a sane coverage analysis tool focusing on clinical sequencing. Finding answers to clinically relevant questions (*how well is my favorite gene covered?*) has never been this easy:
+
+Simple & intuitive analysis pipeline
+--------------------------------------
+Chanjo introduces a new coverage metric, an intuitive abstraction layer, a pipeable command line interface, and a clear path forward.
 
 .. code-block:: console
 
-   $ chanjo annotate db.sqlite using test.bam EGFR ALB CD4 BRCA1 --sample "fancy_id"
-   $ chanjo peak db.sqlite EGFR
-   {
-      "EGFR": [
-         {
-            "sample": "fancy_id",
-            "completeness": 1.0,
-            "coverage": 227.64
-         }
-      ]
-   }
+   $ cat intervals.bed
+   1  10 15 interval-1
+   2  45 55 interval-2
+   $ cat intervals.bed | chanjo annotate alignment.bam
+   #{"sample_id": "bavewira", ...}
+   1  10 15 interval-1  9.92231     0.97231
+   2  45 55 interval-2  14.23123 1.0
+
+.. raw:: html
+
+   <a href="introduction.html" class="button--big">
+      <div class="button__body">Check out the demo</div>
+   </a>
 
 
-What's new in |version|?
--------------------------
-This version includes a lot of internal restructuring which hopefully will provide significant speed improvements while still moving towards saner/Pythonic code design. The main point is that Chanjo now more intelligently splits up different parts of the exome when annotating coverege.
+Contents
+---------
 
-v0.5.0 also marks the first release with support for a second popular database scheme: MySQL. This is great not only because it increases flexibility but also because MySQL is more of a production ready tool compared to SQLite. More databases could be quite easily added in the future but let's start with the biggest one first.
-
-
-User's Guide:
-----------------
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
+   introduction
    installation
-   quickstart
-   python-api
-   parallel
-   adapters
-   sql
-   design
-   development
-   faq
+   interface
+   code
+   developer
+   changelog
+   FAQ
 
 
-API reference
---------------
-.. toctree::
-   :maxdepth: 2
+made by
+--------
 
-   api
-   cli
+.. raw:: html
 
-
-Wallpapers
------------
-Download the official Chanjo `wallpapers <https://dl.dropboxusercontent.com/u/116686/chanjo-wp.zip>`_!
-
-.. image:: _static/chanjo-wp.001.small.jpg
-
-
-.. Indices and tables
-.. ==================
-
-.. * :ref:`genindex`
-.. * :ref:`modindex`
-.. * :ref:`search`
+   <a href="http://www.robinandeer.com/" class="outro">
+      <div class="intro">
+         <img class="robinandeer-logo" src="_static/robinandeer-logo@2x.png" />
+         <div class="sub-header title">Made by Robin Andeer</div>
+      </div>
+   </a>

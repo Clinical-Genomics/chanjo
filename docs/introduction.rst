@@ -1,0 +1,131 @@
+===================
+Quick introduction
+===================
+
+Obligatory code example
+-------------------------
+
+.. code-block:: console
+
+	$ cat intervals.bed
+	1	10	15	interval-1
+	2	45	55	interval-2
+	$ cat intervals.bed | chanjo annotate alignment.bam
+	#{"sample_id": "bavewira", ...}
+	1	10	15	interval-1	9.92231		0.97231
+	2	45	55	interval-2	14.23123	1.0
+
+
+Concise overview
+-----------------
+Chanjo breaks down coverage to intuitive levels of abstraction; genes, transcripts, exons, and intervals. It also introduces a new coverage metric that reduces the bias from uneven coverage. Chanjo is built around the idea of multiple levels of pipelines and fully embraces bash conventions. It's easily incorporated into existing pipelines and provides a clear path for downstream analysis.
+
+This guide is meant to give an overview of Chanjo, what you can and can't do with it. To start you off, take a look at this flow diagram. It illustrates how the different subcommands from the command line interface relate to each other. Don't worry, you'll learn more about it real soon.
+
+.. image:: _static/chanjo-overall-flow.png
+
+As indicated by the picture, Chanjo is built around streams of data that can be piped around. For example, it's perfectly possible to go from "CCDS" via *convert* and *build* to "SQL". In other commands:
+
+.. code-block:: console
+
+	$ cat CCDS.txt | chanjo convert | chanjo build coverage.sqlite
+
+
+Demo
+-----
+The rest of this document will guide you through a short demo that will cover how to use Chanjo from the command line.
+
+
+Demo files
+~~~~~~~~~~~
+First we need some files to work with. Let's download some sample genomics resources.
+
+.. code-block:: console
+
+	$ git clone https://github.com/robinandeer/chanjo-demo-pack
+
+.. For the adventurous you can accomplis this even easier by first
+	 installing `Cosmid`_, "the genomics package manager".
+	 code-block:: console
+	 $ pip install cosmid
+	 $ cosmid clone chanjo-demo-pack
+
+
+Setup and configuration
+~~~~~~~~~~~~~~~~~~~~~~~~
+Your first task will be to create a config file. It can be used to store commonly used options to avoid having to type everything on the command line. Chanjo will walk you through setting it up by running:
+
+.. code-block:: console
+	
+	$ cd chanjo-demo-pack/
+	$ chanjo init
+
+
+Defining interesting regions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+One important thing to note is that Chanjo doesn't consider coverage across the entire genome or exome. Instead you need to define some intervals we are interested in checking the coverage across.
+
+For whole exome sequencing, this could be your targeted regions. Or for clinical sequencing it might be exons from the manually curated CCDS database. In fact we already have an adapter to convert CCDS transcripts into the BED\* interval file that Chanjo expects.
+
+.. code-block:: console
+
+	$ chanjo convert CCDS.mini.txt --adapter CCDS > CCDS.mini.bed
+
+.. note::
+	It's perfectly possible to compose your own list of intervals. Just make sure to follow the BED conventions (http://genome.ucsc.edu/FAQ/FAQformat.html#format1).
+
+
+Initializing a SQL database
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+With the Chanjo formatted BED-file we are ready to build our SQL database that will hold the coverage data for long-term storage.
+
+.. code-block:: console
+	
+	chanjo build chanjo-test.sqlite CCDS.mini.bed
+
+If you prefer to use a MySQL database, the build pipeline would look something like this:
+
+.. code-block:: console
+
+	$ chanjo convert resources/ccds/CCDS.txt | \
+	> chanjo build username:password@localhost/chanjo_test --dialect "mysql+pymysql"
+
+
+Annotating coverage
+~~~~~~~~~~~~~~~~~~~~
+If you've misplaced your BED-file from the previous step, it's possible to generate a new one as a BED-stream from an existing database. Let's use this stream as the input to the *annotate*.
+
+.. code-block:: console
+
+	$ chanjo export chanjo-test.sqlite \
+	> | chanjo annotate alignment.bam | tee annotations.bed
+
+
+Importing annotations for storage
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To close the circle, we can import the output from *annotate* to the last command: *import*. It will take the annotations and store them in your SQLite database.
+
+.. code-block:: console
+
+	$ chanjo import chanjo-test.sqlite annotations.bed
+
+This is the complete Chanjo coverage analysis pipeline. Extracting basic coverage metrics like "average coverage", "overall completeness", etc. is as easy as a couple of SQL statements.
+
+.. note::
+	So what is this "completeness"? Well, it's pretty simple. You start by setting a level of "sufficient" coverage. Chanjo will then, for each interval, determine the percentage of bases with at least sufficient levels of coverage.
+
+
+What's next?
+--------------
+The SQL schema has been designed to be a powerful tool on it's own for studying coverage. It let's you quickly aggregate metrics across multiple samples and can be used as a general coverage API for accompanying tools.
+
+One example of such a tool is `Chanjo-Report`_, a coverage report generator for Chanjo output. A report could look something like this (click for the full PDF):
+
+.. image:: _static/example-coverage-report.jpg
+   :width: 960px
+   :alt: Example coverage report
+   :align: center
+   :target: _static/example-coverage-report.pdf
+
+.. _Cosmid: http://cosmid.co/
+.. _Chanjo-Report: https://github.com/robinandeer/Chanjo-Report

@@ -1,0 +1,40 @@
+{%- extends "basic/layout.html" %}
+
+{%- block doctype %}
+<!DOCTYPE html>
+{%- endblock %}
+
+{%- block extrahead %}
+  {{ super() }}
+  {% if theme_touch_icon %}
+    <link rel="apple-touch-icon" href="{{ pathto('_static/' ~ theme_touch_icon, 1) }}" />
+  {% endif %}
+  <link rel="stylesheet" type="text/css" href="_static/css/clear-sans.css">
+  <link href='http://fonts.googleapis.com/css?family=EB+Garamond' rel='stylesheet' type='text/css'>
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+{% endblock %}
+
+{%- block relbar1 %}{% endblock %}
+{%- block relbar2 %}{% endblock %}
+{% block sidebar1 %}{% endblock %}
+{% block sidebar2 %}{% endblock %}
+
+{%- block document %}
+  <nav class="cf">
+    <ul class="nav">
+      <li><a class="nav__item" href="index.html">Home</a></li>
+      <li><a class="nav__item" href="introduction.html">Demo</a></li>
+      <li><a class="nav__item" href="https://github.com/robinandeer/chanjo">GitHub</a></li>
+      <li class="dropdown">
+        <div class="nav__item">Contents</div>
+
+        {{ toctree() }}
+      </li>
+    </ul>
+  </nav>
+
+  {{ super() }}
+
+{% endblock %}
+
+{%- block footer %}{%- endblock %}
