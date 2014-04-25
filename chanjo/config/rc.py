@@ -23,7 +23,6 @@ __copyright__ = 'Copyright 2014 Robin Andeer'
 
 import json
 import os
-import yaml
 
 from path import path
 
