@@ -69,7 +69,7 @@ For whole exome sequencing, this could be your targeted regions. Or for clinical
 
 .. code-block:: console
 
-	$ chanjo convert CCDS.mini.txt --adapter CCDS > CCDS.mini.bed
+	$ chanjo convert CCDS.mini.txt > CCDS.mini.bed
 
 .. note::
 	It's perfectly possible to compose your own list of intervals. Just make sure to follow the BED conventions (http://genome.ucsc.edu/FAQ/FAQformat.html#format1).
@@ -81,14 +81,14 @@ With the Chanjo formatted BED-file we are ready to build our SQL database that w
 
 .. code-block:: console
 	
-	chanjo build chanjo-test.sqlite CCDS.mini.bed
+	chanjo build CCDS.mini.bed
 
 If you prefer to use a MySQL database, the build pipeline would look something like this:
 
 .. code-block:: console
 
 	$ chanjo convert resources/ccds/CCDS.txt | \
-	> chanjo build username:password@localhost/chanjo_test --dialect "mysql+pymysql"
+	> chanjo build --db username:password@localhost/chanjo_test --dialect "mysql+pymysql"
 
 
 Annotating coverage
@@ -97,8 +97,7 @@ If you've misplaced your BED-file from the previous step, it's possible to gener
 
 .. code-block:: console
 
-	$ chanjo export chanjo-test.sqlite \
-	> | chanjo annotate alignment.bam | tee annotations.bed
+	$ chanjo export | chanjo annotate alignment.bam | tee annotations.bed
 
 
 Importing annotations for storage
@@ -107,7 +106,7 @@ To close the circle, we can import the output from *annotate* to the last comman
 
 .. code-block:: console
 
-	$ chanjo import chanjo-test.sqlite annotations.bed
+	$ chanjo import annotations.bed
 
 This is the complete Chanjo coverage analysis pipeline. Extracting basic coverage metrics like "average coverage", "overall completeness", etc. is as easy as a couple of SQL statements.
 

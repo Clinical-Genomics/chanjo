@@ -46,8 +46,8 @@ Contents
 .. toctree::
    :maxdepth: 1
 
-   introduction
    installation
+   introduction
    interface
    code
    developer
