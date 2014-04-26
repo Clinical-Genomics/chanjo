@@ -60,6 +60,10 @@ Your first task will be to create a config file. It can be used to store commonl
 	$ cd chanjo-demo-pack/
 	$ chanjo init
 
+Chanjo uses project-level config files by default. This means that it will look for a possible ``chanjo.json`` file in the **current directory** where you execute your commands.
+
+If you accepted all defaults, this will setup Chanjo so that it knows e.g. that you want to store your SQL database ``./coverage.sqlite`` or in the same direcory with the name "coverage.sqlite".
+
 
 Defining interesting regions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
