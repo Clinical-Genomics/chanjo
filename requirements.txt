@@ -4,3 +4,4 @@ sqlalchemy>=0.8.2
 docopt
 path.py
 clint
+chanjo_ccds

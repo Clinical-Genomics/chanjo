@@ -12,7 +12,7 @@ if sys.argv[-1] == 'publish':
   os.system('python setup.py sdist upload')
   sys.exit()
 
-with open('README.rst') as f:
+with open('README.md') as f:
   readme = f.read()
 
 with open('LICENSE') as f:
