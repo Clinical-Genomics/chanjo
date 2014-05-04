@@ -3,7 +3,6 @@
 chanjo.questions
 ~~~~~~~~~~~~~~~~~~
 """
-
 from clint.textui import puts, colored
 
 # Python 2.x compatability
