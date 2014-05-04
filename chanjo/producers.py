@@ -11,11 +11,13 @@ from .pyxshell.pipeline import pipe
 
 @pipe
 def fetch_records(db, columns, order_columns=None):
-  """Performs a simple SQL query to fetch a list of columns from a *single*
-  SQLAlchemy ORM object (or table). Returns the results as a list of tuples.
+  """Performs a simple SQL query to fetch a list of columns from a
+  *single* SQLAlchemy ORM object (or table). Returns the results as a
+  list of tuples.
 
   Args:
-    db (session): ``sqlalchemy.orm.session`` object with a ``.query`` method
+    db (session): ``sqlalchemy.orm.session`` object with a
+      ``.query``-method
     columns (list): List of ``sqlalchemy.Column`` from a single ORM
 
   Returns:

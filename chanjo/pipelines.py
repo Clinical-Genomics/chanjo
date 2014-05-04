@@ -2,8 +2,8 @@
 """
 chanjo.pipelines
 ~~~~~~~~~~~~~~~~~
-The central pipelines in Chanjo. Commonly invoked from the 'chanjo'
-command line utility.
+The collections of central pipelines in Chanjo. Commonly invoked from
+the 'chanjo' command line utility.
 """
 import errno
 import json
@@ -22,9 +22,9 @@ from .bam import BamFile
 
 def annotate(bed_stream, sample_id, group_id, institute_id, cutoff, bam_path,
              extension, prepend, bp_threshold, end_point):
-  """Automates a pipeline for annotating all intervals from a BED file
-  stream. Writes both metadata (header) and tabular data for each
-  interval with calculated coverage and completeness to the end point.
+  """Pipeline for annotating all intervals from a BED file stream.
+  Writes both metadata (header) and tabular data for each interval with
+  calculated coverage and completeness to the end point.
 
   Args:
     bed_stream (file): BED-file handle to read from

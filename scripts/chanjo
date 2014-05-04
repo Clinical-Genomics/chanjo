@@ -29,30 +29,30 @@ Arguments:
 Options:
   -h --help           Show this screen
   -v --version        Show version
-  -a --adapter=STR    Adapter for converting reference to BED [default: ccds]
-  -c --cutoff=INT     Cutoff for completeness calculation [default: 10]
+  -a --adapter=STR    Adapter for converting reference to BED
+                      [default: {adapter}]
+  -c --cutoff=INT     Cutoff for completeness calculation [default: {cutoff}]
   --config=FILE       Path to YAML/JSON config file
-  -d --dialect=STR    Type of database: sqlite/mysql [default: sqlite]
-  -e --extend-by=INT  Dynamically extend intervals +/- [default: 0]
+  -d --dialect=STR    Type of database: sqlite/mysql [default: {dialect}]
+  -e --extend-by=INT  Dynamically extend intervals +/- [default: {extend-by}]
   -f --force          Overwrite existing files/databases without warning
   -g --group=STR      Group Id to associate samples e.g. in trios
   -i --institute=STR  Institute Id associate groups of samples
   -j --json           Import legacy JSON annotate output file
-  -p --prepend=STR    Prepend to each contig Id [default: ]
+  -p --prepend=STR    Prepend to each contig Id [default: {prepend}]
   -s --sample=STR     Sample Id (otherwise set automatically)
   -t --threshold=INT  Base pair threshold for optimizing BAM file reading
-                      [default: 17000]
+                      [default: {threshold}]
   -o --out=FILE       Define an output file other than "stdout"
-  --db=URI            Path/URI of a SQL database [default: coverage.sqlite]
+  --db=URI            Path/URI of a SQL database [default: {db}]
 """
 from importlib import import_module
 
-from clint import Args
 from clint.textui import puts
 from docopt import docopt
 
 import chanjo
-from chanjo import utils, pipelines, rc
+from chanjo import utils, pipelines, config
 
 
 def main(args):
@@ -80,15 +80,17 @@ def main(args):
 
     try:
       # Launch the init pipeline with questionnair
-      rc.init_pipeline(__file__)
+      config.init_pipeline(__file__)
     except KeyboardInterrupt:
       # Silently exit
-      puts('\n')
+      puts()
+    finally:
+      puts()
 
   elif args['convert']:
     # Dynamically import converter
     converter_id = args['--adapter']
-    converter = import_module('chanjo.sql.converters.' + converter_id)
+    converter = import_module('chanjo_' + converter_id)
 
     # Run converter pipeline
     ccds_stream = utils.open_or_stdx(args['<reference>'])
@@ -118,9 +120,29 @@ def main(args):
       pipelines.import_data(bed_stream, sql_uri, sql_dialect)
 
 if __name__ == '__main__':
+  # Set up default that would normally go into the docstring
+  defaults = {
+    'adapter': 'ccds',
+    'cutoff': 10,
+    'dialect': 'sqlite',
+    'extend-by': 0,
+    'prepend': '',
+    'threshold': 17000,
+    'db': 'coverage.sqlite'
+  }
+
+  # Read command line arguments preliminary to get possible config path
+  args = docopt(__doc__.format(**defaults),
+                version='Chanjo v' + chanjo.__version__)
+
+  # Get possible config values
+  config_values = utils.read_config(__file__, args['--config'])
+
+  # Merge/overwrite defaults with config values
+  defaults.update(config_values)
+
   # Parse docstring defined arguments and check that everything looks OK
-  args = docopt(__doc__, version='Chanjo v' + chanjo.__version__)
+  args = docopt(__doc__.format(**defaults),
+                version='Chanjo v' + chanjo.__version__)
 
-  defaults = utils.read_config(__file__, __doc__, Args(), args['--config'])
-
-  main(defaults)
+  main(args)

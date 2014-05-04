@@ -2,8 +2,8 @@
 """
 chanjo.stages
 ~~~~~~~~~~~~~~
-Itermediary pipes in a pipeline, also known as 'filters'. Mostly non general
-pipes, customized for various Chanjo pipelines.
+Itermediary pipes in some pipelines, also known as 'filters'. Mostly
+highlty customized subsections for various Chanjo pipelines.
 """
 from .pyxshell.pipeline import pipe
 from .utils import completeness, merge_intervals, assign_relative_positions
@@ -11,7 +11,7 @@ from .utils import completeness, merge_intervals, assign_relative_positions
 
 @pipe
 def stringify(stdin, delimiter='\t'):
-  """Convert each sequence (list, tuple) item in a in a stream to their
+  """Converts each sequence (list, tuple) item in a in a stream to their
   "tabluar" string representation.
 
   Args:
@@ -27,7 +27,7 @@ def stringify(stdin, delimiter='\t'):
 
 @pipe
 def rstrip(stdin):
-  """Strip invisible characters like ``\\t`` and ``\\n`` from the end
+  """Strips invisible characters like ``\\t`` and ``\\n`` from the end
   of strings.
 
   Args:
@@ -68,7 +68,7 @@ def prepare_bed_interval(stdin, block_column=5):
 
 @pipe
 def build_interval(stdin, db):
-  """Extract interval data for a single interval (exon).
+  """Extract interval data for a single interval (exon) at a time.
   """
   for interval in stdin:
     # Create a brand new interval

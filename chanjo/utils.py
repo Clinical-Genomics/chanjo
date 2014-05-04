@@ -11,7 +11,7 @@ import sys
 from docopt import docopt
 from path import path
 
-from . import rc
+from . import config
 
 
 def id_generator(size=8):
@@ -103,15 +103,17 @@ def convert_old_interval_id(old_id):
 
 
 def completeness(read_depths, threshold=10):
-  """Calculates completeness across a number of positions.
+  """Calculates completeness across a number of positions given their
+  read depths.
 
   Note:
-    The function catches the edge case where ``read_depths`` is an empty array
-    which would lead to a ``ZeroDivisionError`` and returns 0% by default.
+    This function catches the corner case where ``read_depths`` is an
+    empty array which would lead to a ``ZeroDivisionError`` and returns
+    0% by default.
 
   Args:
-    read_depths (array): :class:`numpy.array` of read depths for **each**
-      of the positions
+    read_depths (array): :class:`numpy.array` of read depths for
+      **each** of the positions
     threshold (int, optional): Cutoff to use for the filter
 
   Returns:
@@ -131,8 +133,8 @@ def completeness(read_depths, threshold=10):
 
 
 def assign_relative_positions(abs_start, abs_end, overall_start):
-  """Return relative positions given the absolute positions and the overall
-  starting position.
+  """Returns relative positions given the absolute positions and the
+  overall starting position.
 
   Args:
     abs_start (int): Global start of the interval
@@ -164,35 +166,10 @@ def merge_intervals(intervals):
     return (0, 0)
 
 
-def read_config(script_name, docopt_string, args, config_path=None):
-  # Extract docopt defaults
-  defaults = rc.docopt_defaults(docopt_string)
-
-  # Extract positional arguments only
-  positional_args = {}
-  for key, value in docopt(docopt_string, argv=args.grouped['_'].all).items():
-    if key.startswith('<'):
-      positional_args[key] = value
-
-  # Extract command line options only with Clint
-  options = {}
-  for key, value in args.grouped.items():
-    if key.startswith('--'):
-      if value:
-        options[key] = value.all[0]
-      else:
-        # Flag
-        options[key] = True
-
+def read_config(script_name, config_path=None):
   # Read values from potential config file
-  name = rc.config_name(script_name, prefix='', affix='.json')
-  config_path = config_path or path.joinpath(rc.config_location(), name)
-  config = rc.read_config(config_path, config={}, docopt=True)
+  name = config.name(script_name, prefix='', affix='.json')
+  config_path = config_path or path.joinpath(config.location(), name)
+  config_options = config.reader(config_path, config={}, docopt=True)
 
-  # Replace defaults with config values
-  defaults.update(config)
-  # Replace config with command line arguments
-  defaults.update(positional_args)
-  defaults.update(options)
-
-  return defaults
+  return config_options
