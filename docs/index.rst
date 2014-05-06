@@ -3,13 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-mascot
-=======
+Home
+=====
 .. raw:: html
    
    <div class="intro__wrapper">
       <div class="logo center-content">
-         <img alt="Chanjo Mascot" src="_images/chanjo-logo@2x.png">
+         <img alt="Chanjo Mascot" src="_static/chanjo-logo@2x.png">
       </div>
       <div class="intro">
          <h1>Chanjo</h1>
@@ -52,7 +52,7 @@ Contents
    code
    developer
    release-notes
-   FAQ
+   faq
 
 
 made by

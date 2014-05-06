@@ -1,6 +1,3 @@
-Changelog
-==========
-
 v0.6.0
 --------------------
 * BREAKING: changes group_id field to string instead of int.
