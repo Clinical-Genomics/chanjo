@@ -5,15 +5,15 @@ python:
 notifications:
   email: false
 install:
-	# Install conda
-	- sudo pip install conda
-	# Install dependencies
-	- sudo conda init
-	- sudo conda update conda --yes
-	- DEPS='pip numpy sqlalchemy cython pytest'
-	- conda create -p $HOME/py --yes $DEPS "python=$TRAVIS_PYTHON_VERSION"
-	- export PATH=$HOME/py/bin:$PATH
-	# install your own package
-	- python setup.py install
-	- conda info -a
+  # Install conda
+  - sudo pip install conda
+  # Install dependencies
+  - sudo conda init
+  - sudo conda update conda --yes
+  - DEPS='pip numpy sqlalchemy cython pytest'
+  - conda create -p $HOME/py --yes $DEPS "python=$TRAVIS_PYTHON_VERSION"
+  - export PATH=$HOME/py/bin:$PATH
+  # install your own package
+  - python setup.py install
+  - conda info -a
 script: py.test

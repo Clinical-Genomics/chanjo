@@ -7,7 +7,7 @@ Coming soon.
 
 License
 --------
-.. include:: LICENSE
+.. include:: ../LICENSE
 
 .. Design concepts / Conventions
     - Generators
