@@ -51,7 +51,7 @@ Contents
    interface
    code
    developer
-   changelog
+   release-notes
    FAQ
 
 
