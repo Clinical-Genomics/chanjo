@@ -62,7 +62,7 @@ made by
 
    <a href="http://www.robinandeer.com/" class="outro">
       <div class="intro">
-         <img class="robinandeer-logo" src="_static/robinandeer-logo@2x.png" />
+         <img class="robinandeer-logo" src="_static/robinandeer-logo.png" />
          <div class="sub-header title">Made by Robin Andeer</div>
       </div>
    </a>
