@@ -13,7 +13,7 @@ Home
       </div>
       <div class="intro">
          <h1>Chanjo</h1>
-         <div class="sub-header">Coverage analysis for clincal sequencing</div>
+         <div class="sub-header">Coverage analysis for clinical sequencing</div>
        </div>
      </div>
    </div>
