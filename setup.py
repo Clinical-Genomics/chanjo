@@ -21,9 +21,6 @@ with open('LICENSE') as f:
 with open('requirements.txt') as f:
   requirements = [line.rstrip() for line in f.readlines()]
 
-with open('dev_requirements.txt') as f:
-  dev_requirements = [line.rstrip() for line in f.readlines()]
-
 setup(
   # Metadate for upload to Pypi
   name=chanjo.__name__,
@@ -55,10 +52,5 @@ setup(
   ],
 
   # Runtime dependencies
-  install_requires = requirements,
-
-  # Testing dependencies
-  tests_require = [
-    'pytest'
-  ]
+  install_requires=requirements,
 )
