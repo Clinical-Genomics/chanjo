@@ -50,7 +50,7 @@ def build_prompt(prompt, replacement=''):
 
 
 def ask(prompt, default=None, color=colored.cyan):
-  """Meant to be used inplace of input. Asks a question, waits for user
+  """Meant to be used in place of input. Asks a question, waits for user
   input, updates the same line by replacing the default.
 
   .. code-block:: python
@@ -103,7 +103,7 @@ def ask(prompt, default=None, color=colored.cyan):
 
 def questionnaire(questions, confirm_color=colored.cyan):
   """Asks a set of questions á la 'bower_ init' and returns a dict with
-  responses (or defaults). Abstraction for multiple conseqcutive calls
+  responses (or defaults). Abstraction for multiple consecutive calls
   to :func:`ask`.
 
   Note that the function doesn't try to be smart about what types

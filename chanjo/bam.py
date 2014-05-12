@@ -78,7 +78,7 @@ def BamFile(bam_path):
 
     # Start Pileup iterator and walk through each position in the interval
     # `truncate` will make sure it starts and ends on the given positions!
-    # Pysam already expets 'end' to be 1-based - how convenient!
+    # Pysam already expects 'end' to be 1-based - how convenient!
     try:
       for col in bam.pileup(str(contig_id), pysam_start, end, truncate=True):
         # Overwrite the read depth in the correct position
