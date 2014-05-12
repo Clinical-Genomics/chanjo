@@ -190,8 +190,8 @@ def build_interval_data(stdin, db, sample_id, group_id, institute_id):
       sample_id=sample_id,
       group_id=group_id,
       institute_id=institute_id,
-      coverage=float(interval_data[1]),
-      completeness=float(interval_data[2])
+      coverage=float(interval_data[5]),
+      completeness=float(interval_data[6])
     ))
 
   yield 0

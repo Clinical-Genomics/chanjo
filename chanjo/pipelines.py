@@ -185,6 +185,7 @@ def import_data(bed_stream, sql_uri, sql_dialect):
     # Run the rest of the pipeline
     _ = []
     producers.more(bed_stream) \
+      | stages.rstrip() \
       | common.cut(delimiter='\t') \
       | stages.build_interval_data(db, sample_id, group_id, institute_id) \
       > _
