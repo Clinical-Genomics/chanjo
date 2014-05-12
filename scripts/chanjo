@@ -30,21 +30,21 @@ Options:
   -h --help           Show this screen
   -v --version        Show version
   -a --adapter=STR    Adapter for converting reference to BED
-                      [default: {adapter}]
-  -c --cutoff=INT     Cutoff for completeness calculation [default: {cutoff}]
+                      [default: {--adapter}]
+  -c --cutoff=INT     Cutoff for completeness calculation [default: {--cutoff}]
   --config=FILE       Path to YAML/JSON config file
-  -d --dialect=STR    Type of database: sqlite/mysql [default: {dialect}]
-  -e --extend-by=INT  Dynamically extend intervals +/- [default: {extend-by}]
+  -d --dialect=STR    Type of database: sqlite/mysql [default: {--dialect}]
+  -e --extend-by=INT  Dynamically extend intervals +/- [default: {--extend-by}]
   -f --force          Overwrite existing files/databases without warning
   -g --group=STR      Group Id to associate samples e.g. in trios
   -i --institute=STR  Institute Id associate groups of samples
   -j --json           Import legacy JSON annotate output file
-  -p --prepend=STR    Prepend to each contig Id [default: {prepend}]
+  -p --prepend=STR    Prepend to each contig Id [default: {--prepend}]
   -s --sample=STR     Sample Id (otherwise set automatically)
   -t --threshold=INT  Base pair threshold for optimizing BAM file reading
-                      [default: {threshold}]
+                      [default: {--threshold}]
   -o --out=FILE       Define an output file other than "stdout"
-  --db=URI            Path/URI of a SQL database [default: {db}]
+  --db=URI            Path/URI of a SQL database [default: {--db}]
 """
 from importlib import import_module
 
@@ -122,13 +122,13 @@ def main(args):
 if __name__ == '__main__':
   # Set up default that would normally go into the docstring
   defaults = {
-    'adapter': 'ccds',
-    'cutoff': 10,
-    'dialect': 'sqlite',
-    'extend-by': 0,
-    'prepend': '',
-    'threshold': 17000,
-    'db': 'coverage.sqlite'
+    '--adapter': 'ccds',
+    '--cutoff': 10,
+    '--dialect': 'sqlite',
+    '--extend-by': 0,
+    '--prepend': '',
+    '--threshold': 17000,
+    '--db': 'coverage.sqlite'
   }
 
   # Read command line arguments preliminary to get possible config path
