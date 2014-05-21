@@ -53,6 +53,13 @@ def prepare_bed_interval(stdin, block_column=5):
     list: Converted interval list
   """
   for interval in stdin:
+
+    """ Fields are tab separated in a bed file. Normally interval is a
+    list. If it is not tab separate, your list will contain a single
+    string.
+    """
+    assert len(interval) > 1, "Bed Files must have tab separated fields."
+
     # Convert start/end to integers and 1:1-based positions
     interval[1] = int(interval[1]) + 1
     interval[2] = int(interval[2])
