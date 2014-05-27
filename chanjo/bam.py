@@ -73,6 +73,10 @@ def BamFile(bam_path):
     # Convert start to 0-based since this is what pysam expects!
     pysam_start = start - 1
 
+    # Check that we don't have a negative start position
+    if pysam_start < 0:
+      raise ValueError('Start position must be >0, not %d' % start)
+
     # Generate a list of 0 read depth for each position (as defaults)
     positions = np.zeros(end - pysam_start)
 
@@ -86,9 +90,8 @@ def BamFile(bam_path):
         # Note: ``col.pos`` is 0-based, as is ``pysam_start``
         positions[col.pos - pysam_start] = col.n
     except ValueError:
-      # Catch errors where the contig didn't exist in the BAM-file and
-      # simply return the array of zeros
-      pass
+      # Catch errors where the contig didn't exist in the BAM-file
+      raise ValueError('Must use contig ids that exist in the Bam-file')
 
     return positions
 

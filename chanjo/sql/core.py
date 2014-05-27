@@ -220,33 +220,41 @@ class ChanjoDB(object):
     Returns
       list: List of tuples: ``(<block Id>, <coverage>, <completeness>)``
     """
-    # Length of interval (in number of bases, hence +1)
+    # Length of an interval (in number of bases, hence +1)
     interval_length = Interval.end - Interval.start + 1
+
     # Length of interval * mean coverage
     cum_interval_coverage = interval_length * IntervalData.coverage
-    # Summed cumulative coverage for all intervals (of the block)
+
+    # Summed 'cumulative' coverage for all intervals (of a block)
     cum_block_coverage = func.sum(cum_interval_coverage)
-    # Summed interval length of all intervals (of the block)
+
+    # Summed interval lengths of all intervals (of a block)
     total_block_length = func.sum(interval_length)
+
     # Cumulative block coverage divided by total block length
     mean_block_coverage = cum_block_coverage / total_block_length
 
     # Length of interval * mean completeness
     cum_interval_completeness = interval_length * IntervalData.completeness
-    # Summed cumulative completeness for all intervals (of the block)
+
+    # Summed cumulative completeness for all intervals (of a block)
     cum_block_completeness = func.sum(cum_interval_completeness)
+
     # Cumulative block completeness divided by total block length
     mean_block_completeness = cum_block_completeness / total_block_length
 
     # Values to fetch
     interval_block_columns = Interval_Block.columns.values()
+    interval_id = interval_block_columns[0]
     block_id = interval_block_columns[1]
 
     return self.query(
       block_id,
       mean_block_coverage,
       mean_block_completeness
-    ).filter(IntervalData.sample_id == sample_id).group_by(block_id)
+    ).join(IntervalData, interval_id==Interval.id).join(IntervalData.parent)\
+     .filter(IntervalData.sample_id==sample_id).group_by(block_id)
 
   def superblock_stats(self, sample_id):
     """Calculates superblock level metrics to annotate genes. Requires all
@@ -271,5 +279,6 @@ class ChanjoDB(object):
       Block.superblock_id,
       func.avg(BlockData.coverage),
       func.avg(BlockData.completeness)
-    ).filter(BlockData.sample_id == sample_id)\
+    ).join(BlockData, Block.id==BlockData.parent_id)\
+     .filter(BlockData.sample_id == sample_id)\
      .group_by(Block.superblock_id)

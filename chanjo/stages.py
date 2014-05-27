@@ -181,7 +181,7 @@ def commit_per_contig(stdin, db):
 
 
 @pipe
-def build_interval_data(stdin, db, sample_id, group_id, institute_id):
+def build_interval_data(stdin, db, sample_id, group_id):
   for interval_data in stdin:
     # Create a new intervals data entry
     db.add(db.create(
@@ -189,7 +189,6 @@ def build_interval_data(stdin, db, sample_id, group_id, institute_id):
       parent_id=interval_data[0],
       sample_id=sample_id,
       group_id=group_id,
-      institute_id=institute_id,
       coverage=float(interval_data[5]),
       completeness=float(interval_data[6])
     ))
