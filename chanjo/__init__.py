@@ -11,7 +11,7 @@ from __future__ import unicode_literals, division, absolute_import, \
   with_statement
 
 __title__ = 'chanjo'
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 __author__ = 'Robin Andeer'
 __email__ = 'robin.andeer@gmail.com'
 __url__ = 'http://www.chanjo.co/'

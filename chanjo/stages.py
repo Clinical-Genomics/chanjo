@@ -186,7 +186,7 @@ def build_interval_data(stdin, db, sample_id, group_id):
     # Create a new intervals data entry
     db.add(db.create(
       'interval_data',
-      parent_id=interval_data[0],
+      parent_id=interval_data[3],
       sample_id=sample_id,
       group_id=group_id,
       coverage=float(interval_data[5]),
