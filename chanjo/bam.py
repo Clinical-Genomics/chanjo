@@ -30,6 +30,8 @@ by installed alongside.
 .. _Samtools: http://samtools.sourceforge.net/
 """
 import errno
+import logging
+import os
 
 import numpy as np
 from path import path
@@ -68,6 +70,15 @@ def BamFile(bam_path):
     raise OSError(errno.ENOENT, bam_path)
 
   bam = Samfile(bam_path)
+  # Assert: bam file must be indexed.
+  try:
+    bam.pileup()
+  except ValueError as ve:
+    logging.warning("chanjo requires the bam file to be index.")
+    logging.warning("BAM file, {0}, is not indexed.".format(
+        os.path.basename(bam_path)))
+    raise OSError(errno.ENOENT, os.path.splitext(bam_path)[0] + ".bai")
+
 
   def reader(contig_id, start, end):
     # Convert start to 0-based since this is what pysam expects!
@@ -85,10 +96,10 @@ def BamFile(bam_path):
         # This will allow simple slicing to get at the positions of interest
         # Note: ``col.pos`` is 0-based, as is ``pysam_start``
         positions[col.pos - pysam_start] = col.n
-    except ValueError:
-      # Catch errors where the contig didn't exist in the BAM-file and
-      # simply return the array of zeros
-      pass
+    except ValueError as ve:
+      logging.warning("ValueError: {0}".format(ve))
+      logging.warning("Contig, {0}, didn't exist in the BAM-file and".format(contig_id))
+      logging.warning("\t simply return the array of zeros. Ignoring and continuing.")
 
     return positions
 
