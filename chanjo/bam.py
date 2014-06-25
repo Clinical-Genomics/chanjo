@@ -74,15 +74,16 @@ def BamFile(bam_path):
   try:
     bam.pileup()
   except ValueError as ve:
-    logging.warning("chanjo requires the bam file to be index.")
-    logging.warning("BAM file, {0}, is not indexed.".format(
-        os.path.basename(bam_path)))
-    raise OSError(errno.ENOENT, os.path.splitext(bam_path)[0] + ".bai")
-
+    raise OSError(errno.ENOENT, "BAM file, {0}, must be indexed.".format(
+        os.path.basename(bam_path))
 
   def reader(contig_id, start, end):
     # Convert start to 0-based since this is what pysam expects!
     pysam_start = start - 1
+
+    # Check that we don't have a negative start position
+    if pysam_start < 0:
+      raise ValueError('Start position must be >0, not %d' % start)
 
     # Generate a list of 0 read depth for each position (as defaults)
     positions = np.zeros(end - pysam_start)
@@ -96,10 +97,9 @@ def BamFile(bam_path):
         # This will allow simple slicing to get at the positions of interest
         # Note: ``col.pos`` is 0-based, as is ``pysam_start``
         positions[col.pos - pysam_start] = col.n
-    except ValueError as ve:
-      logging.warning("ValueError: {0}".format(ve))
-      logging.warning("Contig, {0}, didn't exist in the BAM-file and".format(contig_id))
-      logging.warning("\t simply return the array of zeros. Ignoring and continuing.")
+    except ValueError as ve: 
+      # Catch errors where the contig didn't exist in the BAM-file
+      raise ValueError('Must use contig ids that exist in the Bam-file. Error msg: {0}'.format(ve))
 
     return positions
 

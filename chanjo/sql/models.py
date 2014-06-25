@@ -178,17 +178,11 @@ class Sample(Base):
     cutoff (int): Cutoff used for completeness
     extension (bool): Number of bases added to each interval
     coverage_source (str): Path to the BAM file used
-    institute_id (str, optional): Unique group of groups Id
   """
   __tablename__ = 'sample'
-  __table_args__ = (
-    # Composite unique constraint
-    PrimaryKeyConstraint('id', 'institute_id'),
-  )
 
-  id = Column(String(32), index=True)
+  id = Column(String(32), primary_key=True)
   group_id = Column(String(32), index=True)
-  institute_id = Column(String(32), index=True)
 
   cutoff = Column(Integer)
   extension = Column(Integer)
@@ -222,23 +216,15 @@ class IntervalData(Base):
     completeness (float): Ratio of adequately covered bases
   """
   __tablename__ = 'interval_data'
-  __table_args__ = (
-    ForeignKeyConstraint(
-      ['sample_id', 'institute_id'],
-      ['sample.id', 'sample.institute_id']),
-  )
 
   id = Column(Integer, primary_key=True, autoincrement=True)
   coverage = Column(Float)
   completeness = Column(Float)
 
   # These columns map coverage/completeness to sample+group
-  sample_id = Column(String(32), index=True)
+  sample_id = Column(String(32), ForeignKey('sample.id'))
   sample = relationship(Sample, backref=backref('intervals'))
   group_id = Column(String(32), index=True)
-  institute_id = Column(String(32), index=True)
-  # Composite unique constraint
-  UniqueConstraint('sample_id', 'institute_id')
 
   # Genetic relationship
   parent_id = Column(String(32), ForeignKey('interval.id'))
@@ -267,21 +253,15 @@ class BlockData(Base):
     completeness (float): Ratio of adequately covered bases
   """
   __tablename__ = 'block_data'
-  __table_args__ = (
-    ForeignKeyConstraint(
-      ['sample_id', 'institute_id'],
-      ['sample.id', 'sample.institute_id']),
-  )
 
   id = Column(Integer, primary_key=True, autoincrement=True)
   coverage = Column(Float)
   completeness = Column(Float)
 
   # These columns map coverage/completeness to an individual+group
-  sample_id = Column(String(32), index=True)
+  sample_id = Column(String(32), ForeignKey('sample.id'))
   sample = relationship(Sample, backref=backref('blocks'))
   group_id = Column(String(32), index=True)
-  institute_id = Column(String(32), index=True)
 
   # Genetic relationship
   parent_id = Column(String(32), ForeignKey('block.id'))
@@ -310,21 +290,15 @@ class SuperblockData(Base):
     completeness (float): Ratio of adequately covered bases
   """
   __tablename__ = 'superblock_data'
-  __table_args__ = (
-    ForeignKeyConstraint(
-      ['sample_id', 'institute_id'],
-      ['sample.id', 'sample.institute_id']),
-  )
 
   id = Column(Integer, primary_key=True, autoincrement=True)
   coverage = Column(Float)
   completeness = Column(Float)
 
   # These columns map coverage/completeness to an individual+group
-  sample_id = Column(String(32), index=True)
+  sample_id = Column(String(32), ForeignKey('sample.id'))
   sample = relationship(Sample, backref=backref('superblocks'))
   group_id = Column(String(32), index=True)
-  institute_id = Column(String(32), index=True)
 
   # Genetic relationship
   parent_id = Column(String(32), ForeignKey('superblock.id'))

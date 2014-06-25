@@ -73,9 +73,8 @@ def init_pipeline(script_name, defaults={}):
   config_name = name(script_name, prefix='', affix='.json')
   config_path = path.joinpath(location(), config_name)
 
-  # Guess that the owner of current dir has something to do with institute
-  defaults = OrderedDict(institute=path('.').owner)
-  defaults['cutoff'] = 10
+  # Guess that the owner of current dir has something to do with
+  defaults = OrderedDict(cutoff=10)
   defaults['dialect'] = 'sqlite'
   defaults['db'] = './coverage.sqlite'
 
@@ -92,7 +91,6 @@ def init_pipeline(script_name, defaults={}):
   defaults.update(existing_defaults)
 
   prompts = {
-    'institute': 'What institute do you belong to?',
     'cutoff': 'Sufficient coverage',
     'dialect': 'Preferred SQL-dialect',
     'db': 'Central database path/URI'

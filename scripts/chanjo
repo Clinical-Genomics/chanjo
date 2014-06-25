@@ -8,8 +8,8 @@ Usage:
   chanjo build [<bed_file>] [--db=STR] [--dialect=STR] [--force]
   chanjo export [--db=STR] [--dialect=STR] [--out=FILE] [--force]
   chanjo annotate <bam_file> [<bed_file>] [--cutoff=INT] [--extend-by=INT]
-    [--sample=STR] [--group=STR] [--institute=STR] [--prepend=STR]
-    [--threshold=INT] [--config=FILE] [--out=FILE] [--force]
+    [--sample=STR] [--group=STR][--prepend=STR] [--threshold=INT]
+    [--config=FILE] [--out=FILE] [--force]
   chanjo import [<bed_file>] [--db=STR] [--dialect=STR] [--json]
   chanjo --help
   chanjo --version
@@ -37,7 +37,6 @@ Options:
   -e --extend-by=INT  Dynamically extend intervals +/- [default: {--extend-by}]
   -f --force          Overwrite existing files/databases without warning
   -g --group=STR      Group Id to associate samples e.g. in trios
-  -i --institute=STR  Institute Id associate groups of samples
   -j --json           Import legacy JSON annotate output file
   -p --prepend=STR    Prepend to each contig Id [default: {--prepend}]
   -s --sample=STR     Sample Id (otherwise set automatically)
@@ -66,7 +65,6 @@ def main(args):
   # Load user defined sample Id or generate one randomly
   sample_id = args['--sample'] or utils.id_generator()
   group_id = args['--group']
-  institute_id = args['--institute']
   overwrite = args['--force']
   cutoff = int(args['--cutoff'])
   extension = int(args['--extend-by'])
@@ -109,8 +107,8 @@ def main(args):
     # Annotate a list of intervals with coverage and completeness
     extension = int(args['--extend-by'])
 
-    pipelines.annotate(bed_stream, sample_id, group_id, institute_id,
-      cutoff, bam_path, extension, contig_prepend, bp_threshold, out_stream)
+    pipelines.annotate(bed_stream, sample_id, group_id, cutoff, bam_path,
+      extension, contig_prepend, bp_threshold, out_stream)
 
   elif args['import']:
     if args['--json']:

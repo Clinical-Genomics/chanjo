@@ -20,8 +20,8 @@ from .sql.core import ChanjoDB
 from .bam import BamFile
 
 
-def annotate(bed_stream, sample_id, group_id, institute_id, cutoff, bam_path,
-             extension, prepend, bp_threshold, end_point):
+def annotate(bed_stream, sample_id, group_id, cutoff, bam_path, extension,
+             prepend, bp_threshold, end_point):
   """Pipeline for annotating all intervals from a BED file stream.
   Writes both metadata (header) and tabular data for each interval with
   calculated coverage and completeness to the end point.
@@ -30,7 +30,6 @@ def annotate(bed_stream, sample_id, group_id, institute_id, cutoff, bam_path,
     bed_stream (file): BED-file handle to read from
     sample_id (str): Unique Id for a given sample
     group_id (str): Id for a given group of samples (e.g. family/trio)
-    institute_id (str): Id for a given group of groups
     cutoff (int): Threshold to use for completeness calculation
     bam_path (str): Path to BAM-file
     extension (int): Number of bases to extend each interval with (+/-)
@@ -47,7 +46,6 @@ def annotate(bed_stream, sample_id, group_id, institute_id, cutoff, bam_path,
   header = {
     'sample_id': sample_id,
     'group_id': group_id,
-    'institute_id': institute_id,
     'cutoff': cutoff,
     'coverage_source': path(bam_path).abspath(),
     'extension': extension
@@ -100,7 +98,7 @@ def build(bed_stream, sql_uri, sql_dialect, overwrite, end_point):
     > end_point
 
 
-def extend_annotations(db, sample_id, group_id, institute_id=None):
+def extend_annotations(db, sample_id, group_id):
   """Extend interval annotations to blocks and superblocks by
   calculating the mean of related elements.
 
@@ -108,7 +106,6 @@ def extend_annotations(db, sample_id, group_id, institute_id=None):
     db (ChanjoDB): Instance of class:`chanjo.sql.core.ChanjoDB`
     sample_id (str): Id of sample to extend
     group_id (str): Group Id of sample to extend
-    institute_id (str): Group of group Id (for restricting access)
 
   Returns:
     bool: ``True`` if successful, ``False`` otherwise.
@@ -120,7 +117,6 @@ def extend_annotations(db, sample_id, group_id, institute_id=None):
     parent_id=raw_block[0],
     sample_id=sample_id,
     group_id=group_id,
-    institute_id=institute_id,
     coverage=raw_block[1],
     completeness=raw_block[2]
   ) for raw_block in db.block_stats(sample_id)]).commit()
@@ -131,7 +127,6 @@ def extend_annotations(db, sample_id, group_id, institute_id=None):
     parent_id=raw_superblock[0],
     sample_id=sample_id,
     group_id=group_id,
-    institute_id=institute_id,
     coverage=raw_superblock[1],
     completeness=raw_superblock[2]
   ) for raw_superblock in db.superblock_stats(sample_id)]).commit()
@@ -172,7 +167,6 @@ def import_data(bed_stream, sql_uri, sql_dialect):
   # Extract info used later on
   sample_id = metadata['sample_id']
   group_id = metadata['group_id']
-  institute_id = metadata['institute_id']
 
   # Add a Sample entry with metadata
   db.add(db.create('sample', **metadata))
@@ -187,14 +181,14 @@ def import_data(bed_stream, sql_uri, sql_dialect):
     producers.more(bed_stream) \
       | stages.rstrip() \
       | common.cut(delimiter='\t') \
-      | stages.build_interval_data(db, sample_id, group_id, institute_id) \
+      | stages.build_interval_data(db, sample_id, group_id) \
       > _
 
     # Commit updates after loading all intervals
     db.commit()
 
     # Extend annotations to blocks and superblocks
-    extend_annotations(db, sample_id, group_id, institute_id)
+    extend_annotations(db, sample_id, group_id)
 
 
 def import_json(input_stream, sql_uri, sql_dialect):
