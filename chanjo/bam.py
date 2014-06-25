@@ -30,7 +30,6 @@ by installed alongside.
 .. _Samtools: http://samtools.sourceforge.net/
 """
 import errno
-import logging
 import os
 
 import numpy as np
