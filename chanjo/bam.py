@@ -74,7 +74,7 @@ def BamFile(bam_path):
     bam.pileup()
   except ValueError as ve:
     raise OSError(errno.ENOENT, "BAM file, {0}, must be indexed.".format(
-        os.path.basename(bam_path))
+        os.path.basename(bam_path)))
 
   def reader(contig_id, start, end):
     # Convert start to 0-based since this is what pysam expects!
