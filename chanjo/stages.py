@@ -54,6 +54,9 @@ def prepare_bed_interval(stdin, block_column=5):
   """
   for interval in stdin:
 
+    if len(interval) == 0:  # ignore blank lines 
+      continue
+
     """ Fields are tab separated in a bed file. Normally interval is a
     list. If it is not tab separate, your list will contain a single
     string.
@@ -61,7 +64,9 @@ def prepare_bed_interval(stdin, block_column=5):
     assert len(interval) > 1, "Bed Files must have tab separated fields."
 
     # Convert start/end to integers and 1:1-based positions
+    assert " " not in interval[1], "Token, \"{0}\", contains space".format(interval[1])
     interval[1] = int(interval[1]) + 1
+    assert " " not in interval[2], "Token, \"{0}\", contains space".format(interval[2])
     interval[2] = int(interval[2])
 
     # Split block and superblock Ids
