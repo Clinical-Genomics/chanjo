@@ -12,10 +12,11 @@ from operator import attrgetter
 from toolz import pipe, partial, concat
 from toolz.curried import map, filter, groupby, valmap, pluck
 
-from .._compat import itervalues
+from .._compat import itervalues, text_type
 from .stages import (
   extract_intervals, grep, merge_related_elements, rename_sex_interval
 )
+from ..utils import split
 
 
 def pipeline(ccds_stream):
@@ -33,8 +34,8 @@ def pipeline(ccds_stream):
   return pipe(
     ccds_stream,
     filter(grep('Public')),                    # filter out Public tx
-    map(str.rstrip),                           # strip \n and spaces
-    map(partial(str.split, sep='\t')),         # split into list
+    map(text_type.rstrip),                     # strip \n and spaces
+    map(split),                                # split into list
     map(extract_intervals),                    # convert to Interval
     concat,                                    # flatten
     map(rename_sex_interval),                  # rename sex contigs

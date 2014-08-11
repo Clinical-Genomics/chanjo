@@ -3,9 +3,11 @@ import json
 import warnings
 
 from sqlalchemy import exc as sa_exc
-from toolz import pipe, partial
+from toolz import pipe
 from toolz.curried import map
 
+from .._compat import text_type
+from ..utils import split
 from .consumers import build_interval_data
 from .utils import convert_old_interval_id
 
@@ -34,8 +36,8 @@ def pipeline(chanjo_db, bed_stream):
     # step 2: prepare the rest of the input data for consumption
     sequence = pipe(
       bed_stream,
-      map(str.rstrip),
-      map(partial(str.split, sep='\t'))
+      map(text_type.rstrip),
+      map(split(sep='\t'))
     )
 
     # step 3: consume the interval data from the sequence

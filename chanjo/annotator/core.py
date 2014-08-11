@@ -5,11 +5,12 @@ chanjo.annotator.core
 
 Central pipeline for the Chanjo annotator module.
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
-from toolz import partial, pipe, concat
+from toolz import pipe, concat
 from toolz.curried import map
 
+from .._compat import text_type
 from ..depth_reader import BamFile
 from .stages import (
   calculate_metrics,
@@ -18,7 +19,7 @@ from .stages import (
   prepend,
   process_interval_group
 )
-from ..utils import bed_to_interval
+from ..utils import bed_to_interval, split
 
 
 def pipeline(bed_stream, bam_path, cutoff=10, extension=0, contig_prepend='',
@@ -49,9 +50,9 @@ def pipeline(bed_stream, bam_path, cutoff=10, extension=0, contig_prepend='',
   # the pipeline
   return pipe(
     bed_stream,
-    map(str.rstrip),                             # strip non-chars
+    map(text_type.rstrip),                       # strip non-chars
     map(prepend(contig_prepend)),                # prepend to contig
-    map(partial(str.split, sep='\t')),           # split lines
+    map(split(sep='\t')),                        # split line segments
     map(lambda row: bed_to_interval(*row)),      # convert to objects
     map(extend_interval(extension=extension)),   # extend intervals
     group_intervals(bp_threshold=bp_threshold),  # group by threshold

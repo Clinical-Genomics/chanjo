@@ -21,6 +21,7 @@ from . import (
   __title__, __version__, __banner__,
   annotator, builder, exporter, importer, sex_checker
 )
+from ._compat import text_type
 from .config import Config, init_pipeline
 from .store import Store
 from .utils import (
@@ -53,7 +54,7 @@ prepend_option = click.option(
   type=click.File('w'),
   help='path to Chanjo config file'
 )
-@click.option('--db', type=str, help='path/URI of the SQL database')
+@click.option('--db', type=text_type, help='path/URI of the SQL database')
 @click.option(
   '--dialect',
   type=click.Choice(['sqlite', 'mysql']),

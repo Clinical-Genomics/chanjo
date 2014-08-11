@@ -12,6 +12,8 @@ import random
 
 from toolz import concat, curry
 
+from ._compat import text_type
+
 
 BedInterval = namedtuple('BedInterval', [
   'contig', 'start', 'end', 'name', 'score', 'strand',
@@ -156,9 +158,9 @@ def serialize_interval(interval, delimiter='\t', subdelimiter=','):
   block_ids = subdelimiter.join(interval.block_ids)
   superblock_ids = subdelimiter.join(interval.superblock_ids)
 
-  return str.rstrip(
+  return text_type.rstrip(
     delimiter.join(
-      map(str, concat([interval[:6], [block_ids, superblock_ids]]))
+      map(text_type, concat([interval[:6], [block_ids, superblock_ids]]))
     ),
     delimiter   # strip trailing delimiters
   )
@@ -219,3 +221,8 @@ def id_generator(size=8):
   return ''.join(
     [random.choice(variables if i % 2 else consonants) for i in range(size)]
   )
+
+
+@curry
+def split(string, sep='\t'):
+  return text_type.split(string, sep)

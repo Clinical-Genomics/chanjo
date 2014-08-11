@@ -80,7 +80,7 @@ def BamFile(bam_path):
       positions 1-9 to be returned.
 
     Args:
-      contig (str): contig/chromosome Id (str) of interest
+      contig (str): contig/chromosome id (str) of interest
       start (int): first position of the interval (1-based)
       end (int): last position of the interval (1-based)
 
@@ -90,6 +90,9 @@ def BamFile(bam_path):
     """
     # convert start to 0-based since this is what pysam expects!
     pysam_start = start - 1
+
+    # pysam expects contig as bytes in Python 2
+    pysam_contig = str(contig)
 
     # check that we don't have a negative start position
     if pysam_start < 0:
@@ -103,13 +106,13 @@ def BamFile(bam_path):
       # overwrite read-covered positions (>0 read depth)
       # ``truncate`` ensures it starts and ends on the gives positions
       # note: ``col.pos`` is 0-based, as is ``pysam_start``
-      for col in bam.pileup(contig, pysam_start, end, truncate=True):
+      for col in bam.pileup(pysam_contig, pysam_start, end, truncate=True):
         read_depths[col.pos - pysam_start] = col.n
 
     except ValueError as ve:
       # catch errors where the contig doesn't exist in the BAM-file
       raise ValueError(
-        "Must use contig ids that exist in the Bam-file. Error: %s" % ve)
+        "Must use contig that exist in the Bam-file. Error: %s" % ve)
 
     return read_depths
 

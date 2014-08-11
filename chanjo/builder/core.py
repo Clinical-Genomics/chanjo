@@ -9,12 +9,13 @@ from __future__ import absolute_import
 import errno
 
 from path import path
-from toolz import pipe, partial, reduce, concat
+from toolz import pipe, reduce, concat
 from toolz.curried import map
 
+from .._compat import text_type
 from .consumers import commit_per_contig
 from .stages import aggregate, build_block, build_interval, build_superblock
-from ..utils import bed_to_interval
+from ..utils import bed_to_interval, split
 
 
 def pipeline(chanjo_db, bed_stream, overwrite=False):
@@ -41,8 +42,8 @@ def pipeline(chanjo_db, bed_stream, overwrite=False):
 
   superblocks = pipe(
     bed_stream,
-    map(str.rstrip),
-    map(partial(str.split, sep='\t')),
+    map(text_type.rstrip),
+    map(split(sep='\t')),
     map(lambda row: bed_to_interval(*row)),
     map(build_interval(chanjo_db)),
     concat,
