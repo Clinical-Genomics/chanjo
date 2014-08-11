@@ -99,7 +99,10 @@ def test_serialize_interval():
 
 def test_serialize_interval_plus():
   """Test serializing an Interval with additional fields."""
-  pass
+  # simple case
+  interval = Interval('chr1', 10, 100, score=14)
+  string = serialize_interval_plus([interval, 14.1, .94])
+  assert string == 'chr1\t10\t100\t\t14\t14.1\t0.94'
 
 
 def test_id_generator():
