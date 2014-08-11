@@ -19,7 +19,7 @@ def clean():
   run('rm -rf dist/')
   run('rm -rf chanjo.egg-info')
   run('find . -name __pycache__ -delete')
-  log.info('Cleaned up')
+  log.info('cleaned up')
 
 
 @task(clean)
@@ -30,7 +30,7 @@ def publish(test=False):
   else:
     run('python setup.py register bdist_wheel upload')
     run('python setup.py register sdist upload')
-  log.info('Published new release')
+  log.info('published new release')
 
 
 @task
@@ -40,3 +40,4 @@ def coverage():
   run('coverage report -m')
   run('coverage html')
   run('open htmlcov/index.html')
+  log.info('collected test coverage stats')
