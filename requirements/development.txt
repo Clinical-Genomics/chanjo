@@ -1,0 +1,6 @@
+-r ../requirements.txt
+-r test.txt
+
+bumpversion
+invoke
+wheel>=0.23
