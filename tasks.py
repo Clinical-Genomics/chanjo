@@ -15,7 +15,7 @@ def test():
 @task
 def clean():
   """Clean up temporary files."""
-  run('rm -r build/')
+  run('rm -rf build/')
   run('rm -rf dist/')
   run('rm -rf chanjo.egg-info')
   run('find . -name __pycache__ -delete')
@@ -31,3 +31,12 @@ def publish(test=False):
     run('python setup.py register bdist_wheel upload')
     run('python setup.py register sdist upload')
   log.info('Published new release')
+
+
+@task
+def coverage():
+  """Run test coverage check and open HTML report."""
+  run('coverage run --source chanjo setup.py test')
+  run('coverage report -m')
+  run('coverage html')
+  run('open htmlcov/index.html')
