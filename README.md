@@ -6,7 +6,7 @@
   </a>
 </p>
 
-# Chanjo [![PyPI version][fury-image]][fury-url] [![Build Status][travis-image]][travis-url]
+# Chanjo [![PyPI version][fury-image]][fury-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
 # Chanjo
 Chanjo is coverage analysis for clinical sequencing. It's implemented in Python with a command line interface that adheres to [UNIX philisophy][unix].
@@ -63,6 +63,9 @@ Anyone can help make this project better - read [CONTRIBUTION][CONTRIBUTION.md] 
 [unix]: http://en.wikipedia.org/wiki/Unix_philosophy
 [docs]: http://www.chanjo.co/en/latest/
 [bedtools]: http://bedtools.readthedocs.org/en/latest/
+
+[coveralls-url]: https://coveralls.io/r/robinandeer/chanjo
+[coveralls-image]: https://img.shields.io/coveralls/robinandeer/chanjo.svg
 
 [fury-url]: http://badge.fury.io/py/chanjo
 [fury-image]: https://badge.fury.io/py/chanjo.png

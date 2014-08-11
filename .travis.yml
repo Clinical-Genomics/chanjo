@@ -4,7 +4,6 @@ language: python
 python:
   - "2.7"
   - "3.4"
-  - "pypy"
 
 install:
   # install conda (if you have C-extension dependencies)
@@ -19,6 +18,7 @@ install:
 
   # install (the rest of the) dependencies
   - pip install -r requirements/development.txt --use-mirrors
+  - pip install coveralls
 
   # install your own package + executables
   - pip install --editable .
@@ -26,5 +26,8 @@ install:
   - conda info -a
 
 script:
-  # command to run tests
-  - python setup.py test
+  # command to run tests and collect test coverage
+  - coverage run --source chanjo setup.py test
+
+after_success:
+  coveralls
