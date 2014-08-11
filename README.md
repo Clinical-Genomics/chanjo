@@ -2,49 +2,70 @@
   <a href="http://chanjo.co">
     <img height="235"
          width="244"
-         src="https://raw.githubusercontent.com/robinandeer/chanjo/master/assets/chanjo-logo.png"/>
+         src="https://raw.githubusercontent.com/robinandeer/chanjo/master/artwork/logo.png"/>
   </a>
 </p>
 
 # Chanjo [![PyPI version][fury-image]][fury-url] [![Build Status][travis-image]][travis-url]
-Coverage analysis for clincal sequencing and beyond (documentation_).
 
-```shell
-$ cat intervals.bed
-1  10 15 interval-1
-2  45 55 interval-2
-$ cat intervals.bed | chanjo annotate alignment.bam
-#{"sample_id": "bavewira", ...}
-1  10 15 interval-1  9.92231     0.97231
-2  45 55 interval-2  14.23123 1.0
-```
+# Chanjo
+Chanjo is coverage analysis for clinical sequencing. It's implemented in Python with a command line interface that adheres to [UNIX philisophy][unix].
 
-# Documentation
-The [redesigned documentation](http://www.chanjo.co) has all the information you want; getting started guide, foolproof installation instructions, and in-depth overviews.
+## Installation
+Chanjo is distruibuted through "pip". Install the latest release by running:
 
-I can specifically recommend the fully [interactive demo](http://www.chanjo.co/en/latest/introduction.html#demo), complete with sample data to get you started right away.
-
-# Installation
-Complete instructions are available in the [documentation](http://www.chanjo.co) but installation (*can be*) as simple as running:
-
-```shell
+```bash
 $ pip install chanjo
 ```
 
-Contributors
--------------
+... or locally for development:
+
+```bash
+$ pip install --editable .
+```
+
+Complete instructions are available in the [documentation][docs] but installation (*can be*) as simple as running:
+
+## Usage
+Chanjo exposes a composable command line interface. You can always save intermediary files at any stage and customize every option. However, using a ``chanjo.toml`` config and UNIX pipes you can end up with something like:
+
+```bash
+$ chanjo convert CCDS.sorted.txt | chanjo annotate alignment.bam > coverage.bed
+```
+
+## Documentation
+Read the Docs is hosting the [official documentation][docs].
+
+I can specifically recommend the fully [interactive demo](http://www.chanjo.co/en/latest/introduction.html#demo), complete with sample data to get you started right away.
+
+## Features
+
+### What Chanjo does do
+Chanjo works on BAM-alignment files and extracts interesting coverage related statistics. You use a BED-file to define which regions of the genome that you particularly care about. The output takes the shape of an extended BED-file.
+
+An optional final step is to load data into a SQL database. This will aggregate data from exons to transcripts and genes. The database will later work as an API to downstream tools like the Chanjo Report generator.
+
+### What Chanjo doesn't do
+Chanjo is not the right choice if you care about coverage for every base across the genome. Detailed histograms is something that [BEDTools][bedtools] already handles with confidence.
+
+## Contributors
 Robin Andeer
 
 Luca Beltrame ([lbeltrame](https://github.com/lbeltrame))
 
+## License
+MIT. See the [LICENSE](LICENSE) file for more details.
 
-License
---------
-MIT
+## Contributing
+Anyone can help make this project better - read [CONTRIBUTION][CONTRIBUTION.md] to get started!
 
+
+[unix]: http://en.wikipedia.org/wiki/Unix_philosophy
+[docs]: http://www.chanjo.co/en/latest/
+[bedtools]: http://bedtools.readthedocs.org/en/latest/
 
 [fury-url]: http://badge.fury.io/py/chanjo
 [fury-image]: https://badge.fury.io/py/chanjo.png
 
 [travis-url]: https://travis-ci.org/robinandeer/chanjo
-[travis-image]: https://travis-ci.org/robinandeer/chanjo.png?branch=develop
+[travis-image]: https://travis-ci.org/robinandeer/chanjo.png?branch=master

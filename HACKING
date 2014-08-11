@@ -1,0 +1,4 @@
+1 tab = 2 spaces
+
+Triple-quotes should always be """, single quotes are ' unless using "
+would result in less escaping within the string or if it contains string interpolation.
