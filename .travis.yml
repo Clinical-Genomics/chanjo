@@ -1,19 +1,30 @@
+# config file for automatic testing at travis-ci.org
 language: python
+
 python:
-  - "3.3"
   - "2.7"
-notifications:
-  email: false
+  - "3.4"
+  - "pypy"
+
 install:
-  # Install conda
+  # install conda (if you have C-extension dependencies)
   - sudo pip install conda
-  # Install dependencies
   - sudo conda init
   - sudo conda update conda --yes
-  - DEPS='pip numpy sqlalchemy cython pytest'
+
+  # create a new conda env
   - conda create -p $HOME/py --yes $DEPS "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
-  # install your own package
-  - python setup.py install
+  - conda install --yes --file requirements/conda.txt
+
+  # install (the rest of the) dependencies
+  - pip install -r requirements/development.txt --use-mirrors
+
+  # install your own package + executables
+  - pip install --editable .
+
   - conda info -a
-script: py.test
+
+script:
+  # command to run tests
+  - python setup.py test
