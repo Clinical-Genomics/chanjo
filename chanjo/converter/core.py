@@ -35,7 +35,7 @@ def pipeline(ccds_stream):
     ccds_stream,
     filter(grep('Public')),                    # filter out Public tx
     map(text_type.rstrip),                     # strip \n and spaces
-    map(split),                                # split into list
+    map(split(sep='\t')),                      # split into list
     map(extract_intervals),                    # convert to Interval
     concat,                                    # flatten
     map(rename_sex_interval),                  # rename sex contigs
