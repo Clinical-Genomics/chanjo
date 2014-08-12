@@ -78,9 +78,9 @@ setup(
     'numpy',
     'sqlalchemy>=0.8.2'
   ],
-  extras_require=dict(
-    speed=['numpy']
-  ),
+  # extras_require=dict(
+  #   speed=['numpy']
+  # ),
   tests_require=[
     'pytest',
   ],

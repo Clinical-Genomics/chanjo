@@ -4,7 +4,6 @@ include HISTORY.md
 include LICENSE
 include README.md
 
-include chanjo/VERSION
 include requirements.txt
 recursive-include requirements *
 

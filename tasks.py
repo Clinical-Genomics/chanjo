@@ -14,11 +14,14 @@ def test():
 
 @task
 def clean():
-  """Clean up temporary files."""
+  """clean - remove build artifacts."""
   run('rm -rf build/')
   run('rm -rf dist/')
   run('rm -rf chanjo.egg-info')
   run('find . -name __pycache__ -delete')
+  run('find . -name *.pyc -delete')
+  run('find . -name *.pyo -delete')
+  run('find . -name *~ -delete')
   log.info('cleaned up')
 
 

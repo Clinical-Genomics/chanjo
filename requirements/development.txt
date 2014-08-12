@@ -2,5 +2,6 @@
 -r test.txt
 
 bumpversion
+flake8
 invoke
 wheel>=0.23

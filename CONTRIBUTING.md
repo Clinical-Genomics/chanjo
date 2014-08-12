@@ -1,5 +1,5 @@
 # How to contribute?
-There are many ways you can help out and improve this repository. All contributions are much welcome and greatly appreciated! Expect to be credited for you effort.
+All contributions are much welcome and greatly appreciated! Expect to be credited for you effort.
 
 Please follow the [general guidelines][pr-guide] and check off the todos when you submit a pull request.
 
@@ -19,7 +19,7 @@ Personally, I also recommend giving [ZenHub][zenhub] a try. After installing the
 
 
 ## Types of contributions
-
+There are many ways you can help out and improve this repository.
 
 ### Report bugs
 Report bugs at [https://github.com/robinandeer/chanjo/issues][issues].
