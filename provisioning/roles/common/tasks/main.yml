@@ -18,6 +18,15 @@
     - wget
     - vim
     - tmux
+    - zsh
+
+- name: install prezto
+  git: repo=https://github.com/sorin-ionescu/prezto.git
+       dest=/home/vagrant/.zprezto
+       recursive=yes
+
+- name: change user shell
+  user: name=vagrant shell=/usr/bin/zsh
 
 - name: install basic pip packages
   pip: name={{ item }}
