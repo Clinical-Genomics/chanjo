@@ -74,6 +74,7 @@ Over time my ambition is to provide a reproducable and automated setup through V
 	```bash
 	$ conda create -n chanjo python=3 pip  # or python=2
 	$ conda install --yes --file requirements/conda.txt
+	$ pip install -r requirements/development.txt
 	$ pip install --editable .
 	```
 
