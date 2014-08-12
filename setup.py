@@ -71,8 +71,12 @@ setup(
   install_requires=[
     'Click',
     'setuptools',
-    'pysam',
-    'toolz'
+    'pysam>=0.7.5',
+    'toolz',
+    'path.py',
+    'toml',
+    'numpy',
+    'sqlalchemy>=0.8.2'
   ],
   extras_require=dict(
     speed=['numpy']
