@@ -137,7 +137,7 @@ def completeness(read_depths, threshold=10):
 
 
 @curry
-def serialize_interval(interval, delimiter='\t', subdelimiter=','):
+def serialize_interval(interval, delimiter='\t', subdelimiter=',', bed=False):
   r"""Stringify :class:`Interval`.
 
   .. code-block:: python
@@ -150,6 +150,7 @@ def serialize_interval(interval, delimiter='\t', subdelimiter=','):
     interval (:class:`Interval`): interval object to serialize
     delimiter (str, optional): main delimiter, defaults to "\t"
     subdelimiter (str, optional): secondary delimiter, defaults to ","
+    bed (bool, optional): convert to BED interval (0:1-based)
 
   Returns:
     str: stringified version of the :class:`Interval`
@@ -158,9 +159,15 @@ def serialize_interval(interval, delimiter='\t', subdelimiter=','):
   block_ids = subdelimiter.join(interval.block_ids)
   superblock_ids = subdelimiter.join(interval.superblock_ids)
 
+  # on request, convert positions from 1:1 to BED-style 0:1
+  if bed:
+    base = interval._replace(start=interval.start - 1)[:6]
+  else:
+    base = interval[:6]
+
   return text_type.rstrip(
     delimiter.join(
-      map(text_type, concat([interval[:6], [block_ids, superblock_ids]]))
+      map(text_type, concat([base, [block_ids, superblock_ids]]))
     ),
     delimiter   # strip trailing delimiters
   )
