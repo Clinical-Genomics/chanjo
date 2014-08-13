@@ -75,7 +75,7 @@ def cli(context, config, db, dialect, force, verbose):
   db_path = db or context.obj.get('db', 'coverage.sqlite')
   db_dialect = dialect or context.obj.get('dialect', 'sqlite')
 
-  context.obj['db'] = Store(db_path, dialect=db_dialect)
+  context.db = Store(db_path, dialect=db_dialect)
   context.obj['force'] = force
 
   # update the context with new defaults from the config file
@@ -98,6 +98,9 @@ def config(context, key, value, remove):
     if value is None:
       raise ValueError("Unless remove a setting, you must submit a 'value'")
 
+    if value.isnumeric():
+      value = int(value)
+
     context.obj.set(key, value, scope=context.obj.user_data)
 
   # persist updates to the config file
@@ -111,18 +114,15 @@ def init(context):
   # print a nice welcome message
   click.echo(__banner__)
 
-  # shortcut
-  config = context.obj
-
   questions = [
     ('annotate.cutoff', 'sufficient coverage',
-      config.get('annotate', {}).get('cutoff', 10)),
-    ('dialect', 'preferred SQL-dialect', config.get('dialect', 'sqlite')),
-    ('db', 'central database path/URI', config.get('db', 'coverage.sqlite'))
+      context.obj.get('annotate', {}).get('cutoff', 10)),
+    ('dialect', 'preferred SQL-dialect', context.parent.db.dialect),
+    ('db', 'central database path/URI', context.parent.db.uri)
   ]
 
   # launch init pipeline
-  init_pipeline(__title__, config, questions)
+  init_pipeline(__title__, context.obj, questions)
 
 
 @cli.command()
@@ -164,7 +164,7 @@ def convert(context, in_stream, out, adapter, list_all):
     # execute converter pipeline
     bed_lines = pipe(
       converter_pipeline(in_stream),
-      map(serialize_interval)         # stringify/bedify
+      map(serialize_interval(bed=True))     # stringify/bedify
     )
 
     # reduce/write the BED lines
@@ -183,7 +183,7 @@ def build(context, in_stream):
   """
   # build a new skeleton SQL interval store
   builder.pipeline(
-    chanjo_db=context.obj['db'],
+    chanjo_db=context.parent.db,
     bed_stream=in_stream,
     overwrite=context.obj['force']
   )
@@ -198,7 +198,7 @@ def export(context, out, header):
   """Export an interval BED stream from an existing Chanjo store."""
   # build a new skeleton SQL interval store
   bed_lines = exporter.pipeline(
-    chanjo_db=context.obj['db'],
+    chanjo_db=context.parent.db,
     include_header=header
   )
 
@@ -272,7 +272,7 @@ def import_(context, in_stream, json):
   \b
   IN_STREAM: Chanjo-style BED-file with interval definitions
   """
-  args = (context.obj['db'], in_stream)
+  args = (context.parent.db, in_stream)
 
   if json:
     # FYI: the ``bed_stream`` really is a JSON-file
