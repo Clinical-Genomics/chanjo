@@ -1,7 +1,8 @@
 -r ../requirements.txt
--r test.txt
 
 bumpversion
+coverage
 flake8
 invoke
+pytest
 wheel>=0.23
