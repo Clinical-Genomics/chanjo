@@ -2,14 +2,14 @@
   <a href="http://chanjo.co">
     <img height="235"
          width="244"
-         src="https://raw.githubusercontent.com/robinandeer/chanjo/master/artwork/logo.png"/>
+         src="artwork/logo.png"/>
   </a>
 </p>
 
 # Chanjo [![PyPI version][fury-image]][fury-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
 # Chanjo
-Chanjo is coverage analysis for clinical sequencing. It's implemented in Python with a command line interface that adheres to [UNIX philisophy][unix].
+Chanjo is coverage analysis for clinical sequencing. It's implemented in Python with a command line interface that adheres to [UNIX pipeline philisophy][unix].
 
 ## Installation
 Chanjo is distruibuted through "pip". Install the latest release by running:
@@ -21,10 +21,11 @@ $ pip install chanjo
 ... or locally for development:
 
 ```bash
+$ git clone https://github.com/robinandeer/chanjo.git && cd chanjo
 $ pip install --editable .
 ```
 
-Complete instructions are available in the [documentation][docs] but installation (*can be*) as simple as running:
+Do note that Chanjo is built on some of kind-of tricky dependencies. If you are experiencing any issues, help is just a click away in the [documentation][docs].
 
 ## Usage
 Chanjo exposes a composable command line interface. You can always save intermediary files at any stage and customize every option. However, using a ``chanjo.toml`` config and UNIX pipes you can end up with something like:
@@ -40,13 +41,13 @@ I can specifically recommend the fully [interactive demo](http://www.chanjo.co/e
 
 ## Features
 
-### What Chanjo does do
-Chanjo works on BAM-alignment files and extracts interesting coverage related statistics. You use a BED-file to define which regions of the genome that you particularly care about. The output takes the shape of an extended BED-file.
+### What Chanjo does
+Chanjo works on BAM alignment files and extracts interesting coverage related statistics. You use a BED-file to define which regions of the genome that you particularly care about. The output takes the shape of an extended BED-file.
 
-An optional final step is to load data into a SQL database. This will aggregate data from exons to transcripts and genes. The database will later work as an API to downstream tools like the Chanjo Report generator.
+An optional final step is to load data into a SQL database. This will aggregate data from exons to transcripts and genes. The database will later work as an API to downstream tools like the Chanjo Coverage Report generator.
 
-### What Chanjo doesn't do
-Chanjo is not the right choice if you care about coverage for every base across the genome. Detailed histograms is something that [BEDTools][bedtools] already handles with confidence.
+### What Chanjo doesn't
+Chanjo is not the right choice if you care about coverage for every base across the entire genome. Detailed histograms is something [BEDTools][bedtools] already handles with confidence.
 
 ## Contributors
 Robin Andeer
@@ -57,7 +58,7 @@ Luca Beltrame ([lbeltrame](https://github.com/lbeltrame))
 MIT. See the [LICENSE](LICENSE) file for more details.
 
 ## Contributing
-Anyone can help make this project better - read [CONTRIBUTION][CONTRIBUTION.md] to get started!
+Anyone can help make this project better - read [CONTRIBUTION](CONTRIBUTION.md) to get started!
 
 
 [unix]: http://en.wikipedia.org/wiki/Unix_philosophy

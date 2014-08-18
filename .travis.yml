@@ -17,7 +17,7 @@ install:
   - export PATH=$HOME/py/bin:$PATH
 
   # install (the rest of the) dependencies
-  - pip install -r requirements/development.txt --use-mirrors
+  - pip install -r requirements/development.txt
   - pip install coveralls
 
   # install your own package + executables
