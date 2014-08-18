@@ -9,12 +9,12 @@ install:
   # install conda (if you have C-extension dependencies)
   - sudo pip install conda
   - sudo conda init
-  - sudo conda update conda --yes
+  - sudo conda config --set always_yes yes --set changeps1 no
+  - sudo conda update conda
 
   # create a new conda env
-  - conda create -p $HOME/py --yes $DEPS "python=$TRAVIS_PYTHON_VERSION"
+  - conda create -q -p $HOME/py --file requirements/conda.txt "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
-  - conda install --yes --file requirements/conda.txt
 
   # install (the rest of the) dependencies
   - pip install -r requirements/development.txt --use-mirrors
