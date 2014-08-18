@@ -9,7 +9,7 @@ Command line interface (console entry points). Based on Click_.
 """
 from __future__ import absolute_import, unicode_literals
 import json
-from pkg_resources import iter_entry_points
+from pkg_resources import iter_entry_points, load_entry_point
 
 import click
 from path import path
@@ -138,11 +138,9 @@ def convert(context, in_stream, out, adapter, list_all):
   \b
   IN_STREAM: interval reference file (e.g. CCDS database dump)
   """
-  entry_points = iter_entry_points('chanjo.converters')
-
   if list_all:
     # list the installed converter options
-    for entry_point in entry_points:
+    for entry_point in iter_entry_points('chanjo.converters'):
       # compose and print the message
       segments = dict(
         program=__title__,
@@ -152,14 +150,18 @@ def convert(context, in_stream, out, adapter, list_all):
       click.echo("%(program)s %(note)s %(plugin)s" % segments)
 
   else:
-    # loop though each of the installed plugins
-    for entry_point in entry_points:
-      # break out when finding the matching adapter
-      if entry_point.name == adapter:
-        break
-
-    # load entry point function
-    converter_pipeline = entry_point.load()
+    try:
+      # load a single entry point
+      converter_pipeline = load_entry_point('chanjo', 'chanjo.converters',
+                                            adapter)
+    except ImportError:
+      segments = dict(
+        program=__title__,
+        note=click.style('error', fg='red'),
+        message="No such converter installed: %s" % adapter
+      )
+      click.echo("%(program)s %(note)s %(message)s" % segments)
+      context.abort()
 
     # execute converter pipeline
     bed_lines = pipe(
