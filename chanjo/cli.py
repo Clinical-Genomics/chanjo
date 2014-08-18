@@ -9,7 +9,9 @@ Command line interface (console entry points). Based on Click_.
 """
 from __future__ import absolute_import, unicode_literals
 import json
-from pkg_resources import iter_entry_points, load_entry_point
+from pkg_resources import (
+  iter_entry_points, load_entry_point, resource_filename, resource_listdir
+)
 
 import click
 from path import path
@@ -18,8 +20,7 @@ from toolz import pipe
 from toolz.curried import map
 
 from . import (
-  __title__, __version__, __banner__,
-  annotator, builder, exporter, importer, sex_checker
+  __version__, __banner__, annotator, builder, exporter, importer, sex_checker
 )
 from ._compat import text_type
 from .config import Config, init_pipeline
@@ -29,7 +30,7 @@ from .utils import (
 )
 
 CONFIG_NAME="%(program)s.%(extension)s" % dict(
-  program=__title__,
+  program=__package__,
   extension=markup.__name__  # Works for JSON, TOML, YAML ...
 )
 
@@ -122,7 +123,7 @@ def init(context):
   ]
 
   # launch init pipeline
-  init_pipeline(__title__, context.obj, questions)
+  init_pipeline(__package__, context.obj, questions)
 
 
 @cli.command()
@@ -143,7 +144,7 @@ def convert(context, in_stream, out, adapter, list_all):
     for entry_point in iter_entry_points('chanjo.converters'):
       # compose and print the message
       segments = dict(
-        program=__title__,
+        program=__package__,
         note=click.style('converter', fg='cyan'),
         plugin=entry_point.name
       )
@@ -156,7 +157,7 @@ def convert(context, in_stream, out, adapter, list_all):
                                             adapter)
     except ImportError:
       segments = dict(
-        program=__title__,
+        program=__package__,
         note=click.style('error', fg='red'),
         message="No such converter installed: %s" % adapter
       )
@@ -281,6 +282,37 @@ def import_(context, in_stream, json):
     importer.json_pipeline(*args)
   else:
     importer.pipeline(*args)
+
+
+@cli.command()
+@click.argument(
+  'location', type=click.Path(), default='./chanjo-demo', required=False)
+@click.pass_context
+def demo(context, location):
+  """Copy demo files to a directory.
+
+  \b
+  LOCATION: directory to add demofiles to (default: ./chanjo-demo)
+  """
+  user_dir = path(location)
+  demo_dir = path(resource_filename(__package__, 'demo'))
+
+  # make sure we don't overwrite exiting files
+  for demo_file in resource_listdir(__package__, 'demo'):
+    user_file_path = user_dir.joinpath(demo_file)
+    if user_file_path.exists():
+      click.echo(user_file_path + ' exists. Pick a different location.')
+      context.abort()
+
+  try:
+    # we can copy the directory(tree)
+    demo_dir.copytree(user_dir)
+  except OSError:
+    click.echo('The location must be a non-existing directory.')
+    context.abort()
+
+  # inform the user
+  click.echo('Successfully copied demo files.')
 
 
 @click.command('sex-check')
