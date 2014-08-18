@@ -7,10 +7,11 @@ from chanjo.depth_reader import BamFile
 def test_bam():
   bam = BamFile('tests/fixtures/alignment.bam')
 
-  # These are the 39 read depths matching base pairs in 'align.bam'
-  reference = [2, 4, 5, 5, 5, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-               7, 7, 7, 7, 7, 7, 7, 8, 8, 7, 7, 7, 7, 7, 7, 7,
-               6, 4, 4, 3, 3, 2, 2]
+  # These are the 65 read depths matching base pairs in 'alignment.bam'
+  reference = [2, 4, 5, 5, 5, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+               7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 6, 5, 3, 3, 2,
+               2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+               1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
   # Read BAM from position [1,10]
   depths = bam('chr1', 1, 10)
@@ -23,10 +24,10 @@ def test_bam():
 
   # Test also an interval that extends beyond the available reads
   depths = bam('chr1', 35, 45)
-  assert list(depths) == reference[34:] + [0, 0, 0, 0, 0, 0]
+  assert list(depths) == reference[34:45]
 
   # Test interval completely outside the available reads
-  depths = bam('chr1', 50, 59)
+  depths = bam('chr1', 70, 79)
   assert list(depths) == [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
   # Test reading a single base
