@@ -50,10 +50,10 @@ def BamFile(bam_path):
     raise OSError(errno.ENOENT, bam_path)
 
   bam = Samfile(bam_path)
-  # assert: BAM-file must be indexed
   try:
     bam.pileup()
   except ValueError:
+    # catch error when BAM-file isn't indexed (+ ".bai" file)
     raise OSError(
       errno.ENOENT,
       "BAM-file (%s) must be indexed." % os.path.basename(bam_path)

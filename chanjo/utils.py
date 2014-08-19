@@ -79,6 +79,10 @@ def bed_to_interval(contig, bed_start, bed_end, name='', score='', strand='',
   except ValueError:
     raise ValueError("'start' and 'end' should be integers")
 
+  # perform sanity check to check for incorrect formatting
+  assert (end - start) > 0, ("Not a valid BED interval."
+                             "(bedEnd - bedStart) must be > 0.")
+
   # fallback to empty list for optional element ids
   ids = [element_ids.split(',') if element_ids else []
          for element_ids in (block_ids, superblock_ids)]
