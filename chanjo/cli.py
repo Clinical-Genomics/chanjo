@@ -159,8 +159,9 @@ def convert(context, in_stream, out, adapter, list_all):
   else:
     try:
       # load a single entry point
-      converter_pipeline = load_entry_point('chanjo', 'chanjo.converters',
-                                            adapter)
+      converter_pipeline = load_entry_point(
+        __package__, 'chanjo.converters', adapter
+      )
     except ImportError:
       segments = dict(
         program=__package__,
@@ -317,7 +318,7 @@ def demo(context, location):
     context.abort()
 
   # inform the user
-  click.echo('Successfully copied demo files.')
+  click.echo("Successfully copied demo files to %s." % user_dir)
 
 
 @click.command('sex-check')
