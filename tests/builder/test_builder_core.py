@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from codecs import open
 
-from chanjo.builder import pipeline
+from chanjo.builder import init_db
 from chanjo.store import Store
 
 
@@ -12,7 +12,7 @@ def test_builder_pipeline():
 
   # test with minimal BED "file"
   bed_stream = open('tests/fixtures/CCDS.mini.bed', 'r', encoding='utf-8')
-  pipeline(chanjo_db, bed_stream)
+  init_db(chanjo_db, bed_stream)
 
   block = chanjo_db.get('block', 'CCDS2.2')
   assert block.start == 12

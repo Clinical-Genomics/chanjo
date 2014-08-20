@@ -18,7 +18,7 @@ from .stages import aggregate, build_block, build_interval, build_superblock
 from ..utils import bed_to_interval, split
 
 
-def pipeline(chanjo_db, bed_stream, overwrite=False):
+def init_db(chanjo_db, bed_stream, overwrite=False):
   """Build a new database instance from the Chanjo BED stream.
 
   Args:

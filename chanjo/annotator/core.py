@@ -22,8 +22,8 @@ from .stages import (
 from ..utils import bed_to_interval, split
 
 
-def pipeline(bed_stream, bam_path, cutoff=10, extension=0, contig_prepend='',
-             bp_threshold=17000):
+def annotate_bed_stream(bed_stream, bam_path, cutoff=10, extension=0,
+                        contig_prepend='', bp_threshold=17000):
   """Annotate all intervals from a BED-file stream.
 
   Yields tuple data for each interval with calculated coverage and

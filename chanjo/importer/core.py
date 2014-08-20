@@ -12,7 +12,7 @@ from .consumers import build_interval_data
 from .utils import convert_old_interval_id
 
 
-def pipeline(chanjo_db, bed_stream):
+def import_bed_stream(chanjo_db, bed_stream):
   """Import the "annotate" output into an existing Chanjo database.
 
   Args:
@@ -86,7 +86,7 @@ def extend_annotations(chanjo_db, sample_id, group_id):
   ) for raw_superblock in chanjo_db.superblock_stats(sample_id)]).save()
 
 
-def json_pipeline(chanjo_db, json_stream):
+def import_json(chanjo_db, json_stream):
   """Legacy importer for the old JSON output format of the 'annotate' command.
   Deprecated.
   """

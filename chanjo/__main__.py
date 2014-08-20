@@ -9,7 +9,7 @@ The main entry point for the command line interface.
 Invoke as ``chanjo`` (if installed) or ``python -m chanjo`` (no install
 required).
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 import sys
 
 from .cli import cli

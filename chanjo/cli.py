@@ -20,7 +20,14 @@ from toolz import pipe
 from toolz.curried import map
 
 from . import (
-  __version__, __banner__, annotator, builder, exporter, importer, sex_checker
+  __version__,
+  __banner__,
+  annotate_bed_stream,
+  init_db,
+  export_intervals,
+  import_bed_stream,
+  import_json,
+  gender_from_bam
 )
 from ._compat import text_type
 from .config import Config, init_pipeline
@@ -45,7 +52,8 @@ out_option = click.option('--out', type=click.File('w'), default='-',
                           help="define an output file other than 'stdout'")
 # string to prepend to the contig ids to match e.g. the BAM-file
 prepend_option = click.option(
-  '--prepend', default='', help='prepend a string to each contig')
+  '--prepend', default='', help='prepend a string to each contig'
+)
 
 
 @click.group()
@@ -53,14 +61,12 @@ prepend_option = click.option(
   '--config',
   default=CONFIG_NAME,
   type=click.File('w'),
-  help='path to Chanjo config file'
-)
+  help='path to config file')
 @click.option('--db', type=text_type, help='path/URI of the SQL database')
 @click.option(
   '--dialect',
   type=click.Choice(['sqlite', 'mysql']),
-  help='type of SQL database'
-)
+  help='type of SQL database')
 @click.option(
   '--force', is_flag=True, help='overwrite existing assets without warning')
 @click.option('--verbose', is_flag=True)
@@ -134,7 +140,7 @@ def init(context):
 @in_argument
 @click.pass_context
 def convert(context, in_stream, out, adapter, list_all):
-  """Convert a reference database file to a Chanjo BED interval file
+  """Convert a reference database file to a Chanjo BED interval file.
 
   \b
   IN_STREAM: interval reference file (e.g. CCDS database dump)
@@ -185,7 +191,7 @@ def build(context, in_stream):
   IN_STREAM: Chanjo-style BED-file with interval definitions
   """
   # build a new skeleton SQL interval store
-  builder.pipeline(
+  init_db(
     chanjo_db=context.parent.db,
     bed_stream=in_stream,
     overwrite=context.obj['force']
@@ -200,7 +206,7 @@ def build(context, in_stream):
 def export(context, out, header):
   """Export an interval BED stream from an existing Chanjo store."""
   # build a new skeleton SQL interval store
-  bed_lines = exporter.pipeline(
+  bed_lines = export_intervals(
     chanjo_db=context.parent.db,
     include_header=header
   )
@@ -220,8 +226,7 @@ def export(context, out, header):
 @click.option(
   '--threshold',
   default=17000,
-  help='base pair threshold for optimizing BAM-file reading'
-)
+  help='base pair threshold for optimizing BAM-file reading')
 @out_option
 @bam_path_argument
 @in_argument
@@ -249,7 +254,7 @@ def annotate(context, bam_path, in_stream, out, sample, group, cutoff,
 
   # step 2: annotate list of intervals with coverage and completeness
   bed_lines = pipe(
-    annotator.pipeline(
+    annotate_bed_stream(
       bed_stream=in_stream,
       bam_path=bam_path,
       cutoff=cutoff,
@@ -279,9 +284,9 @@ def import_(context, in_stream, json):
 
   if json:
     # FYI: the ``bed_stream`` really is a JSON-file
-    importer.json_pipeline(*args)
+    import_json(*args)
   else:
-    importer.pipeline(*args)
+    import_bed_stream(*args)
 
 
 @cli.command()
@@ -326,7 +331,7 @@ def sex_check(bam_path, prepend):
   BAM_PATH: path to BAM-file
   """
   # run the sex checker pipeline
-  gender = sex_checker.pipeline(bam_path, prepend=prepend)
+  gender = gender_from_bam(bam_path, prepend=prepend)
 
   # print the results to the console for pipeability (csv)
   click.echo("#%(prepend)sX_coverage\t%(prepend)sY_coverage\tsex"

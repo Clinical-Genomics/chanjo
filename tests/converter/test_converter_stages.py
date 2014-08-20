@@ -7,7 +7,7 @@ from chanjo.converter import (
   parse_raw_intervals,
   rename_sex_interval
 )
-from chanjo.utils import Interval
+from chanjo.utils import BaseInterval
 
 
 def test_grep():
@@ -24,20 +24,25 @@ def test_parse_raw_intervals():
 
 
 def test_extract_intervals():
-  record = ['1', 'NC_000001.10', 'SAMD11', '148398', 'CCDS2.2', 'Public', '+',
-            '11', '35', '[11-18, 25-30, 32-35]', 'Identical']
+  record = ['1', 'NC_000001.10', 'SAMD11', '148398', 'CCDS2.2', 'Public',
+            '+', '11', '35', '[11-18, 25-30, 32-35]', 'Identical']
 
   intervals = list(extract_intervals(record))
-  interval1 = Interval('1', 11, 18, '1-11-18', 0, '+', ['CCDS2.2'], ['SAMD11'])
+  interval1 = BaseInterval(
+    '1', 11, 18, '1-11-18', 0, '+', ['CCDS2.2'], ['SAMD11']
+  )
 
   assert intervals[0] == interval1
 
 
 def test_merge_related_elements():
   interval_group = [
-    Interval('X', 10, 100, block_ids=['block1'], superblock_ids=['sblock1']),
-    Interval('X', 10, 100, block_ids=['block2'], superblock_ids=['sblock1']),
-    Interval('X', 10, 100, block_ids=['block3'], superblock_ids=['sblock2'])
+    BaseInterval(
+      'X', 10, 100,block_ids=['block1'], superblock_ids=['sblock1']),
+    BaseInterval(
+      'X', 10, 100, block_ids=['block2'], superblock_ids=['sblock1']),
+    BaseInterval(
+      'X', 10, 100, block_ids=['block3'], superblock_ids=['sblock2'])
   ]
 
   merged_interval = merge_related_elements(interval_group)
@@ -48,9 +53,9 @@ def test_merge_related_elements():
 
 
 def test_rename_sex_interval():
-  sex = Interval('X', 11, 111, block_ids=['block1', 'block2'])
-  non_sex = Interval('chr22', 4, 55, superblock_ids=['sblock1'])
-  alt_sex = Interval('chrY', 99, 921, superblock_ids=['sblock2'])
+  sex = BaseInterval('X', 11, 111, block_ids=['block1', 'block2'])
+  non_sex = BaseInterval('chr22', 4, 55, superblock_ids=['sblock1'])
+  alt_sex = BaseInterval('chrY', 99, 921, superblock_ids=['sblock2'])
 
   # test with sex interval
   renamed_interval = rename_sex_interval(sex)

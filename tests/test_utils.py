@@ -7,19 +7,19 @@ import pytest
 from chanjo._compat import text_type
 from chanjo.utils import (
   average,
-  BedInterval,
+  _RawInterval,
   bed_to_interval,
   completeness,
   id_generator,
-  Interval,
+  BaseInterval,
   serialize_interval,
   serialize_interval_plus
 )
 
-def test_BedInterval():
-  """Test generating a base class BedInterval."""
+def test_RawInterval():
+  """Test generating a base :class:`_RawInterval`."""
   interval = ('chr1', 10, 20, 'int1', 0, '-', ['block1'], ['superblock1'])
-  bed_interval = BedInterval(*interval)
+  bed_interval = _RawInterval(*interval)
 
   assert bed_interval == interval
   assert bed_interval.start == 10
@@ -27,10 +27,10 @@ def test_BedInterval():
   assert bed_interval.block_ids == ['block1']
 
 
-def test_Interval():
+def test_BaseInterval():
   """Test generating an interval without all fields filled in."""
   interval = ('chr1', 10, 20, 'int1')
-  bed_interval = Interval(*interval)
+  bed_interval = BaseInterval(*interval)
 
   assert bed_interval != interval
   assert bed_interval.start == 10
@@ -81,13 +81,13 @@ def test_completeness():
 
 
 def test_serialize_interval():
-  """Test serializing an Interval instance."""
+  """Test serializing an BaseInterval instance."""
   # simple case, should remove empty fields to the right
-  interval = Interval('chr1', 10, 20)
+  interval = BaseInterval('chr1', 10, 20)
   assert serialize_interval(interval) == 'chr1\t10\t20'
 
   # with block ids, should maintain empty intermediate fields!
-  interval = Interval('chr22', 101, 200, block_ids=['block11', 'block12'])
+  interval = BaseInterval('chr22', 101, 200, block_ids=['block11', 'block12'])
   serialized_interval = 'chr22\t101\t200\t\t\t\tblock11,block12'
   assert serialize_interval(interval) == serialized_interval
 
@@ -98,9 +98,9 @@ def test_serialize_interval():
 
 
 def test_serialize_interval_plus():
-  """Test serializing an Interval with additional fields."""
+  """Test serializing an BaseInterval with additional fields."""
   # simple case
-  interval = Interval('chr1', 10, 100, score=14)
+  interval = BaseInterval('chr1', 10, 100, score=14)
   string = serialize_interval_plus([interval, 14.1, .94])
   assert string == 'chr1\t10\t100\t\t14\t14.1\t0.94'
 

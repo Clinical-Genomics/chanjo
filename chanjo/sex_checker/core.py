@@ -38,7 +38,7 @@ def predict_gender(x_coverage, y_coverage):
     return 'female'
 
 
-def pipeline(bam_path, prepend=''):
+def gender_from_bam(bam_path, prepend=''):
   """Predict the gender from a BAM alignment file.
 
   .. code-block:: python

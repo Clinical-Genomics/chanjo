@@ -23,11 +23,11 @@ Usage:
   >>> with open('intervals.sorted.bed', 'r') as stream:
   ...   # use the BED stream to build a new SQLite database
   ...   # overwrite any potentially existing database
-  ...   builder.pipeline(stream, './coverage.sqlite', overwrite=True)
+  ...   builder.init_db(stream, './coverage.sqlite', overwrite=True)
 
 """
 from __future__ import absolute_import
 
-from .core import pipeline
+from .core import init_db
 from .consumers import commit_per_contig
 from .stages import aggregate, build_block, build_interval, build_superblock

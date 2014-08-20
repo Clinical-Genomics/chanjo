@@ -10,7 +10,7 @@ from operator import attrgetter
 
 from toolz import curry, mapcat
 
-from ..utils import Interval
+from ..utils import BaseInterval
 
 
 @curry
@@ -60,13 +60,13 @@ def parse_raw_intervals(str_list):
 
 
 def extract_intervals(record):
-  """Compile an Interval from a single (split) CCDS record row.
+  """Compile an BaseInterval from a single (split) CCDS record row.
 
   Args:
     record (tuple): split CCDS row
 
   Yields:
-    Interval: namedtuple class representation of an interval
+    BaseInterval: namedtuple class representation of an interval
   """
   # extract contig Id as string
   contig = record[0]
@@ -74,7 +74,7 @@ def extract_intervals(record):
   # parse the intervals list-string and yield each of the intervals
   for start, end in parse_raw_intervals(record[9]):
 
-    yield Interval(
+    yield BaseInterval(
       contig,                             # contig
       start,                              # start
       end,                                # end
@@ -99,7 +99,7 @@ def rename_sex_interval(interval, sex_contigs=('X', 'Y')):
     interval (tuple): tuple representation of an interval
 
   Returns:
-    Interval: namedtuple representation of an interval
+    BaseInterval: namedtuple representation of an interval
   """
   contig = interval.contig
   if contig in sex_contigs:
@@ -122,13 +122,13 @@ def merge_related_elements(interval_group):
     interval_group (list): list of identical intervals
 
   Returns:
-    Interval: unified interval with merged related element ids
+    BaseInterval: unified interval with merged related element ids
   """
   # extract block and superblock ids from each of the intervals
   block_ids = mapcat(attrgetter('block_ids'), interval_group)
   superblock_ids = mapcat(attrgetter('superblock_ids'), interval_group)
 
-  return Interval(
+  return BaseInterval(
     *interval_group[0][:6],              # use first interval as base
     block_ids=list(block_ids),           # resolve and add
     superblock_ids=list(superblock_ids)  # do

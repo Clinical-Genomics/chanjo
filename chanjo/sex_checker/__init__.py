@@ -10,4 +10,4 @@ makes a simple yet very accurate gender prediction.
 """
 from __future__ import absolute_import
 
-from .core import Gender, pipeline, predict_gender
+from .core import Gender, gender_from_bam, predict_gender

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from chanjo.exporter import pipeline
+from chanjo.exporter import export_intervals
 from chanjo.store import Store
 
 
@@ -17,7 +17,7 @@ def test_exporter_pipeline():
   ))
   chanjo_db.save()
 
-  bed_lines = list(pipeline(chanjo_db))
+  bed_lines = list(export_intervals(chanjo_db))
 
   assert bed_lines[0] == '#chrom\tchromStart\tchromEnd\tname\tscore\tstrand'
   assert bed_lines[1:] == ['Y\t122\t501\tintervalY\t0\t-']

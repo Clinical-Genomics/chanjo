@@ -2,20 +2,21 @@
 from chanjo.builder import (
   aggregate, build_block, build_interval, build_superblock
 )
-from chanjo.utils import Interval
+from chanjo.utils import BaseInterval
 from chanjo.store import Store, Interval as StoreInterval
 
 
 def test_aggregate():
   payloads = [
-    ('block1', Interval('X', 10, 100)),
-    ('block1', Interval('X', 50, 130)),
-    ('block2', Interval('Y', 111, 222))
+    ('block1', BaseInterval('X', 10, 100)),
+    ('block1', BaseInterval('X', 50, 130)),
+    ('block2', BaseInterval('Y', 111, 222))
   ]
 
   groups = [
-    [('block1', Interval('X', 10, 100)), ('block1', Interval('X', 50, 130))],
-    [('block2', Interval('Y', 111, 222))]
+    [('block1', BaseInterval('X', 10, 100)),
+     ('block1', BaseInterval('X', 50, 130))],
+    [('block2', BaseInterval('Y', 111, 222))]
   ]
 
   assert groups == list(aggregate(payloads))
@@ -26,7 +27,7 @@ class TestBuildElement(object):
     self.store = Store(':memory:')
     self.store.set_up()
 
-    self.interval = Interval(
+    self.interval = BaseInterval(
       '1', 10, 100,
       name='int1',
       block_ids=['block1', 'block2'],

@@ -8,7 +8,7 @@ from .producers import fetch_records
 from ..store import Interval
 
 
-def pipeline(chanjo_db, include_header=True, bed_score=0):
+def export_intervals(chanjo_db, include_header=True, bed_score=0):
   r"""Return BED-formatted interval lines from existing ``chanjo_db``.
 
   BED lines are ready to be printed or written to a file.

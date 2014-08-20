@@ -19,7 +19,7 @@ from .stages import (
 from ..utils import split
 
 
-def pipeline(ccds_stream):
+def ccds_to_bed(ccds_stream):
   """Convert CCDS dump to Chanjo-style BED stream.
 
   Main entry point for default Chanjo converter (ccds). It converts

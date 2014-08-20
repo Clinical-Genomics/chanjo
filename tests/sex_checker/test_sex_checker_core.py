@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from chanjo.sex_checker import Gender, pipeline, predict_gender
+from chanjo.sex_checker import Gender, gender_from_bam, predict_gender
 
 
 def test_Gender():

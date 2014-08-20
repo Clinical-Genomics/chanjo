@@ -8,5 +8,5 @@ to the Chanjo-flavoured BED-format.
 """
 from __future__ import absolute_import
 
-from .core import pipeline
+from .core import export_intervals
 from .producers import fetch_records
