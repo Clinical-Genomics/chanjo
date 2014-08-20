@@ -38,17 +38,16 @@ The rest of this document will guide you through a short demo that will cover ho
 
 Demo files
 ~~~~~~~~~~~
-First we need some files to work with. Let's download some sample genomics resources.
+First we need some files to work with. Chanjo comes packed with some demo files we can use.
 
 .. code-block:: console
 
-	$ git clone https://github.com/robinandeer/chanjo-demo-pack
+	$ chanjo demo ./chanjo-demo && cd chanjo-demo
 
-.. For the adventurous you can accomplis this even easier by first
-	 installing `Cosmid`_, "the genomics package manager".
-	 code-block:: console
-	 $ pip install cosmid
-	 $ cosmid clone chanjo-demo-pack
+This will create a new folder in your current directory (``./chanjo-demo``) and fill it with the example files you need.
+
+.. note::
+	You can name the new folder anything you like but it *must not already exist*!
 
 
 Setup and configuration
@@ -56,11 +55,10 @@ Setup and configuration
 Your first task will be to create a config file. It can be used to store commonly used options to avoid having to type everything on the command line. Chanjo will walk you through setting it up by running:
 
 .. code-block:: console
-	
-	$ cd chanjo-demo-pack/
+
 	$ chanjo init
 
-Chanjo uses project-level config files by default. This means that it will look for a possible ``chanjo.json`` file in the **current directory** where you execute your commands.
+Chanjo uses project-level config files by default. This means that it will look for a possible ``chanjo.toml`` file in the **current directory** where you execute your commands.
 
 If you accepted all defaults, this will setup Chanjo so that it knows e.g. that you want to store your SQL database ``./coverage.sqlite`` or in the same direcory with the name "coverage.sqlite".
 
@@ -73,7 +71,10 @@ For whole exome sequencing, this could be your targeted regions. Or for clinical
 
 .. code-block:: console
 
-	$ chanjo convert CCDS.mini.txt > CCDS.mini.bed
+	$ sort -k1,1 -k2,2n CCDS.mini.txt | chanjo convert > CCDS.mini.bed
+
+.. note::
+	The input to ``chanjo convert`` needs to be sorted according to contig/chromosome and start value. You can ensure this easily using the sort command above.
 
 .. note::
 	It's perfectly possible to compose your own list of intervals. Just make sure to follow the BED conventions (http://genome.ucsc.edu/FAQ/FAQformat.html#format1).
@@ -84,8 +85,8 @@ Initializing a SQL database
 With the Chanjo formatted BED-file we are ready to build our SQL database that will hold the coverage data for long-term storage.
 
 .. code-block:: console
-	
-	chanjo build CCDS.mini.bed
+
+	$ chanjo build CCDS.mini.bed
 
 If you prefer to use a MySQL database, the build pipeline would look something like this:
 
