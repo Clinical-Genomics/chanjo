@@ -26,13 +26,10 @@ def clean():
 
 
 @task(clean)
-def publish(test=False):
+def publish():
   """Publish to the cheeseshop."""
-  if test:
-    run('python setup.py register -r test sdist upload -r test')
-  else:
-    run('python setup.py register bdist_wheel upload')
-    run('python setup.py register sdist upload')
+  run('python setup.py sdist upload')
+  run('python setup.py bdist_wheel upload')
   log.info('published new release')
 
 
