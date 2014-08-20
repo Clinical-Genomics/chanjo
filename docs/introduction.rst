@@ -2,20 +2,6 @@
 Quick introduction
 ===================
 
-Obligatory code example
--------------------------
-
-.. code-block:: console
-
-	$ cat intervals.bed
-	1	10	15	interval-1
-	2	45	55	interval-2
-	$ cat intervals.bed | chanjo annotate alignment.bam
-	#{"sample_id": "bavewira", ...}
-	1	10	15	interval-1	9.92231		0.97231
-	2	45	55	interval-2	14.23123	1.0
-
-
 Concise overview
 -----------------
 Chanjo breaks down coverage to intuitive levels of abstraction; genes, transcripts, exons, and intervals. It also introduces a new coverage metric that reduces the bias from uneven coverage. Chanjo is built around the idea of multiple levels of pipelines and fully embraces bash conventions. It's easily incorporated into existing pipelines and provides a clear path for downstream analysis.
@@ -102,7 +88,7 @@ If you've misplaced your BED-file from the previous step, it's possible to gener
 
 .. code-block:: console
 
-	$ chanjo export | chanjo annotate alignment.bam | tee annotations.bed
+	$ chanjo export | chanjo annotate --prepend=chr alignment.bam | tee annotations.bed
 
 
 Importing annotations for storage
