@@ -10,4 +10,6 @@ recursive-include requirements *
 recursive-include tests *
 recursive-exclude * *.py[co]
 
+recursive-include chanjo/demo *
+
 recursive-include docs *.rst conf.py Makefile make.bat

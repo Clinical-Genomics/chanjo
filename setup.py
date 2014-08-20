@@ -10,8 +10,6 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 import sys
 
-import chanjo
-
 # Shortcut for building/publishing to Pypi
 if sys.argv[-1] == 'publish':
   os.system('python setup.py sdist bdist_wheel upload')
@@ -43,29 +41,32 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 
 
 setup(
-  name=chanjo.__title__,
+  name='chanjo',
 
   # Versions should comply with PEP440. For a discussion on
   # single-sourcing the version across setup.py and the project code,
   # see http://packaging.python.org/en/latest/tutorial.html#version
-  version=chanjo.__version__,
+  version='2.0.0-beta',
 
-  description=chanjo.__summary__,
+  description='Coverage analysis tool for clinical sequencing',
   long_description=long_description,
   # What does your project relate to? Separate with spaces.
   keywords='coverage sequencing clinical exome completeness diagnostics',
-  author=chanjo.__author__,
-  author_email=chanjo.__email__,
-  license=chanjo.__license__,
+  author='Robin Andeer',
+  author_email='robin.andeer@gmail.com',
+  license='MIT',
 
   # The project's main homepage
-  url=chanjo.__uri__,
+  url='http://www.chanjo.co/',
 
   packages=find_packages(exclude=('tests*', 'docs', 'examples')),
 
   # If there are data files included in your packages that need to be
   # installed, specify them here.
   include_package_data=True,
+  package_data=dict(
+    chanjo='demo/*'
+  ),
   zip_safe=False,
 
   install_requires=[
