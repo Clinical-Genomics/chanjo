@@ -10,7 +10,7 @@ Chanjo targets **Unix** and **Python 2.6-7 and 3.2+**. It depends on a few C ext
 Miniconda includes an alternative package manager that will install binary (precompiled) versions of Python C extentions such as Numpy, Pysam, and SQLAlchemy. It makes the whole process quick *and* painless.
 
 .. code-block:: console
-	
+
 	$ wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh | bash
 
 Follow the on-screen instructions. There's versions for Linux, Mac OSX, and Windows. Now with Miniconda installed we setup a new conda environment.
@@ -44,15 +44,7 @@ Would you like to take part in the development or tweak the code for any other r
 
 	$ git clone https://github.com/robinandeer/chanjo.git
 	$ cd chanjo
-	$ python setup.py develop
-
-Bonus
--------
-Some extra goodies just for you.
-
-Sphinx theme
-~~~~~~~~~~~~~~
-Like the custom Sphinx theme? My plan is to make it available as soon as I have the time.
+	$ pip install --editable .
 
 
 .. _Miniconda: http://conda.pydata.org/miniconda.html

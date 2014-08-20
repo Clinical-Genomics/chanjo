@@ -3,7 +3,7 @@ Developer's Guide
 ===================
 The developer guide is directed to fellow coders. You should read this if you want to contribute to the development or gain a greater understanding of the code that powers Chanjo.
 
-Coming soon.
+Currently the best resource on this topic is available at GitHub, in the `CONTRIBUTING.md`_ file.
 
 License
 --------
@@ -29,3 +29,6 @@ License
       - py.test
       - travis
     - Building docs
+
+
+.. _CONTRIBUTING.md: https://github.com/robinandeer/chanjo/blob/master/CONTRIBUTING.md
