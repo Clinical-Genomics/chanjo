@@ -13,12 +13,11 @@ install:
   - sudo conda update conda
 
   # create a new conda env
-  - conda create -q -p $HOME/py --file requirements/conda.txt "python=$TRAVIS_PYTHON_VERSION"
+  - conda create -q -p $HOME/py --file requirements/conda.txt "python=$TRAVIS_PYTHON_VERSION" sphinx pytest flake8 coverage
   - export PATH=$HOME/py/bin:$PATH
 
   # install (the rest of the) dependencies
   - pip install -r requirements/development.txt
-  - pip install coveralls
 
   # install your own package + executables
   - pip install --editable .
