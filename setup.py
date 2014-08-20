@@ -65,7 +65,7 @@ setup(
   # installed, specify them here.
   include_package_data=True,
   package_data=dict(
-    chanjo='demo/*'
+    chanjo=['demo/*']
   ),
   zip_safe=False,
 
@@ -99,7 +99,7 @@ setup(
       'sex-check = chanjo.cli:sex_check'
     ],
     'chanjo.converters': [
-      'ccds = chanjo.converter:pipeline',
+      'ccds = chanjo.converter:ccds_to_bed',
     ],
   },
 
