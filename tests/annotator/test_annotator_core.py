@@ -10,7 +10,7 @@ def test_annotator_pipeline():
   bam_path = 'tests/fixtures/alignment.bam'
 
   # test with minimal BED "file"
-  bed_stream = ['1\t0\t5', '1\t9\t20']
+  bed_stream = ['#chrom\tstart\tend', '1\t0\t5', '1\t9\t20']
   read_depths1 = [2, 4, 5, 5, 5]
   read_depths2 = [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]
   result = annotate_bed_stream(

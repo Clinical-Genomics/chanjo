@@ -7,13 +7,14 @@ Central pipeline for the Chanjo annotator module.
 """
 from __future__ import absolute_import, unicode_literals
 
-from toolz import pipe, concat
-from toolz.curried import map
+from toolz import concat, pipe
+from toolz.curried import complement, filter, map
 
 from .._compat import text_type
 from ..depth_reader import BamFile
 from .stages import (
   calculate_metrics,
+  comment_sniffer,
   extend_interval,
   group_intervals,
   prepend,
@@ -51,6 +52,7 @@ def annotate_bed_stream(bed_stream, bam_path, cutoff=10, extension=0,
   # the pipeline
   return pipe(
     bed_stream,
+    filter(complement(comment_sniffer)),         # filter out comments
     map(text_type.rstrip),                       # strip non-chars
     map(prepend(contig_prepend)),                # prepend to contig
     map(split(sep='\t')),                        # split line segments

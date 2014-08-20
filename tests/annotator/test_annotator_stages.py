@@ -5,6 +5,7 @@ import pytest
 from chanjo.annotator import (
   assign_relative_positions,
   calculate_metrics,
+  comment_sniffer,
   extend_interval,
   group_intervals,
   merge_intervals,
@@ -48,6 +49,13 @@ def test_calculate_metrics():
   assert interval == fake_interval
   assert coverage == 4
   assert completeness == .5
+
+
+def test_comment_sniffer():
+  """Test sniffing out comment lines."""
+  assert comment_sniffer("I'm real data!") == False
+  assert comment_sniffer('#comment') == True
+  assert comment_sniffer('|another comment', prefix='|') == True
 
 
 def test_extend_interval():

@@ -10,6 +10,7 @@ from operator import attrgetter
 
 from toolz import curry, map
 
+from .._compat import text_type
 from ..utils import average, completeness
 
 # function for getting the end of an interval (__doc__ is read only)
@@ -66,6 +67,22 @@ def calculate_metrics(interval_readDepth, threshold=10):
     average(read_depths),
     completeness(read_depths, threshold=threshold)
   )
+
+
+@curry
+def comment_sniffer(line, prefix='#'):
+  """Determine if a line is a comment.
+
+  Really a quick wrapper around ``str.startswith``.
+
+  Args:
+    line (str): line to check if comment
+    prefix (str, optional): prefix to identify comments, default: #.
+
+  Returns:
+    bool: whether line is a comment or not
+  """
+  return text_type.startswith(line, prefix)
 
 
 @curry

@@ -14,6 +14,7 @@ from .core import annotate_bed_stream
 from .stages import (
   assign_relative_positions,
   calculate_metrics,
+  comment_sniffer,
   extend_interval,
   group_intervals,
   merge_intervals,
