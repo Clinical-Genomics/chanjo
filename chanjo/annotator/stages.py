@@ -169,7 +169,7 @@ def merge_intervals(intervals):
 
 
 @curry
-def prepend(value, sequence):
+def prefix(value, sequence):
   """Prepend "value" to a sequence as ``value + sequence``.
 
   Args:

@@ -17,14 +17,14 @@ from .stages import (
   comment_sniffer,
   extend_interval,
   group_intervals,
-  prepend,
+  prefix,
   process_interval_group
 )
 from ..utils import bed_to_interval, split
 
 
 def annotate_bed_stream(bed_stream, bam_path, cutoff=10, extension=0,
-                        contig_prepend='', bp_threshold=17000):
+                        contig_prefix='', bp_threshold=17000):
   """Annotate all intervals from a BED-file stream.
 
   Yields tuple data for each interval with calculated coverage and
@@ -37,7 +37,7 @@ def annotate_bed_stream(bed_stream, bam_path, cutoff=10, extension=0,
       defaults to 10
     extension (int, optional): number of bases to extend each interval
       with (+/-), defaults to 0
-    contig_prepend (str, optional): rename contigs by prepending,
+    contig_prefix (str, optional): rename contigs by prefixing,
       defaults to empty string
     bp_threshold (int, optional): optimization threshold for reading
       BAM-file in chunks, default to 17000
@@ -54,7 +54,7 @@ def annotate_bed_stream(bed_stream, bam_path, cutoff=10, extension=0,
     bed_stream,
     filter(complement(comment_sniffer)),         # filter out comments
     map(text_type.rstrip),                       # strip non-chars
-    map(prepend(contig_prepend)),                # prepend to contig
+    map(prefix(contig_prefix)),                  # prefix to contig
     map(split(sep='\t')),                        # split line segments
     map(lambda row: bed_to_interval(*row)),      # convert to objects
     map(extend_interval(extension=extension)),   # extend intervals

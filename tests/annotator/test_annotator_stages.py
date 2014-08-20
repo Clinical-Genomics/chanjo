@@ -9,7 +9,7 @@ from chanjo.annotator import (
   extend_interval,
   group_intervals,
   merge_intervals,
-  prepend,
+  prefix,
   process_interval_group
 )
 from chanjo.depth_reader import BamFile
@@ -120,11 +120,11 @@ def test_merge_intervals():
     merge_intervals([])
 
 
-def test_prepend():
-  """Test prepending values to sequences."""
-  assert prepend('chr', '1') == 'chr1'
-  assert prepend([10], [11, 12, 13]) == [10, 11, 12, 13]
-  assert prepend('', 'X') == 'X'
+def test_prefix():
+  """Test prefixing values to sequences."""
+  assert prefix('chr', '1') == 'chr1'
+  assert prefix([10], [11, 12, 13]) == [10, 11, 12, 13]
+  assert prefix('', 'X') == 'X'
 
 
 def test_process_interval_group():

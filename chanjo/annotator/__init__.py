@@ -18,6 +18,6 @@ from .stages import (
   extend_interval,
   group_intervals,
   merge_intervals,
-  prepend,
+  prefix,
   process_interval_group
 )

@@ -38,26 +38,26 @@ def predict_gender(x_coverage, y_coverage):
     return 'female'
 
 
-def gender_from_bam(bam_path, prepend=''):
+def gender_from_bam(bam_path, prefix=''):
   """Predict the gender from a BAM alignment file.
 
   Args:
     bam_path (path): path to a BAM alignment file
-    prepend (str, optional): string to prepend to 'X', 'Y'
+    prefix (str, optional): string to prefix to 'X', 'Y'
 
   Returns:
     Gender: tuple of X coverage, Y coverage, and sex prediction
 
   Examples:
-    >>> gender_from_bam('alignment.bam', prepend='chr')
+    >>> gender_from_bam('alignment.bam', prefix='chr')
     Gender(x_coverage=123.31, y_coverage=0.13, sex='female')
   """
   # setup: connect to a BAM file
   bam = BamFile(bam_path)
 
   # step 0: fake some BED interval rows (already 1,1-based!)
-  fake_bed_rows = [("%sX" % prepend, 1, 59373566),
-                   ("%sY" % prepend, 69362, 11375310)]
+  fake_bed_rows = [("%sX" % prefix, 1, 59373566),
+                   ("%sY" % prefix, 69362, 11375310)]
 
   # step 1: run the pipeline
   sequence = pipe(

@@ -14,7 +14,7 @@ def test_annotator_pipeline():
   read_depths1 = [2, 4, 5, 5, 5]
   read_depths2 = [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]
   result = annotate_bed_stream(
-    bed_stream, bam_path, cutoff=5, contig_prepend='chr', bp_threshold=100
+    bed_stream, bam_path, cutoff=5, contig_prefix='chr', bp_threshold=100
   )
 
   interval1, coverage1, completeness1 = next(result)

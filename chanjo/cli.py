@@ -50,9 +50,9 @@ in_argument = click.argument(
 # open an output stream (default is stdout) to write to
 out_option = click.option('--out', type=click.File('w'), default='-',
                           help="define an output file other than 'stdout'")
-# string to prepend to the contig ids to match e.g. the BAM-file
-prepend_option = click.option(
-  '--prepend', default='', help='prepend a string to each contig'
+# string to prefix to the contig ids to match e.g. the BAM-file
+prefix_option = click.option(
+  '--prefix', default='', help='prefix a string to each contig'
 )
 
 
@@ -223,7 +223,7 @@ def export(context, out, header):
 @click.option('--cutoff', default=10, help='cutoff for completeness')
 @click.option(
   '--extend-by', default=0, help='dynamically extend intervals symetrically')
-@prepend_option
+@prefix_option
 @click.option(
   '--threshold',
   default=17000,
@@ -233,7 +233,7 @@ def export(context, out, header):
 @in_argument
 @click.pass_context
 def annotate(context, bam_path, in_stream, out, sample, group, cutoff,
-             extend_by, prepend, threshold):
+             extend_by, prefix, threshold):
   """Annotate intervals in a BED-file/stream.
 
   \b
@@ -260,7 +260,7 @@ def annotate(context, bam_path, in_stream, out, sample, group, cutoff,
       bam_path=bam_path,
       cutoff=cutoff,
       extension=extend_by,
-      contig_prepend=prepend,
+      contig_prefix=prefix,
       bp_threshold=threshold
     ),
     map(serialize_interval_plus)    # stringify/bedify
@@ -322,19 +322,19 @@ def demo(context, location):
 
 
 @click.command('sex-check')
-@prepend_option
+@prefix_option
 @click.version_option(__version__)
 @bam_path_argument
-def sex_check(bam_path, prepend):
+def sex_check(bam_path, prefix):
   """Sex Check - predict gender from a BAM-alignment.
 
   \b
   BAM_PATH: path to BAM-file
   """
   # run the sex checker pipeline
-  gender = gender_from_bam(bam_path, prepend=prepend)
+  gender = gender_from_bam(bam_path, prefix=prefix)
 
   # print the results to the console for pipeability (csv)
-  click.echo("#%(prepend)sX_coverage\t%(prepend)sY_coverage\tsex"
-             % dict(prepend=prepend))
+  click.echo("#%(prefix)sX_coverage\t%(prefix)sY_coverage\tsex"
+             % dict(prefix=prefix))
   click.echo('\t'.join(map(str, gender)))
