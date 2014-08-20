@@ -13,7 +13,9 @@ Home
       </div>
       <div class="intro">
          <h1>Chanjo</h1>
-         <div class="sub-header">Coverage analysis for clinical sequencing</div>
+         <div class="sub-header">
+         	Coverage analysis for clinical sequencing
+         </div>
        </div>
      </div>
    </div>
@@ -21,17 +23,21 @@ Home
 
 Simple & intuitive analysis pipeline
 --------------------------------------
-Chanjo introduces a new coverage metric, an intuitive abstraction layer, a pipeable command line interface, and a clear path forward.
+Among other things, Chanjo introduces an new and unbiased coverage metric,
+an intuitive coverage abstraction layer and a pipeable command line
+interface.
 
 .. code-block:: console
 
-   $ cat intervals.bed
-   1  10 15 interval-1
-   2  45 55 interval-2
    $ cat intervals.bed | chanjo annotate alignment.bam
    #{"sample_id": "bavewira", ...}
-   1  10 15 interval-1  9.92231     0.97231
-   2  45 55 interval-2  14.23123 1.0
+   1	10	15	interval-1	9.922	0.97231
+   2	45	55	interval-2	14.231	1.0
+
+The two added columns describe **average coverage** and how many bases (%)
+are covered at 10x reads; **completeness**.
+
+Current release: |codename| (|version|)
 
 .. raw:: html
 

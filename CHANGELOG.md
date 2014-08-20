@@ -9,9 +9,14 @@ Breaking (changes that might break previous functionality)
 Documentation (changes to documentation, inline or external)
 -->
 
-## 2.0.0 "Raccoon" (Active development)
+## 2.0.0 "Wistful Weasel" (Active development)
 
 Being a major release, expect previous scripts written for Chanjo 1.x to be incompatible with Chanjo 2.x.
+
+
+## 1.0.0 "Rebel Raccoon" (Current stable)
+
+First and current stable version of Chanjo.
 
 
 ## 0.6.0

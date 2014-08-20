@@ -41,6 +41,7 @@ __summary__ = 'coverage analysis tool for clinical sequencing'
 __uri__ = 'http://www.chanjo.co/'
 
 __version__ = '1.1.1'
+__codename__ = 'Wistful Weasel'
 
 __author__ = 'Robin Andeer'
 __email__ = 'robin.andeer@gmail.com'
