@@ -42,7 +42,8 @@ def annotate_bed_stream(bed_stream, bam_path, cutoff=10, extension=0,
       BAM-file in chunks, default to 17000
 
   Yields:
-    tuple: :class:`Interval`, coverage (float), and completeness (float)
+    tuple: :class:`chanjo.BaseInterval`, coverage (float), and
+      completeness (float)
   """
   # setup: connect to BAM-file
   bam = BamFile(bam_path)

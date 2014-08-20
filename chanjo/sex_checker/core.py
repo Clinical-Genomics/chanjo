@@ -41,18 +41,16 @@ def predict_gender(x_coverage, y_coverage):
 def gender_from_bam(bam_path, prepend=''):
   """Predict the gender from a BAM alignment file.
 
-  .. code-block:: python
-
-    >>> from chanjo import sex_checker
-    >>> sex_checker.pipeline('alignment.bam', prepend='chr')
-    Gender(x_coverage=123.31, y_coverage=0.13, sex='female')
-
   Args:
     bam_path (path): path to a BAM alignment file
     prepend (str, optional): string to prepend to 'X', 'Y'
 
   Returns:
     Gender: tuple of X coverage, Y coverage, and sex prediction
+
+  Examples:
+    >>> gender_from_bam('alignment.bam', prepend='chr')
+    Gender(x_coverage=123.31, y_coverage=0.13, sex='female')
   """
   # setup: connect to a BAM file
   bam = BamFile(bam_path)

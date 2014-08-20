@@ -28,15 +28,13 @@ class Store(object):
   Bundles functionality required to setup and interact with various
   related genomic interval elements.
 
-  .. code-block:: python
-
-    >>> from chanjo.store import Store
+  Examples:
     >>> chanjo_db = Store('data/elements.sqlite')
     >>> chanjo_db.set_up()
 
   .. note::
 
-    For testing pourposes use ":memory:" as the ``path`` argument to
+    For testing pourposes use ``:memory:`` as the ``path`` argument to
     set up in-memory (temporary) database.
 
   Args:
@@ -137,17 +135,15 @@ class Store(object):
 
     Calls itself recursively when asked to fetch an element.
 
-    .. code-block:: python
-
-      ... # Get a specific gene from the database
-      >>> gene = db.get('gene', 'GIT1')
-
     Args:
       typ (str): element key or 'class'
       type_id (str): element id or ORM model id
 
     Returns:
       model: element or ORM class
+
+    Examples:
+      >>> gene = db.get('gene', 'GIT1')
     """
     if typ == 'class':
       return self.classes.get(type_id, None)
@@ -161,10 +157,11 @@ class Store(object):
   def find(self, klass_id, query=None, attrs=None):
     """Fetch one or more elements based on the query.
 
-    If the 'query' parameter is a string :method:`find` will fetch one
-    element; just like `get`. If query is a list it will match element
-    ids to items in that list and return a list of elements. If 'query'
-    is ``None`` all elements of that class will be returned.
+    If the 'query' parameter is a string :meth:`~chanjo.Store.find`
+    will fetch one element; just like `get`. If query is a list it will
+    match element ids to items in that list and return a list of
+    elements. If 'query' is ``None`` all elements of that class will
+    be returned.
 
     Args:
       klass_id (str): type of element to find

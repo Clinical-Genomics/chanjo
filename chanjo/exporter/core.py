@@ -13,18 +13,6 @@ def export_intervals(chanjo_db, include_header=True, bed_score=0):
 
   BED lines are ready to be printed or written to a file.
 
-  Usage:
-
-  .. code-block:: python
-
-    >>> from chanjo import export, ChanjoDB
-    ... # instantiate a new connection to a Chanjo database
-    >>> db = ChanjoDB('./coverage.sqlite')
-    >>> with open('intervals.sorted.bed', 'w') as stream:
-    ...   # write intervals in BED-format with appropriate headers
-    ...   for bed_line in export(db):
-    ...     stream.write(bed_line + '\n')
-
   Args:
     chanjo_db (session): ``sqlalchemy.orm.session`` object with a
       ``.query``-method
@@ -34,6 +22,15 @@ def export_intervals(chanjo_db, include_header=True, bed_score=0):
 
   Yields:
     str: stringified and tab-delimited interval
+
+  Examples:
+    >>> from chanjo import export_intervals, Store
+    ... # instantiate a new connection to a Chanjo database
+    >>> db = Store('./coverage.sqlite')
+    >>> with open('intervals.sorted.bed', 'w') as stream:
+    ...   # write intervals in BED-format with appropriate headers
+    ...   for bed_line in export_intervals(db):
+    ...     stream.write(bed_line + '\n')
   """
   if include_header:
     yield '#chrom\tchromStart\tchromEnd\tname\tscore\tstrand'

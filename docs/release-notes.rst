@@ -2,4 +2,4 @@
 Release notes
 ================
 
-.. include:: ../changelog.rst
+.. include:: ../CHANGELOG.md

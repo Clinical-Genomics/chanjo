@@ -50,6 +50,7 @@ Contents
    introduction
    interface
    code
+   api
    developer
    release-notes
    faq
