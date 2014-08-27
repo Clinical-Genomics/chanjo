@@ -46,21 +46,23 @@ CONFIG_NAME="%(program)s.%(extension)s" % dict(
 bam_path_argument = click.argument('bam_path', type=click.Path(exists=True))
 # open an input stream from a file (usually a BED-file)
 in_argument = click.argument(
-  'in_stream', type=click.File(), default='-', required=False)
+  'in_stream', type=click.File(encoding='utf-8'), default='-', required=False)
 # open an output stream (default is stdout) to write to
-out_option = click.option('--out', type=click.File('w'), default='-',
-                          help="define an output file other than 'stdout'")
+out_option = click.option(
+  '--out',
+  type=click.File('w', encoding='utf-8'),
+  default='-',
+  help="define an output file other than 'stdout'")
 # string to prefix to the contig ids to match e.g. the BAM-file
 prefix_option = click.option(
-  '--prefix', default='', help='prefix a string to each contig'
-)
+  '--prefix', default='', help='prefix a string to each contig')
 
 
 @click.group()
 @click.option(
   '--config',
   default=CONFIG_NAME,
-  type=click.File('w'),
+  type=click.File('w', encoding='utf-8'),
   help='path to config file')
 @click.option('--db', type=text_type, help='path/URI of the SQL database')
 @click.option(
@@ -222,7 +224,7 @@ def export(context, out, header):
 @click.option('--group', help='group id to associate samples e.g. in trios')
 @click.option('--cutoff', default=10, help='cutoff for completeness')
 @click.option(
-  '--extend-by', default=0, help='dynamically extend intervals symetrically')
+  '--extendby', default=0, help='dynamically extend intervals symetrically')
 @prefix_option
 @click.option(
   '--threshold',
@@ -233,7 +235,7 @@ def export(context, out, header):
 @in_argument
 @click.pass_context
 def annotate(context, bam_path, in_stream, out, sample, group, cutoff,
-             extend_by, prefix, threshold):
+             extendby, prefix, threshold):
   """Annotate intervals in a BED-file/stream.
 
   \b
@@ -249,7 +251,7 @@ def annotate(context, bam_path, in_stream, out, sample, group, cutoff,
     group_id=group,
     cutoff=cutoff,
     coverage_source=path(bam_path).abspath(),
-    extension=extend_by
+    extension=extendby
   )
   click.echo("#%s" % json.dumps(metadata), file=out)
 
@@ -259,7 +261,7 @@ def annotate(context, bam_path, in_stream, out, sample, group, cutoff,
       bed_stream=in_stream,
       bam_path=bam_path,
       cutoff=cutoff,
-      extension=extend_by,
+      extension=extendby,
       contig_prefix=prefix,
       bp_threshold=threshold
     ),

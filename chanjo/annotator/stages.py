@@ -5,7 +5,7 @@ chanjo.annotator.stages
 
 Pipeline stages only used by the Chanjo annotator.
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 from operator import attrgetter
 
 from toolz import curry, map
