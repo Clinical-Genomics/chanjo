@@ -8,6 +8,7 @@ include requirements.txt
 recursive-include requirements *
 
 recursive-include tests *
+recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
 recursive-include chanjo/demo *
