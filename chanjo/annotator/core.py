@@ -53,13 +53,13 @@ def annotate_bed_stream(bed_stream, bam_path, cutoff=10, extension=0,
   return pipe(
     bed_stream,
     filter(complement(comment_sniffer)),         # filter out comments
-    map(text_type.rstrip),                       # strip non-chars
+    map(text_type.rstrip),                       # strip invisble chars.
     map(prefix(contig_prefix)),                  # prefix to contig
-    map(split(sep='\t')),                        # split line segments
+    map(split(sep='\t')),                        # split lines
     map(lambda row: bed_to_interval(*row)),      # convert to objects
     map(extend_interval(extension=extension)),   # extend intervals
     group_intervals(bp_threshold=bp_threshold),  # group by threshold
     map(process_interval_group(bam)),            # read coverage
-    concat,                                      # flatten
+    concat,                                      # flatten list of lists
     map(calculate_metrics(threshold=cutoff))     # calculate cov./compl.
   )
