@@ -12,16 +12,17 @@ from ..utils import id_generator, serialize_interval
 
 
 @click.command()
-@click.option('--sample', help='unique sample id (otherwise auto-generated)')
-@click.option('--group', help='group id to associate samples e.g. in trios')
-@click.option('--cutoff', default=10, help='cutoff for completeness')
+@click.option('-s', '--sample', help='unique id (otherwise auto-generated)')
+@click.option('-g', '--group', help='id to associate samples e.g. in trios')
+@click.option('-c', '--cutoff', default=10, help='cutoff for completeness')
 @click.option(
-  '--extendby', default=0, help='dynamically extend intervals symetrically')
-@click.option('--prefix', default='', help='prefix a string to each contig')
+  '-e', '--extendby', default=0, help='extend intervals symetrically')
 @click.option(
-  '--threshold',
+  '-p', '--prefix', default='', help='prefix a string to each contig')
+@click.option(
+  '-t', '--threshold',
   default=17000,
-  help='base pair threshold for optimizing BAM-file reading')
+  help='base pair threshold to optimize BAM-file reading')
 @click.argument('bam_path', type=click.Path(exists=True))
 @click.argument(
   'in_stream', type=click.File(encoding='utf-8'), default='-', required=False)

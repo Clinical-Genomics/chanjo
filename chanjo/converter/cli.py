@@ -10,9 +10,10 @@ from ..utils import serialize_interval
 
 
 @click.command()
-@click.option('--adapter', default='ccds', help='plugin to use for conversion')
 @click.option(
-  'list_all', '--list', is_flag=True, help='show all installed adapters')
+  '-a', '--adapter', default='ccds', help='plugin to use for conversion')
+@click.option(
+  '-l', '--list', 'list_all', is_flag=True, help='show all installed adapters')
 @click.argument(
   'in_stream', type=click.File(encoding='utf-8'), default='-', required=False)
 @click.pass_context

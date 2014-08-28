@@ -7,9 +7,10 @@ from .core import gender_from_bam
 
 
 @click.command('sex-check')
-@click.option('--prefix', default='', help='prefix a string to each contig')
-@click.version_option('1.0')
+@click.option(
+  '-p', '--prefix', default='', help='prefix a string to each contig')
 @click.argument('bam_path', type=click.Path(exists=True))
+@click.version_option('1.0')
 def sex_check(bam_path, prefix):
   """Sex Check - predict gender from a BAM-alignment.
 

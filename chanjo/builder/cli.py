@@ -8,7 +8,7 @@ from .core import init_db
 
 @click.command()
 @click.option(
-  '--force', is_flag=True, help='overwrite existing assets without warning')
+  '-f', '--force', is_flag=True, help='overwrite database without warning')
 @click.argument(
   'in_stream', type=click.File(encoding='utf-8'), default='-', required=False)
 @click.pass_context

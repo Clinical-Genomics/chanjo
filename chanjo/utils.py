@@ -131,6 +131,13 @@ def completeness(read_depths, threshold=10):
 
   Returns:
     float: calculated completeness in percent
+
+  Examples:
+
+  .. code-block:: python
+
+    >>> completeness([5, 6, 6, 7, 6, 5, 5], threshold=6)
+    0.571428571
   """
   base_pair_count = len(read_depths)
 
@@ -141,7 +148,7 @@ def completeness(read_depths, threshold=10):
     return len(read_depths[read_depths >= threshold]) / base_pair_count
 
   except ZeroDivisionError:
-    # without any bases to check, 0% pass the threshold
+    # without any bases to check, 0% of bases passed the threshold
     return 0.
 
 

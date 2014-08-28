@@ -6,7 +6,8 @@ from .core import import_bed, import_json
 
 
 @click.command(name='import')
-@click.option('--json', is_flag=True, help="use legacy JSON 'annotate' output")
+@click.option(
+  '-j', '--json', is_flag=True, help="use legacy JSON 'annotate' output")
 @click.argument(
   'in_stream', type=click.File(encoding='utf-8'), default='-', required=False)
 @click.pass_context

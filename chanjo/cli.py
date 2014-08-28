@@ -20,19 +20,18 @@ from .store import Store
 
 @click.group()
 @click.option(
-  '--config',
+  '-c', '--config',
   default=config_file_name,
   type=click.File('w', encoding='utf-8'),
   help='path to config file')
 @click.option('--db', type=text_type, help='path/URI of the SQL database')
 @click.option(
-  '--dialect',
+  '-d', '--dialect',
   type=click.Choice(['sqlite', 'mysql']),
   help='type of SQL database')
-@click.option('--verbose', is_flag=True)
 @click.version_option(__version__)
 @click.pass_context
-def cli(context, config, db, dialect, verbose):
+def cli(context, config, db, dialect):
   """Clinical sequencing coverage analysis tool."""
   # avoid setting global defaults in Click options, do it below when
   # updating the config object

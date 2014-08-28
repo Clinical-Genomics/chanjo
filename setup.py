@@ -105,11 +105,11 @@ setup(
       'annotate = chanjo.annotator:annotate',
       'build = chanjo.builder:build',
       'config = chanjo.config:config',
-      'init = chanjo.config:init',
       'convert = chanjo.converter:convert',
       'demo = chanjo.demo:demo',
       'export = chanjo.exporter:export',
-      'import = chanjo.importer:import_data'
+      'import = chanjo.importer:import_data',
+      'init = chanjo.config:init',
     ]
   },
 

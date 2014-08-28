@@ -7,7 +7,7 @@ from .. import __banner__
 
 
 @click.command()
-@click.option('--remove', is_flag=True, help='remove config option')
+@click.option('-r', '--remove', is_flag=True, help='remove config option')
 @click.argument('key')
 @click.argument('value', required=False)
 @click.pass_context
