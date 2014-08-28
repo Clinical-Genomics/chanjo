@@ -17,7 +17,7 @@ from ._compat import text_type
 
 _RawInterval = namedtuple('RawInterval', [
   'contig', 'start', 'end', 'name', 'score', 'strand',
-  'block_ids', 'superblock_ids'
+  'block_ids', 'superblock_ids', 'coverage', 'completeness'
 ])
 
 
@@ -34,12 +34,15 @@ class BaseInterval(_RawInterval):
     strand (str, optional): +/-
     block_ids (list, optional): list of unique block ids
     superblock_ids (list, optional): list of unique superblock ids
+    coverage (float, optional): average coverage across the interval
+    completeness (float, optional): completeness across the interval
 
   .. _BED format: http://genome.ucsc.edu/FAQ/FAQformat.html#format1
   """
 
   def __new__(cls, contig, start, end, name='', score='', strand='',
-              block_ids=None, superblock_ids=None):
+              block_ids=None, superblock_ids=None,
+              coverage='', completeness=''):
     """Initialize a new namedtuple instance."""
     return super(BaseInterval, cls).__new__(
       cls,
@@ -50,7 +53,9 @@ class BaseInterval(_RawInterval):
       score,
       strand,
       (block_ids or []),       # default to empty lists
-      (superblock_ids or [])   # do
+      (superblock_ids or []),  # do
+      coverage,
+      completeness
     )
 
 
@@ -62,11 +67,11 @@ def bed_to_interval(contig, bed_start, bed_end, name='', score='', strand='',
     contig (str): chromosome or generic contig id
     start (str): chromosomal start position, 1-based
     end (str): chromosomal end position, 1-based
-    name (str): unique name/id of interval
-    score (str): value between 0-1000, not used in Chanjo
-    strand (str): +/-
-    block_ids (str): list of unique block ids for related blocks
-    superblock_ids (str): list of unique superblock ids
+    name (str, optional): unique name/id of interval
+    score (str, optional): value between 0-1000, not used in Chanjo
+    strand (str, optional): +/-
+    block_ids (str, optional): list of unique related block ids
+    superblock_ids (str, optional): list of unique superblock ids
 
   Returns:
     namedtuple: processed and sanity checked interval object
@@ -173,42 +178,11 @@ def serialize_interval(interval, delimiter='\t', subdelimiter=',', bed=False):
 
   return text_type.rstrip(
     delimiter.join(
-      map(text_type, concat([base, [block_ids, superblock_ids]]))
+      # concat and stringify base, related ids, and (possible) metrics
+      map(text_type, concat([base, [block_ids, superblock_ids], interval[8:]]))
     ),
     delimiter   # strip trailing delimiters
   )
-
-
-@curry
-def serialize_interval_plus(interval_combo, delimiter='\t', subdelimiter=','):
-  r"""Stringify :class:`BaseInterval` with additional fields.
-
-  Sometimes it's useful to use the ``BaseInterval`` with additional,
-  non-standard fields tacked on to the end.
-
-  Args:
-    interval_combo (:class:`BaseInterval`, tuple): interval + list combo
-    delimiter (str, optional): main delimiter, defaults to "\t"
-    subdelimiter (str, optional): secondary delimiter, defaults to ","
-
-  Returns:
-    str: stringified version of the :class:`BaseInterval`
-
-  Examples:
-
-  .. code-block:: python
-
-    >>> interval = BaseInterval('chr1', 10, 100, score=14)
-    >>> serialize_interval([interval, 14.1, .94])
-    'chr1\t10\t100\t\t14\t14.1\t0.94'
-  """
-  # split the interval combo tuple into components
-  interval, rest = interval_combo[0], interval_combo[1:]
-
-  return delimiter.join([
-    serialize_interval(interval, delimiter, subdelimiter),
-    delimiter.join(map(str, rest))
-  ])
 
 
 def id_generator(size=8):

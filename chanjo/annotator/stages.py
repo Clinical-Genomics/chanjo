@@ -49,25 +49,22 @@ def calculate_metrics(interval_readDepth, threshold=10):
   read_depths etc.
 
   Args:
-    interval (Interval): just passed on through
+    interval (BaseInterval): just passed on through
     read_depths (array): :class:`numpy.array` of read depths for
       **each** of the positions
     threshold (int, optional): cutoff to use for the completeness
       filter, defaults to 10
 
   Returns:
-    tuple: the ``interval``, coverage, and completeness based on the
-      read depth array
+    BaseInterval: the ``interval`` with added coverage and completeness
   """
   # unpack
   interval, read_depths = interval_readDepth
 
-  return (
-    interval,
-    average(read_depths),
-    completeness(read_depths, threshold=threshold)
+  return interval._replace(
+    coverage=average(read_depths),
+    completeness=completeness(read_depths, threshold=threshold)
   )
-
 
 @curry
 def comment_sniffer(line, prefix='#'):

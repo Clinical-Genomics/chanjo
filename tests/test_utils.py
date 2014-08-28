@@ -12,19 +12,21 @@ from chanjo.utils import (
   completeness,
   id_generator,
   BaseInterval,
-  serialize_interval,
-  serialize_interval_plus
+  serialize_interval
 )
 
 def test_RawInterval():
   """Test generating a base :class:`_RawInterval`."""
-  interval = ('chr1', 10, 20, 'int1', 0, '-', ['block1'], ['superblock1'])
+  interval = (
+    'chr1', 10, 20, 'int1', 0, '-', ['block1'], ['superblock1'], 12.3, .93
+  )
   bed_interval = _RawInterval(*interval)
 
   assert bed_interval == interval
   assert bed_interval.start == 10
   assert bed_interval.contig == 'chr1'
   assert bed_interval.block_ids == ['block1']
+  assert bed_interval.completeness == .93
 
 
 def test_BaseInterval():
@@ -95,14 +97,6 @@ def test_serialize_interval():
   serialize_interval_alt = serialize_interval(delimiter='|', subdelimiter=';')
   serialized_interval_alt = 'chr22|101|200||||block11;block12'
   assert serialize_interval_alt(interval) == serialized_interval_alt
-
-
-def test_serialize_interval_plus():
-  """Test serializing an BaseInterval with additional fields."""
-  # simple case
-  interval = BaseInterval('chr1', 10, 100, score=14)
-  string = serialize_interval_plus([interval, 14.1, .94])
-  assert string == 'chr1\t10\t100\t\t14\t14.1\t0.94'
 
 
 def test_id_generator():

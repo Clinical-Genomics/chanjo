@@ -33,6 +33,7 @@ from .config import Config, init_pipeline
 from .store import Store
 from .utils import serialize_interval
 
+
 CONFIG_NAME="%(program)s.%(extension)s" % dict(
   program=__package__,
   extension=markup.__name__  # Works for JSON, TOML, YAML ...

@@ -43,13 +43,12 @@ def test_calculate_metrics():
   # numpy array of read depths
   # read depts, coverage=4, bp_count=8
   read_depths = np.array([0, 5, 3, 3, 4, 5, 5, 7])
-  fake_interval = None
-  interval, coverage, completeness = calculate_metrics(
-    (fake_interval, read_depths), threshold=5)
+  fake_interval = BaseInterval('chr1', 10, 17)
+  interval = calculate_metrics((fake_interval, read_depths), threshold=5)
 
-  assert interval == fake_interval
-  assert coverage == 4
-  assert completeness == .5
+  assert interval[:3] == fake_interval[:3]
+  assert interval.coverage == 4
+  assert interval.completeness == .5
 
 
 def test_comment_sniffer():

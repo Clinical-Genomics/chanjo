@@ -8,7 +8,7 @@ from toolz import pipe
 
 from .core import annotate_bed_stream
 from ..cli import out_option, prefix_option, bam_path_argument, in_argument
-from ..utils import id_generator, serialize_interval_plus
+from ..utils import id_generator, serialize_interval
 
 
 @click.command()
@@ -57,7 +57,7 @@ def annotate(context, bam_path, in_stream, out, sample, group, cutoff,
       contig_prefix=prefix,
       bp_threshold=threshold
     ),
-    map(serialize_interval_plus)    # stringify/bedify
+    map(serialize_interval)    # stringify/bedify
   )
 
   # reduce/write the BED lines

@@ -17,13 +17,13 @@ def test_annotator_pipeline():
     bed_stream, bam_path, cutoff=5, contig_prefix='chr', bp_threshold=100
   )
 
-  interval1, coverage1, completeness1 = next(result)
-  interval2, coverage2, completeness2 = next(result)
+  interval1 = next(result)
+  interval2 = next(result)
 
-  assert interval1 == BaseInterval('chr1', 1, 5)
-  assert coverage1 == sum(read_depths1) / len(read_depths1)
-  assert completeness1 == 3 / 5
+  assert interval1[:3] == BaseInterval('chr1', 1, 5)[:3]
+  assert interval1.coverage == sum(read_depths1) / len(read_depths1)
+  assert interval1.completeness == 3 / 5
 
-  assert interval2 == BaseInterval('chr1', 10, 20)
-  assert coverage2 == sum(read_depths2) / len(read_depths2)
-  assert completeness2 == 1.
+  assert interval2[:3] == BaseInterval('chr1', 10, 20)[:3]
+  assert interval2.coverage == sum(read_depths2) / len(read_depths2)
+  assert interval2.completeness == 1.
