@@ -8,7 +8,6 @@ Command line interface (console entry points). Based on Click_.
 .. _Click: http://click.pocoo.org/
 """
 from __future__ import absolute_import, unicode_literals
-import json
 from pkg_resources import (
   iter_entry_points, load_entry_point, resource_filename, resource_listdir
 )
@@ -22,19 +21,17 @@ from toolz.curried import map
 from . import (
   __version__,
   __banner__,
-  annotate_bed_stream,
   init_db,
   export_intervals,
   import_bed_stream,
   import_json,
   gender_from_bam
 )
+from .annotator import annotate
 from ._compat import text_type
 from .config import Config, init_pipeline
 from .store import Store
-from .utils import (
-  serialize_interval_plus, serialize_interval, id_generator
-)
+from .utils import serialize_interval
 
 CONFIG_NAME="%(program)s.%(extension)s" % dict(
   program=__package__,
@@ -219,58 +216,7 @@ def export(context, out, header):
     click.echo(bed_line, file=out)
 
 
-@cli.command()
-@click.option('--sample', help='unique sample id (otherwise auto-generated)')
-@click.option('--group', help='group id to associate samples e.g. in trios')
-@click.option('--cutoff', default=10, help='cutoff for completeness')
-@click.option(
-  '--extendby', default=0, help='dynamically extend intervals symetrically')
-@prefix_option
-@click.option(
-  '--threshold',
-  default=17000,
-  help='base pair threshold for optimizing BAM-file reading')
-@out_option
-@bam_path_argument
-@in_argument
-@click.pass_context
-def annotate(context, bam_path, in_stream, out, sample, group, cutoff,
-             extendby, prefix, threshold):
-  """Annotate intervals in a BED-file/stream.
-
-  \b
-  BAM_PATH: Path to BAM-file
-  IN_STREAM: Chanjo-style BED-file with interval definitions
-  """
-  # user defined sample id or randomly generated
-  sample = (sample or id_generator())
-
-  # step 1: metadata header
-  metadata = dict(
-    sample_id=sample,
-    group_id=group,
-    cutoff=cutoff,
-    coverage_source=path(bam_path).abspath(),
-    extension=extendby
-  )
-  click.echo("#%s" % json.dumps(metadata), file=out)
-
-  # step 2: annotate list of intervals with coverage and completeness
-  bed_lines = pipe(
-    annotate_bed_stream(
-      bed_stream=in_stream,
-      bam_path=bam_path,
-      cutoff=cutoff,
-      extension=extendby,
-      contig_prefix=prefix,
-      bp_threshold=threshold
-    ),
-    map(serialize_interval_plus)    # stringify/bedify
-  )
-
-  # reduce/write the BED lines
-  for bed_line in bed_lines:
-    click.echo(bed_line, file=out)
+cli.add_command(annotate)
 
 
 @cli.command(name='import')

@@ -10,6 +10,7 @@ Exposes the central functions and pipeline found deeper in the module.
 """
 from __future__ import absolute_import
 
+from .cli import annotate
 from .core import annotate_bed_stream
 from .stages import (
   assign_relative_positions,
