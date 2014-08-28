@@ -5,9 +5,9 @@ import json
 import click
 from path import path
 from toolz import pipe
+from toolz.curried import map
 
 from .core import annotate_bed_stream
-from ..cli import out_option, prefix_option, bam_path_argument, in_argument
 from ..utils import id_generator, serialize_interval
 
 
@@ -17,16 +17,16 @@ from ..utils import id_generator, serialize_interval
 @click.option('--cutoff', default=10, help='cutoff for completeness')
 @click.option(
   '--extendby', default=0, help='dynamically extend intervals symetrically')
-@prefix_option
+@click.option('--prefix', default='', help='prefix a string to each contig')
 @click.option(
   '--threshold',
   default=17000,
   help='base pair threshold for optimizing BAM-file reading')
-@out_option
-@bam_path_argument
-@in_argument
+@click.argument('bam_path', type=click.Path(exists=True))
+@click.argument(
+  'in_stream', type=click.File(encoding='utf-8'), default='-', required=False)
 @click.pass_context
-def annotate(context, bam_path, in_stream, out, sample, group, cutoff,
+def annotate(context, bam_path, in_stream, sample, group, cutoff,
              extendby, prefix, threshold):
   """Annotate intervals in a BED-file/stream.
 
@@ -45,7 +45,7 @@ def annotate(context, bam_path, in_stream, out, sample, group, cutoff,
     coverage_source=path(bam_path).abspath(),
     extension=extendby
   )
-  click.echo("#%s" % json.dumps(metadata), file=out)
+  click.echo("#%s" % json.dumps(metadata))
 
   # step 2: annotate list of intervals with coverage and completeness
   bed_lines = pipe(
@@ -62,4 +62,4 @@ def annotate(context, bam_path, in_stream, out, sample, group, cutoff,
 
   # reduce/write the BED lines
   for bed_line in bed_lines:
-    click.echo(bed_line, file=out)
+    click.echo(bed_line)

@@ -10,4 +10,5 @@ makes a simple yet very accurate gender prediction.
 """
 from __future__ import absolute_import
 
+from .cli import sex_check
 from .core import Gender, gender_from_bam, predict_gender

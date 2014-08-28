@@ -28,6 +28,7 @@ Usage:
 """
 from __future__ import absolute_import
 
+from .cli import build
 from .core import init_db
 from .consumers import commit_per_contig
 from .stages import aggregate, build_block, build_interval, build_superblock

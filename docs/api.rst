@@ -43,7 +43,7 @@ Submodule pipeline functions
 
 .. autofunction:: chanjo.export_intervals
 
-.. autofunction:: chanjo.import_bed_stream
+.. autofunction:: chanjo.import_bed
 
 .. autofunction:: chanjo.import_json
 
