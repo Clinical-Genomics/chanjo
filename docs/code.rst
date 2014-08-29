@@ -1,44 +1,49 @@
 Code walkthrough
 =================
-This guide will take you through the Python API. It will introduce you to the coding concepts and explain how the different components are strung together to form the different pipelines.
+This guide will discuss design decisions and programming concepts that are used throughout Chanjo.
 
-Components
------------
 
-1. Converter
-~~~~~~~~~~~~~
-Converts between different input formats using adapters (exposed through setuptools entry points). The end point is the Chanjo BED format and the default adapter is "CCDS".
+Pipelines
+~~~~~~~~~~~
+Data is generally processed internally as `generator pipelines`_. This involves lazy evaluation and always aiming to write linear pipelines that should be pretty straight forward to parallelize.
 
-2. Builder
-~~~~~~~~~~~~
-Initializes a new Chanjo SQL database with basic genomics elements (intervals, block, and superblocks). Uses the Chanjo BED format but should be able to fall back to using any properly formatted BED file.
+I've also intentionally designed the command line interface to work well with the awesome UNIX pipes. As far as possible, Chanjo subcommands always provide a default option to read from stdin and write to stdout.
 
--	Should "build" export a BED file on request to enable piping?
-	Probably a bad idea since "import" downstream will also write to the database and this could cause unexpected issues.
-	Might work if it calls export AFTER building the database! (--tee)
--	Should it have an option to sort the input?
--	Should I commit each element right after I add it to the session?
 
-3. Exporter
-~~~~~~~~~~~~~
-Leverages an existing Chanjo database and exportes a sorted and properly formatted Chanjo-BED file that is ready to go straight into the "Annotater".
-
-4. Annotator
-~~~~~~~~~~~~~
-Uses a (Chanjo-)Bed file and calculates coverage and completeness for each of the intervals for a given BAM alignment file. The output is an extended version of the original input file.
-
-5. Importer
-~~~~~~~~~~~~~
-Accepts the output from the "Annotater" and loads it as a new sample into an existing Chanjo database.
-
--	Should "import" build a new database unless it already exists?
-
-6. [bonus] Sex Checker
+Functional programming
 ~~~~~~~~~~~~~~~~~~~~~~~
-Predicts the sex of a sample given a BAM alignment file (only works for human samples).
+I've found that as long as I write code that can easily be unit tested I'm writing good quality code. It's always easier to test a function that only does one thing. These smaller functions can later be combined in a higher layer.
+
+Chanjo makes extensive use of a wonderful Python package called toolz_ that adds a lot of useful utilities to use function programming patterns in Python.
+
+I mainly subscribe the following functional programming concepts:
+
+**Modularize and compose**. Be ruthless and think hard about how you structure your code. Always try to identify patterns of atomic functionality that can be reused, easily switced out, and composed with different atomic components.
+
+**Prefer immutable data structures**. This makes it much easier to make informed statements of how data moves through your program.
+
+**Pure functions**. Functions should never touch any variables outside of their scope + input. Functions can't modify input arguments and cause observable side effects.
 
 
-.. Generator pipelines with bash-like syntax.
-	 Core pipelines
-	 Introduce SQL structure
-	 Adding colums is pretty cheap (how?)
+.. Design concepts / Conventions
+    - Point to SQL structure
+    - Coordinate system (1:1)
+      - vs. BED
+      - Copy previous + update
+    - Why it doesn't do more than this? Why not generate a report
+  - Motivation
+    - vs. BEDTools and PicardTools
+    - Clinical sequencing vs. research
+  - Dictionary
+    - Completeness
+  - Development
+    - Git branch structure
+      - GitHub flow
+    - Testing Chanjo
+      - py.test
+      - travis
+    - Building docs
+
+
+.. _toolz: http://toolz.readthedocs.org/
+.. _generator pipelines: http://www.dabeaz.com/generators-uk/index.html
