@@ -46,7 +46,7 @@ setup(
   # Versions should comply with PEP440. For a discussion on
   # single-sourcing the version across setup.py and the project code,
   # see http://packaging.python.org/en/latest/tutorial.html#version
-  version='2.0.0-beta',
+  version='2.0.0-beta5',
 
   description='Coverage analysis tool for clinical sequencing',
   long_description=long_description,
@@ -65,7 +65,7 @@ setup(
   # installed, specify them here.
   include_package_data=True,
   package_data=dict(
-    chanjo=['demo/*']
+    chanjo=['demo/files/*']
   ),
   zip_safe=False,
 

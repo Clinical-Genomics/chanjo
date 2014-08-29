@@ -11,6 +11,6 @@ recursive-include tests *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
-recursive-include chanjo/demo *
+recursive-include chanjo/demo/files *
 
 recursive-include docs *.rst conf.py Makefile make.bat

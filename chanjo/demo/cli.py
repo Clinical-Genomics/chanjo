@@ -16,10 +16,10 @@ def demo(context, location):
   LOCATION: directory to add demofiles to (default: ./chanjo-demo)
   """
   user_dir = path(location)
-  demo_dir = path(resource_filename(__package__, 'demo'))
+  demo_dir = path(resource_filename(__package__, 'files'))
 
   # make sure we don't overwrite exiting files
-  for demo_file in resource_listdir(__package__, 'demo'):
+  for demo_file in resource_listdir(__package__, 'files'):
     user_file_path = user_dir.joinpath(demo_file)
     if user_file_path.exists():
       click.echo(user_file_path + ' exists. Pick a different location.')
