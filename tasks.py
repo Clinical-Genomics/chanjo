@@ -41,3 +41,11 @@ def coverage():
   run('coverage html')
   run('open htmlcov/index.html')
   log.info('collected test coverage stats')
+
+
+@task
+def docs():
+  """Build Sphinx documentation and display in browser."""
+  run('make -C docs html')
+  run('open docs/_build/html/index.html')
+  log.info('built and displayed documentation')
