@@ -23,12 +23,14 @@ def convert(context, in_stream, adapter, list_all):
   \b
   IN_STREAM: interval reference file (e.g. CCDS database dump)
   """
+  program_name = __package__.split('.')[0]
+
   if list_all:
     # list the installed converter options
     for entry_point in iter_entry_points('chanjo.converters'):
       # compose and print the message
       segments = dict(
-        program=__package__,
+        program=program_name,
         note=click.style('converter', fg='cyan'),
         plugin=entry_point.name
       )
@@ -38,11 +40,11 @@ def convert(context, in_stream, adapter, list_all):
     try:
       # load a single entry point
       converter_pipeline = load_entry_point(
-        __package__, 'chanjo.converters', adapter
+        program_name, 'chanjo.converters', adapter
       )
     except ImportError:
       segments = dict(
-        program=__package__,
+        program=program_name,
         note=click.style('error', fg='red'),
         message="No such converter installed: %s" % adapter
       )

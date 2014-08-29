@@ -15,6 +15,6 @@ from .utils import remove_ansi
 
 
 config_file_name="%(program)s.%(extension)s" % dict(
-  program=__package__,
+  program='chanjo',
   extension=markup.__name__  # Works for JSON, TOML, YAML ...
 )

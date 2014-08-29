@@ -46,4 +46,4 @@ def init(context):
   ]
 
   # launch init pipeline
-  init_pipeline(__package__, context.obj, questions)
+  init_pipeline('chanjo', context.obj, questions)
