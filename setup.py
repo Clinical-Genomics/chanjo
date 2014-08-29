@@ -96,11 +96,21 @@ setup(
   entry_points={
     'console_scripts': [
       'chanjo = chanjo.__main__:cli',
-      'sex-check = chanjo.cli:sex_check'
+      'sex-check = chanjo.sex_checker:sex_check'
     ],
     'chanjo.converters': [
       'ccds = chanjo.converter:ccds_to_bed',
     ],
+    'chanjo.subcommands': [
+      'annotate = chanjo.annotator:annotate',
+      'build = chanjo.builder:build',
+      'config = chanjo.config:config',
+      'convert = chanjo.converter:convert',
+      'demo = chanjo.demo:demo',
+      'export = chanjo.exporter:export',
+      'import = chanjo.importer:import_data',
+      'init = chanjo.config:init',
+    ]
   },
 
   # See: http://pypi.python.org/pypi?%3Aaction=list_classifiers

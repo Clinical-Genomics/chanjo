@@ -7,6 +7,7 @@ Module for converting a CCDS dump to standard Chanjo BED-format.
 """
 from __future__ import absolute_import
 
+from .cli import convert
 from .core import ccds_to_bed
 from .stages import (
   grep,

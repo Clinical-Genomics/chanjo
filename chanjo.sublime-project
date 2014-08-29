@@ -4,7 +4,7 @@
 		{
 			"follow_symlinks": true,
 			"path": ".",
-			"folder_exclude_patterns": ["__pycache__", "*.egg-info", ".tox"],
+			"folder_exclude_patterns": ["__pycache__", "*.egg-info", ".tox", ".vagrant", "htmlcov", "dist"],
 			"file_exclude_patterns": [".coverage", "*.sublime-workspace", "*.pyc"]
 		}
 	]

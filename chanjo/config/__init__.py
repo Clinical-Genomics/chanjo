@@ -6,7 +6,15 @@ chanjo.config
 Config module with Click integration.
 """
 from __future__ import absolute_import
+import toml as markup
 
+from .cli import init, config
 from .core import Config, init_pipeline
 from .questions import ask, build_prompt, questionnaire
 from .utils import remove_ansi
+
+
+config_file_name="%(program)s.%(extension)s" % dict(
+  program=__package__,
+  extension=markup.__name__  # Works for JSON, TOML, YAML ...
+)

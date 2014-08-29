@@ -1,9 +1,11 @@
-===================
-Quick introduction
-===================
+=====================
+Introduction & Demo
+=====================
 
 Concise overview
 -----------------
+**Current release**: |codename| (|version|)
+
 Chanjo breaks down coverage to intuitive levels of abstraction; genes, transcripts, exons, and intervals. It also introduces a new coverage metric that reduces the bias from uneven coverage. Chanjo is built around the idea of multiple levels of pipelines and fully embraces bash conventions. It's easily incorporated into existing pipelines and provides a clear path for downstream analysis.
 
 This guide is meant to give an overview of Chanjo, what you can and can't do with it. To start you off, take a look at this flow diagram. It illustrates how the different subcommands from the command line interface relate to each other. Don't worry, you'll learn more about it real soon.
@@ -23,14 +25,14 @@ The rest of this document will guide you through a short demo that will cover ho
 
 
 Demo files
-~~~~~~~~~~~
-First we need some files to work with. Chanjo comes packed with some demo files we can use.
+~~~~~~~~~~
+First we need some files to work with. Chanjo comes with some pre-installed demo files we can use.
 
 .. code-block:: console
 
-	$ chanjo demo ./chanjo-demo && cd chanjo-demo
+	$ chanjo demo chanjo-demo && cd chanjo-demo
 
-This will create a new folder in your current directory (``./chanjo-demo``) and fill it with the example files you need.
+This will create a new folder (``chanjo-demo``) in your current directory and fill it with the example files you need.
 
 .. note::
 	You can name the new folder anything you like but it *must not already exist*!
@@ -38,22 +40,23 @@ This will create a new folder in your current directory (``./chanjo-demo``) and 
 
 Setup and configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~
-Your first task will be to create a config file. It can be used to store commonly used options to avoid having to type everything on the command line. Chanjo will walk you through setting it up by running:
+Your first task will be to create a config file (``chanjo.toml``). It can be used to store commonly used options to avoid having to type everything on the command line. Chanjo will walk you through setting it up by running:
 
 .. code-block:: console
 
 	$ chanjo init
 
-Chanjo uses project-level config files by default. This means that it will look for a possible ``chanjo.toml`` file in the **current directory** where you execute your commands.
+.. note::
+	Chanjo uses project-level config files by default. This means that it will look for a possible ``chanjo.toml`` file in the **current directory** where you execute your commands. You can also point to a diffrent config file using the ``chanjo -c /path/to/chanjo.toml`` option.
 
-If you accepted all defaults, this will setup Chanjo so that it knows e.g. that you want to store your SQL database ``./coverage.sqlite`` or in the same direcory with the name "coverage.sqlite".
+If you accepted all defaults, Chanjo will be set up so that it knows e.g. that you want to store your SQL database in the current direcory with the name "coverage.sqlite".
 
 
 Defining interesting regions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-One important thing to note is that Chanjo doesn't consider coverage across the entire genome or exome. Instead you need to define some intervals we are interested in checking the coverage across.
+One important thing to note is that Chanjo doesn't consider coverage across the entire genome or exome. Instead you need to define some intervals you are interested in checking the coverage across.
 
-For whole exome sequencing, this could be your targeted regions. Or for clinical sequencing it might be exons from the manually curated CCDS database. In fact we already have an adapter to convert CCDS transcripts into the BED\* interval file that Chanjo expects.
+For whole exome sequencing, this could be your targeted regions. Or for clinical sequencing it might be exons from the manually curated CCDS database. In fact the default adapter already converts CCDS transcripts into the BED\* interval file that Chanjo expects.
 
 .. code-block:: console
 
@@ -79,16 +82,21 @@ If you prefer to use a MySQL database, the build pipeline would look something l
 .. code-block:: console
 
 	$ chanjo convert resources/ccds/CCDS.txt | \
-	> chanjo build --db username:password@localhost/chanjo_test --dialect "mysql+pymysql"
+	> chanjo --db username:password@localhost/chanjo_test --dialect "mysql+pymysql" build
 
 
 Annotating coverage
 ~~~~~~~~~~~~~~~~~~~~
-If you've misplaced your BED-file from the previous step, it's possible to generate a new one as a BED-stream from an existing database. Let's use this stream as the input to the *annotate*.
+If you happen to have misplaced your BED-file from the previous step, it's possible to re-generate it as a BED-stream from an existing Chanjo database. Let's use this stream as the input to the *annotate* subcommand.
 
 .. code-block:: console
 
-	$ chanjo export | chanjo annotate --prepend=chr alignment.bam | tee annotations.bed
+	$ chanjo export | chanjo annotate --prefix=chr alignment.bam | tee annotations.bed
+
+Chanjo will during this step read the BED stream and annotate each interval with coverage and completeness. We use the ``--prefix`` to synchronize how contigs are defined in the BED stream and BAM alignment file.
+
+.. note::
+	So what is this "completeness"? Well, it's pretty simple. You start by setting a level of "sufficient" coverage (``--cutoff``). Chanjo will then, for each interval, determine the percentage of bases with at least sufficient levels of coverage.
 
 
 Importing annotations for storage
@@ -100,9 +108,6 @@ To close the circle, we can import the output from *annotate* to the last comman
 	$ chanjo import annotations.bed
 
 This is the complete Chanjo coverage analysis pipeline. Extracting basic coverage metrics like "average coverage", "overall completeness", etc. is as easy as a couple of SQL statements.
-
-.. note::
-	So what is this "completeness"? Well, it's pretty simple. You start by setting a level of "sufficient" coverage. Chanjo will then, for each interval, determine the percentage of bases with at least sufficient levels of coverage.
 
 
 What's next?

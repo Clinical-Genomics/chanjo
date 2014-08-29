@@ -12,7 +12,7 @@ from .consumers import build_interval_data
 from .utils import convert_old_interval_id
 
 
-def import_bed_stream(chanjo_db, bed_stream):
+def import_bed(chanjo_db, bed_stream):
   """Import the "annotate" output into an existing Chanjo database.
 
   Args:
