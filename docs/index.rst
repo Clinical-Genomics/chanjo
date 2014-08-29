@@ -10,7 +10,7 @@ Home
 	<div class="intro__wrapper">
 
 		<div class="logo center-content">
-			<img alt="Chanjo Mascot" src="_static/chanjo-logo@2x.png">
+			<img alt="Chanjo Mascot" src="_static/chanjo-logo.png">
 		</div>
 
 		<div class="intro">
