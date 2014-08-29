@@ -73,4 +73,4 @@ License
 .. _CONTRIBUTING.md: https://github.com/robinandeer/chanjo/blob/master/CONTRIBUTING.md
 .. _interface: interface.html#convert
 .. _reference implementation: https://github.com/robinandeer/chanjo/tree/master/chanjo/converter
-.. _annotator plugin: https://github.com/robinandeer/chanjo/tree/master/chanjo/annotator
+.. _annotator module: https://github.com/robinandeer/chanjo/tree/master/chanjo/annotator
