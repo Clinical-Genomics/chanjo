@@ -1,0 +1,1 @@
+../../chanjo/demo/files/CCDS.mini.txt
