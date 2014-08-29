@@ -24,6 +24,7 @@ Now with Miniconda installed we setup a new conda environment.
 
 	$ conda create -n chanjo3 python=3 cython numpy sqlalchemy
 	$ source activate chanjo3
+  $ conda install -c https://conda.binstar.org/robinandeer pysam
 
 And now we simply install Chanjo into the new environment without having to worry about tricky C dependencies.
 

@@ -18,7 +18,7 @@ def clean():
   run('rm -rf build/')
   run('rm -rf dist/')
   run('rm -rf chanjo.egg-info')
-  run('find . -name __pycache__ -delete')
+  run('find . -name __pycache__/ -delete')
   run('find . -name *.pyc -delete')
   run('find . -name *.pyo -delete')
   run('find . -name *~ -delete')
@@ -28,8 +28,8 @@ def clean():
 @task(clean)
 def publish():
   """Publish to the cheeseshop."""
-  run('python setup.py sdist upload')
-  run('python setup.py bdist_wheel upload')
+  run('python setup.py sdist upload', pty=True)
+  run('python setup.py bdist_wheel upload', pty=True)
   log.info('published new release')
 
 
