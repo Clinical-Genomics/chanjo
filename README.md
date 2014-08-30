@@ -55,7 +55,7 @@ Chanjo is not the right choice if you care about coverage for every base across 
 Robin Andeer
 
 Luca Beltrame ([lbeltrame](https://github.com/lbeltrame))
-John Kern ([kern3020][https://github.com/kern3020])
+John Kern ([kern3020](https://github.com/kern3020))
 
 ## License
 MIT. See the [LICENSE](LICENSE) file for more details.
