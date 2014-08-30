@@ -1,10 +1,49 @@
 Code walkthrough
 =================
-This guide will take you through the Python API. It will introduce you to the coding concepts and explain how the different components are strung together to form the different pipelines.
+This guide will discuss design decisions and programming concepts that are used throughout Chanjo.
 
-Coming soon.
 
-.. Generator pipelines with bash-like syntax.
-	 Core pipelines
-	 Introduce SQL structure
-	 Adding colums is pretty cheap (how?)
+Pipelines
+~~~~~~~~~~~
+Data is generally processed internally as `generator pipelines`_. This involves lazy evaluation and always aiming to write linear pipelines that should be pretty straight forward to parallelize.
+
+I've also intentionally designed the command line interface to work well with the awesome UNIX pipes. As far as possible, Chanjo subcommands always provide a default option to read from stdin and write to stdout.
+
+
+Functional programming
+~~~~~~~~~~~~~~~~~~~~~~~
+I've found that as long as I write code that can easily be unit tested I'm writing good quality code. It's always easier to test a function that only does one thing. These smaller functions can later be combined in a higher layer.
+
+Chanjo makes extensive use of a wonderful Python package called toolz_ that adds a lot of useful utilities to use function programming patterns in Python.
+
+I mainly subscribe the following functional programming concepts:
+
+**Modularize and compose**. Be ruthless and think hard about how you structure your code. Always try to identify patterns of atomic functionality that can be reused, easily switced out, and composed with different atomic components.
+
+**Prefer immutable data structures**. This makes it much easier to make informed statements of how data moves through your program.
+
+**Pure functions**. Functions should never touch any variables outside of their scope + input. Functions can't modify input arguments and cause observable side effects.
+
+
+.. Design concepts / Conventions
+    - Point to SQL structure
+    - Coordinate system (1:1)
+      - vs. BED
+      - Copy previous + update
+    - Why it doesn't do more than this? Why not generate a report
+  - Motivation
+    - vs. BEDTools and PicardTools
+    - Clinical sequencing vs. research
+  - Dictionary
+    - Completeness
+  - Development
+    - Git branch structure
+      - GitHub flow
+    - Testing Chanjo
+      - py.test
+      - travis
+    - Building docs
+
+
+.. _toolz: http://toolz.readthedocs.org/
+.. _generator pipelines: http://www.dabeaz.com/generators-uk/index.html

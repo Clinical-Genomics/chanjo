@@ -2,4 +2,6 @@
 Release notes
 ================
 
-.. include:: ../changelog.rst
+**Current release**: |codename| (|version|)
+
+.. include:: ../CHANGELOG.rst

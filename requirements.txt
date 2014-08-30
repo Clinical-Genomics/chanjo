@@ -1,7 +1,7 @@
-pysam>=0.7.5
-numpy
-sqlalchemy>=0.8.2
-docopt
+-r requirements/conda.txt
+
+click
 path.py
-clint
-chanjo-ccds
+pysam>=0.7.5
+toml
+toolz

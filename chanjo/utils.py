@@ -2,109 +2,124 @@
 """
 chanjo.utils
 ~~~~~~~~~~~~~
-A few general utility functions.
+
+A few general utility functions that might also be useful outside
+Chanjo.
 """
-import errno
+from __future__ import absolute_import, division, unicode_literals
+from collections import namedtuple
 import random
 import sys
 
-from docopt import docopt
-from path import path
+import click
+from toolz import concat, curry
 
-from . import config
+from ._compat import text_type
 
 
-def id_generator(size=8):
-  """Randomly generates an Id of length N (size) we can recognise.
-  Think Italian or Japanese or Native American.
+_RawInterval = namedtuple('RawInterval', [
+  'contig', 'start', 'end', 'name', 'score', 'strand',
+  'block_ids', 'superblock_ids', 'coverage', 'completeness'
+])
 
-  Modified from: `Stackoverflow <http://stackoverflow.com/questions/2257441>`_
-  and `ActiveState <http://code.activestate.com/recipes/526619-friendly-readable-id-strings/>`_.
 
-  Usage:
+class BaseInterval(_RawInterval):
 
-  .. code-block:: python
-
-    >>> id_generator()
-    'G5G74W'
-    >>> id_generator(3, '6793YUIO')
-    'Y3U'
+  """Immutable interval tuple based on the `BED format`_.
 
   Args:
-    size (int, optional): Length of Id, number of characters.
-    chars (str, optional): Pool of characters to choose from
+    contig (str): chromosome or generic contig id
+    start (int): chromosomal start position, 1-based
+    end (int): chromosomal end position, 1-based
+    name (str, optional): unique name/id of interval
+    score (int, optional): value between 0-1000, not used in Chanjo
+    strand (str, optional): +/-
+    block_ids (list, optional): list of unique block ids
+    superblock_ids (list, optional): list of unique superblock ids
+    coverage (float, optional): average coverage across the interval
+    completeness (float, optional): completeness across the interval
 
-  Returns:
-    str: Randomly generated string
+  .. _BED format: http://genome.ucsc.edu/FAQ/FAQformat.html#format1
   """
-  variables = 'aeiou'
-  consonants = 'bdfghklmnprstvw'
 
-  return ''.join([random.choice(variables if i % 2 else consonants)
-                  for i in range(size)])
+  def __new__(cls, contig, start, end, name='', score='', strand='',
+              block_ids=None, superblock_ids=None,
+              coverage='', completeness=''):
+    """Initialize a new namedtuple instance."""
+    return super(BaseInterval, cls).__new__(
+      cls,
+      contig,
+      start,
+      end,
+      name,
+      score,
+      strand,
+      (block_ids or []),       # default to empty lists
+      (superblock_ids or []),  # do
+      coverage,
+      completeness
+    )
 
 
-def open_or_stdx(file_path=None, open_args=('r',), force=False):
-  """Opens a file or else returns a UNIX stream "stdin" (read from) or
-  "stdout" (write to).
+def bed_to_interval(contig, bed_start, bed_end, name='', score='', strand='',
+                    block_ids='', superblock_ids=''):
+  """Convert from a BED row to an immutable BaseInterval object.
 
   Args:
-    file_path (str, optional): Path to file, leave as ``None`` for
-      the corresponding UNIX stream
-    open_args (list, optional): List of arguments to pass to ``open``
+    contig (str): chromosome or generic contig id
+    start (str): chromosomal start position, 1-based
+    end (str): chromosomal end position, 1-based
+    name (str, optional): unique name/id of interval
+    score (str, optional): value between 0-1000, not used in Chanjo
+    strand (str, optional): +/-
+    block_ids (str, optional): list of unique related block ids
+    superblock_ids (str, optional): list of unique superblock ids
 
   Returns:
-    file: File handle for either the file or a UNIX stream
+    namedtuple: processed and sanity checked interval object
   """
-  # Extend string with a path object
-  # We need to use *or* since ``file_path`` can't be ``None``
-  the_path = path(file_path or '/__nonexistant')
+  try:
+    # assure positions to be integers
+    # convert from 0,1-based to 1,1-based positions
+    start = int(bed_start) + 1
+    end = int(bed_end)
+  except ValueError:
+    raise ValueError("'start' and 'end' should be integers")
 
-  # First case we are planning to **write** data
-  if 'w' in open_args:
-    if file_path is None:
-      return sys.stdout
+  # perform sanity check to check for incorrect formatting
+  assert (end - start) >= 0, ("Not a valid BED interval."
+                              "(bedEnd - bedStart) must be >= 0.")
 
-    else:
-      # Unless we are sure to overwrite we should avoid it
-      if not force and the_path.isfile():
-        raise OSError(errno.EEXIST, the_path)
+  # fallback to empty list for optional element ids
+  ids = [element_ids.split(',') if element_ids else []
+         for element_ids in (block_ids, superblock_ids)]
 
-  else:
-    # Now we are only interested in reading from an *existing* file
-    if file_path is None:
-      return sys.stdin
-
-    else:
-      # There is no point in reading from a file that doesn't exists,
-      # but that's only me...
-      if not force and not the_path.isfile():
-        raise OSError(errno.ENOENT, the_path)
-
-  # Open the file for reading or writing
-  return the_path.open(*open_args)
+  return BaseInterval(contig, start, end, name, score, strand, *ids)
 
 
-def convert_old_interval_id(old_id):
-  """Deprecated function for converting a 0:0-based exon Id to the
-  new 1:1-based interval Id.
+def average(sequence):
+  """Calculate the mean across an array of e.g. read depths.
+
+  Defaults to the mean calculated using numpy and falls back to the
+  naive Python solution.
 
   Args:
-    old_id (str): Old exon Id, '0:0-based'
+    sequence (list): ``numpy.array`` or list of values
 
   Returns:
-    str: New interval Id, '1:1-based'
+    float: calculated average value
   """
-  # Split into parts (contig, start, end)
-  parts = old_id.split('-')
+  try:
+    # first assume that numpy is installed for the fastest approach
+    return sequence.mean()
 
-  # Recombine but with converted coordinates from 0:0 to 1:1
-  return '-'.join([parts[0], str(int(parts[1]) + 1), str(int(parts[2]) + 1)])
+  except AttributeError:
+    # no numpy available, fall back to support regular list
+    return sum(sequence) / len(sequence)
 
 
 def completeness(read_depths, threshold=10):
-  """Calculates completeness across a number of positions given their
-  read depths.
+  """Calculate completeness across a range of read depths.
 
   Note:
     This function catches the corner case where ``read_depths`` is an
@@ -114,62 +129,130 @@ def completeness(read_depths, threshold=10):
   Args:
     read_depths (array): :class:`numpy.array` of read depths for
       **each** of the positions
-    threshold (int, optional): Cutoff to use for the filter
+    threshold (int, optional): cutoff to use for the filter
 
   Returns:
-    float: The calculated completeness in percent
+    float: calculated completeness in percent
+
+  Examples:
+
+  .. code-block:: python
+
+    >>> completeness([5, 6, 6, 7, 6, 5, 5], threshold=6)
+    0.571428571
   """
   base_pair_count = len(read_depths)
 
-  # Dodge rare division by zero error when `read_depths` is an empty array
+  # dodge rare division by zero error when `read_depths` is an empty array
   try:
-    # Filter, then count bases with greater read depth than `threshold`
-    # Divide by the total number of bases
+    # filter, then count bases with greater read depth than `threshold`
+    # divide by the total number of bases
     return len(read_depths[read_depths >= threshold]) / base_pair_count
 
   except ZeroDivisionError:
-    # Without any bases to check, 0% pass the threshold
+    # without any bases to check, 0% of bases passed the threshold
     return 0.
 
 
-def assign_relative_positions(abs_start, abs_end, overall_start):
-  """Returns relative positions given the absolute positions and the
-  overall starting position.
+@curry
+def serialize_interval(interval, delimiter='\t', subdelimiter=',', bed=False):
+  r"""Stringify :class:`BaseInterval`.
 
   Args:
-    abs_start (int): Global start of the interval
-    abs_end (int): Global end of the interval
+    interval (:class:`BaseInterval`): interval object to serialize
+    delimiter (str, optional): main delimiter, defaults to "\t"
+    subdelimiter (str, optional): secondary delimiter, defaults to ","
+    bed (bool, optional): convert to BED interval (0:1-based)
 
   Returns:
-    tuple of int: Relative start and end positions
+    str: stringified version of the :class:`BaseInterval`
+
+  Examples:
+
+  .. code-block:: python
+
+    >>> interval = BaseInterval('chr1', 10, 100, score=14)
+    >>> serialize_interval(interval)
+    'chr1\t10\t100\t\t14'
   """
-  rel_start = abs_start - overall_start
-  rel_end = abs_end - overall_start
+  # serialize the list of block/superblock Ids
+  block_ids = subdelimiter.join(interval.block_ids)
+  superblock_ids = subdelimiter.join(interval.superblock_ids)
 
-  return rel_start, rel_end
+  # on request, convert positions from 1:1 to BED-style 0:1
+  if bed:
+    base = interval._replace(start=interval.start - 1)[:6]
+  else:
+    base = interval[:6]
+
+  return text_type.rstrip(
+    delimiter.join(
+      # concat and stringify base, related ids, and (possible) metrics
+      map(text_type, concat([base, [block_ids, superblock_ids], interval[8:]]))
+    ),
+    delimiter   # strip trailing delimiters
+  )
 
 
-def merge_intervals(intervals):
-  """Returns the ends of a groups list of intervals
+def id_generator(size=8):
+  """Randomly generate an id of length N (size) we can recognize.
+
+  Think Italian or Japanese or Native American.
+  Modified from: `Stackoverflow <http://stackoverflow.com/questions/2257441>`_
+  and `ActiveState <http://code.activestate.com/recipes/526619/>`_.
 
   Args:
-    intervals (list): List of intervals
+    size (int, optional): length of id, number of characters
 
   Returns:
-    tuple of int: The beginning and end of the combined interval
+    str: randomly generated string
+
+  Examples:
+
+  .. code-block:: python
+
+    >>> id_generator()
+    'palevedu'
+    >>> id_generator(3)
+    'sun'
   """
-  try:
-    return intervals[0][1], intervals[-1][2]
+  variables = 'aeiou'
+  consonants = 'bdfghklmnprstvw'
 
-  except IndexError:
-    # The interval group didn't contain any intervals... why?
-    return (0, 0)
+  return ''.join(
+    [random.choice(variables if i % 2 else consonants) for i in range(size)]
+  )
 
 
-def read_config(script_name, config_path=None):
-  # Read values from potential config file
-  name = config.name(script_name, prefix='', affix='.json')
-  config_path = config_path or path.joinpath(config.location(), name)
-  config_options = config.reader(config_path, config={}, docopt=True)
+@curry
+def split(string, sep='\t'):
+  r"""Split string based on a delimiter/separator.
 
-  return config_options
+  This wrapper around ``str.split`` harmonize Python 2/3 syntax.
+
+  Args:
+    string (str): string to "explode"
+    sep (str, optional): delimiter to separate on. Default: \t.
+
+  Returns:
+    list: "exploded" string parts as a list
+
+  Examples:
+
+  .. code-block:: python
+
+    >>> split('change|of|pace', sep='|')
+    ['change', 'of', 'pace']
+  """
+  return text_type.split(string, sep)
+
+
+def validate_stdin(context, param, value):
+  """Validate piped input contains some data."""
+  # check if input is a file or stdin
+  if value.name == '<stdin>':
+    # raise error if stdin is empty
+    if sys.stdin.isatty():
+      raise click.BadParameter('you need to pipe something to stdin')
+
+  return value

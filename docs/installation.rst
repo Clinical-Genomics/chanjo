@@ -1,27 +1,32 @@
 =============
 Installation
 =============
-**tl;dr** Cross your fingers and ``$ pip install chanjo``
+**tl;dr** ``$ pip install chanjo``
+
 
 Bulletproof install
 --------------------
-Chanjo targets **Unix** and **Python 2.6-7 and 3.2+**. It depends on a few C extentions that significantly reduces runtime and simplifes the interface. To avoid all the possible hassle of installing them I definitivly recommend choosing `Miniconda`_.
+Chanjo targets **Unix** and **Python 2.7+/3.2+**. It depends on a few C extentions that significantly reduces runtime and simplifes the interface. To avoid hassle when installing them I definitivly recommend `Miniconda`_.
 
-Miniconda includes an alternative package manager that will install binary (precompiled) versions of Python C extentions such as Numpy, Pysam, and SQLAlchemy. It makes the whole process quick *and* painless.
+Miniconda is a slim distribution of Python that can be installed without root access. There's versions for Linux, Mac OSX, and Windows. It also includes an alternative package manager (conda) that will install binary (precompiled) versions of Python C extentions such as Numpy, Pysam, and SQLAlchemy. It makes the whole installation process quick *and* painless.
 
-.. code-block:: console
-	
-	$ wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh | bash
-
-Follow the on-screen instructions. There's versions for Linux, Mac OSX, and Windows. Now with Miniconda installed we setup a new conda environment.
+To install Miniconda, run:
 
 .. code-block:: console
 
-	$ conda create -n chanjo3 python=3.3
+	$ wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
+	$ bash Miniconda-latest-Linux-x86_64.sh -b
+	$ export PATH="$HOME/miniconda3/bin:$PATH"  # remember to add this to your path!
+
+Now with Miniconda installed we setup a new conda environment.
+
+.. code-block:: console
+
+	$ conda create -n chanjo3 python=3 cython numpy sqlalchemy
 	$ source activate chanjo3
-	$ conda install numpy sqlalchemy cython
+  $ conda install -c https://conda.binstar.org/robinandeer pysam
 
-And now we simply install Chanjo into the new environment.
+And now we simply install Chanjo into the new environment without having to worry about tricky C dependencies.
 
 .. code-block:: console
 
@@ -30,11 +35,12 @@ And now we simply install Chanjo into the new environment.
 .. note::
 	If you are a Python purist and prefer the tried and true pip+virtualenv combo it will of course do the trick as well. For more detailed instructions head over to Kenneth Reitz's `Python Guide`_.
 
-If you plan on using MySQL for your SQL database you also need an adapter. My recommendation is 'pymysql'. It's written in pure Python and works on both version 2.x and 3.x.
+If you plan on using MySQL for your SQL database you also need a SQL adapter. My recommendation is 'pymysql'. It's written in pure Python and works on both version 2.x and 3.x.
 
 .. code-block:: console
 
 	$ pip install pymysql
+
 
 Getting the code
 -----------------
@@ -44,15 +50,7 @@ Would you like to take part in the development or tweak the code for any other r
 
 	$ git clone https://github.com/robinandeer/chanjo.git
 	$ cd chanjo
-	$ python setup.py develop
-
-Bonus
--------
-Some extra goodies just for you.
-
-Sphinx theme
-~~~~~~~~~~~~~~
-Like the custom Sphinx theme? My plan is to make it available as soon as I have the time.
+	$ pip install --editable .
 
 
 .. _Miniconda: http://conda.pydata.org/miniconda.html

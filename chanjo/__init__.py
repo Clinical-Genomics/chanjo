@@ -1,21 +1,51 @@
 # -*- coding: utf-8 -*-
 """
+chanjo
+~~~~~~~
+
+Coverage analysis for clinical sequencing. It's intuatively documented
+and embraces functional programming patterns.
+
+:copyright: (c) 2014 by Robin Andeer
+:licence: MIT, see LICENCE for more details
+"""
+from __future__ import absolute_import, unicode_literals
+from .annotator import annotate_bed_stream
+from .builder import init_db
+from .converter import ccds_to_bed
+from .depth_reader import BamFile
+from .exporter import export_intervals
+from .importer import import_bed, import_json
+from .sex_checker import gender_from_bam
+from .store import Store
+from .utils import (
+  average,
+  BaseInterval,
+  bed_to_interval,
+  completeness,
+  id_generator,
+  serialize_interval,
+  split
+)
+
+__banner__ = r"""
        ______               ________
  _________  /_______ _____________(_)_____
- _  ___/_  __ \  __ `/_  __ \____  /_  __ \\
- / /__ _  / / / /_/ /_  / / /___  / / /_/ /
+ _  ___/_  __ \  __ `/_  __ \____  /_  __ \
+ / /__ _  / / / /_/ /_  / / /___  / / /_/ /   by Robin Andeer
  \___/ /_/ /_/\__,_/ /_/ /_/___  /  \____/
                             /___/
 """
-from __future__ import unicode_literals, division, absolute_import, \
-  with_statement
 
 __title__ = 'chanjo'
-__version__ = '1.1.1'
+__summary__ = 'coverage analysis tool for clinical sequencing'
+__uri__ = 'http://www.chanjo.co/'
+
+__version__ = '2.0.1'
+__codename__ = 'Wistful Weasel'
+
 __author__ = 'Robin Andeer'
 __email__ = 'robin.andeer@gmail.com'
-__url__ = 'http://www.chanjo.co/'
+
 __license__ = 'MIT'
-__copyright__ = 'Copyright 2013 Robin Andeer'
-__docformat__ = 'restructuredtext'
-__description__ = 'Coverage analysis tool for clinical sequencing'
+__copyright__ = 'Copyright 2014 Robin Andeer'

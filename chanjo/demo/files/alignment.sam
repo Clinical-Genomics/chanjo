@@ -1,0 +1,13 @@
+@SQ	SN:chr1	LN:100
+@SQ	SN:chr22	LN:100
+@SQ	SN:chrX	LN:100
+@SQ	SN:chrY	LN:100
+read1	0	chr1	1	37	39M	*	0	0	GAACTGGATACAGACATGGCCTTAAGGTTGGGAGGTAAT	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	XT:A:U	NM:i:1	X0:i:1	X1:i:0	XM:i:1	XO:i:0	XG:i:0	MD:Z:23G15
+read9	0	chr1	1	37	19M1D5M	*	0	0	GAACTGGATACAGACATGGCTTGA	aaaaaaaaaaaaaaaaaaaaaaaa	XT:A:U	NM:i:1	X0:i:1	X1:i:0	XM:i:1	XO:i:1	XG:i:1	MD:Z:19^C5
+read2	0	chr1	2	37	9M1I23M	*	0	0	AACTGGATAGCAGACATGGCCTTAAGGTTGGGA	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	XT:A:U	NM:i:2	X0:i:1	X1:i:0	XM:i:1	XO:i:1	XG:i:1	MD:Z:22G9
+read8	16	chr1	2	37	9M2I23M	*	0	0	AACTGGATACCCAGACATGGCCTTGAGGTTGGGA	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	XT:A:U	NM:i:2	X0:i:1	X1:i:0	XM:i:0	XO:i:1	XG:i:2	MD:Z:32
+read7	0	chr1	3	37	23M2D10M	*	0	0	ACTGGATACAGACATGGCCTTGATTGGGAGGTA	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	XT:A:U	NM:i:2	X0:i:1	X1:i:0	XM:i:0	XO:i:1	XG:i:2	MD:Z:23^GG10
+read5	16	chr1	7	25	26M	*	0	0	TGTACAGACATGGCCTTGAGGTTGGG	aaaaaaaaaaaaaaaaaaaaaaaaaa	XT:A:U	NM:i:2	X0:i:1	X1:i:0	XM:i:2	XO:i:0	XG:i:0	MD:Z:0G0A24
+read4	0	chr1	8	37	12M1D15M	*	0	0	ATACAGACATGGCTTGAGGTTGGGAGG	aaaaaaaaaaaaaaaaaaaaaaaaaaa	XT:A:U	NM:i:1	X0:i:1	X1:i:0	XM:i:0	XO:i:1	XG:i:1	MD:Z:12^C15
+read3	0	chr1	50	37	16M	*	0	0	AAGGTTGGGAGGTAAT	aaaaaaaaaaaaaaaa	XT:A:U	NM:i:1	X0:i:1	X1:i:0	XM:i:1	XO:i:0	XG:i:0	MD:Z:0G15
+read6	4	*	0	0	*	*	0	0	GTTNNNNGATACAGACNNGCTTGA	aaaaaaaaaaaaaaaaaaaaaaaa
