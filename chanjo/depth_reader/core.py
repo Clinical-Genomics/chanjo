@@ -36,7 +36,7 @@ def BamFile(bam_path):
 
   .. code-block:: python
 
-    >>> from chanjo.read_depth import BamFile
+    >>> from chanjo.depth_reader import BamFile
     >>> read_depths = BamFile('./alignment.bam')
 
   Args:
@@ -50,6 +50,7 @@ def BamFile(bam_path):
     raise OSError(errno.ENOENT, bam_path)
 
   bam = Samfile(bam_path)
+
   try:
     bam.pileup()
   except ValueError:
@@ -70,7 +71,8 @@ def BamFile(bam_path):
 
     .. code-block:: python
 
-      >>> bamfile.read('17', 1, 5)
+      >>> read_depths = BamFile('./alignment.bam')
+      >>> read_depths('17', 1, 5)
       array([3., 4., 4., 5., 4.])
 
     .. note::

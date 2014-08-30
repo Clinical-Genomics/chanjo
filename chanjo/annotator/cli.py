@@ -8,7 +8,7 @@ from toolz import pipe
 from toolz.curried import map
 
 from .core import annotate_bed_stream
-from ..utils import id_generator, serialize_interval
+from ..utils import id_generator, serialize_interval, validate_stdin
 
 
 @click.command()
@@ -21,11 +21,11 @@ from ..utils import id_generator, serialize_interval
   '-p', '--prefix', default='', help='prefix a string to each contig')
 @click.option(
   '-t', '--threshold',
-  default=17000,
-  help='base pair threshold to optimize BAM-file reading')
+  default=17000, help='base pair threshold to optimize BAM-file reading')
 @click.argument('bam_path', type=click.Path(exists=True))
 @click.argument(
-  'in_stream', type=click.File(encoding='utf-8'), default='-', required=False)
+  'in_stream', callback=validate_stdin, type=click.File(encoding='utf-8'),
+  default='-', required=False)
 @click.pass_context
 def annotate(context, bam_path, in_stream, sample, group, cutoff,
              extendby, prefix, threshold):

@@ -6,7 +6,7 @@ import click
 from toolz import pipe
 from toolz.curried import map
 
-from ..utils import serialize_interval
+from ..utils import serialize_interval, validate_stdin
 
 
 @click.command()
@@ -15,7 +15,8 @@ from ..utils import serialize_interval
 @click.option(
   '-l', '--list', 'list_all', is_flag=True, help='show all installed adapters')
 @click.argument(
-  'in_stream', type=click.File(encoding='utf-8'), default='-', required=False)
+  'in_stream', callback=validate_stdin, type=click.File(encoding='utf-8'),
+  default='-', required=False)
 @click.pass_context
 def convert(context, in_stream, adapter, list_all):
   """Convert a reference database file to a Chanjo BED interval file.

@@ -4,13 +4,15 @@ from __future__ import absolute_import, unicode_literals
 import click
 
 from .core import init_db
+from ..utils import validate_stdin
 
 
 @click.command()
 @click.option(
   '-f', '--force', is_flag=True, help='overwrite database without warning')
 @click.argument(
-  'in_stream', type=click.File(encoding='utf-8'), default='-', required=False)
+  'in_stream', callback=validate_stdin, type=click.File(encoding='utf-8'),
+  default='-', required=False)
 @click.pass_context
 def build(context, in_stream, force):
   """Construct a new skeleton SQL interval store.

@@ -9,7 +9,9 @@ Chanjo.
 from __future__ import absolute_import, division, unicode_literals
 from collections import namedtuple
 import random
+import sys
 
+import click
 from toolz import concat, curry
 
 from ._compat import text_type
@@ -243,3 +245,14 @@ def split(string, sep='\t'):
     ['change', 'of', 'pace']
   """
   return text_type.split(string, sep)
+
+
+def validate_stdin(context, param, value):
+  """Validate piped input contains some data."""
+  # check if input is a file or stdin
+  if value.name == '<stdin>':
+    # raise error if stdin is empty
+    if sys.stdin.isatty():
+      raise click.BadParameter('you need to pipe something to stdin')
+
+  return value
