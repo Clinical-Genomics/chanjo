@@ -84,6 +84,9 @@ If you prefer to use a MySQL database, the build pipeline would look something l
 	$ chanjo convert resources/ccds/CCDS.txt | \
 	> chanjo --db username:password@localhost/chanjo_test --dialect "mysql+pymysql" build
 
+.. note::
+  The `dialect syntax`_ is taken from SQLAlchemy and is defined as ``<dialect or database>+<Python connector>``.
+
 
 Annotating coverage
 ~~~~~~~~~~~~~~~~~~~~
@@ -122,5 +125,8 @@ One example of such a tool is `Chanjo-Report`_, a coverage report generator for 
    :align: center
    :target: _static/example-coverage-report.pdf
 
+
+
 .. _Cosmid: http://cosmid.co/
 .. _Chanjo-Report: https://github.com/robinandeer/Chanjo-Report
+.. _dialect syntax: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html

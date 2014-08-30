@@ -39,6 +39,8 @@ Read the Docs is hosting the [official documentation][docs].
 
 I can specifically recommend the fully [interactive demo](http://www.chanjo.co/en/latest/introduction.html#demo), complete with sample data to get you started right away.
 
+If you are looking to learn more about handling sequence coverage data in clinical sequencing, feel free to download and skim through my own [Master's thesis][thesis] and article references.
+
 ## Features
 
 ### What Chanjo does
@@ -53,6 +55,7 @@ Chanjo is not the right choice if you care about coverage for every base across 
 Robin Andeer
 
 Luca Beltrame ([lbeltrame](https://github.com/lbeltrame))
+John Kern ([kern3020][https://github.com/kern3020])
 
 ## License
 MIT. See the [LICENSE](LICENSE) file for more details.
@@ -64,6 +67,7 @@ Anyone can help make this project better - read [CONTRIBUTION](CONTRIBUTION.md) 
 [unix]: http://en.wikipedia.org/wiki/Unix_philosophy
 [docs]: http://www.chanjo.co/en/latest/
 [bedtools]: http://bedtools.readthedocs.org/en/latest/
+[thesis]: https://s3.amazonaws.com/tudo/chanjo/RobinAndeerMastersThesisFinal_2013.pdf
 
 [coveralls-url]: https://coveralls.io/r/robinandeer/chanjo
 [coveralls-image]: https://img.shields.io/coveralls/robinandeer/chanjo.svg

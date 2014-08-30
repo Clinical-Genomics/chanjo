@@ -1,6 +1,8 @@
 ====
 FAQ
 ====
+
+
 Why doesn’t Chanjo work on my remote server?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Chanjo complains when trying to import annotations to my SQLite database.
@@ -31,4 +33,31 @@ Therefore, solving the issue might be as simple as:
 
 .. code-block:: console
 
-	$ sort -k1,1 -k2,2n CCDS.txt | chanjo convert | chanjo build CCDS.sqlite
+  $ sort -k1,1 -k2,2n CCDS.txt | chanjo convert | chanjo build CCDS.sqlite
+
+
+I can't overwrite exising files using Chanjo!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+As of the 2.0 release, Chanjo now completely relies on UNIX style output redirection for writing to files. You might, *wisely*, be using ``set -o noclobber`` in your .bashrc. This raises an error in UNIX if you try to overwrite existing files by output redirection.
+
+The way to force overwrite is by using a `special syntax`_:
+
+.. code-block:: console
+
+  $ echo two >| afile
+  $ cat afile
+  two
+
+
+How does Chanjo handle genes in `pseudoautosomal regions`_ (X+Y)?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A few genes are present on both sex chromosomes (X+Y). Becuase the chromosomes are treated as separate entities, Chanjo also treat these genes as separate entities. To keep them separated in the SQL database, the default "ccds" converter adapter will prefix their names by "X-" and "Y-" respectively.
+
+.. note::
+  It's imporant that all `converter adapters`_ find some consistent way of handling elements in these tricky regions.
+
+
+
+.. _pseudoautosomal regions: http://en.wikipedia.org/wiki/Pseudoautosomal_region
+.. _converter adapters: developer.html#converter-adapters
+.. _special syntax: http://askubuntu.com/questions/236478/how-do-i-make-bash-warn-me-when-overwriting-an-existing-file
