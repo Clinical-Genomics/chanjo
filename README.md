@@ -8,7 +8,6 @@
 
 # Chanjo [![PyPI version][fury-image]][fury-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
-# Chanjo
 Chanjo is coverage analysis for clinical sequencing. It's implemented in Python with a command line interface that adheres to [UNIX pipeline philisophy][unix].
 
 ## Installation
