@@ -32,7 +32,7 @@ def init_db(chanjo_db, bed_stream, overwrite=False):
   if chanjo_db.dialect == 'mysql' or path(chanjo_db.uri).exists():
     if overwrite:
       # wipe the database clean with a warning
-      chanjo_db.tare_down()
+      chanjo_db.tear_down()
     elif chanjo_db.dialect == 'sqlite':
       # prevent from wiping existing database to easily
       raise OSError(errno.EEXIST, chanjo_db.uri)

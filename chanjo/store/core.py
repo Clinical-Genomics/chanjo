@@ -109,7 +109,15 @@ class Store(object):
     return self
 
   def tare_down(self):
-    """Tare down a database (tables and columns).
+    """Misspelled method. See/Use ``tear_down``.
+
+    .. deprecated:: 2.0.2
+      Use :py:meth:`chanjo.Store.tear_down` instead.
+    """
+    return self.tear_down()
+
+  def tear_down(self):
+    """Tear down a database (tables and columns).
 
     Returns:
       Store: self
