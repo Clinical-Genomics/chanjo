@@ -41,7 +41,7 @@ __title__ = 'chanjo'
 __summary__ = 'coverage analysis tool for clinical sequencing'
 __uri__ = 'http://www.chanjo.co/'
 
-__version__ = '2.0.1'
+__version__ = '2.0.2'
 __codename__ = 'Wistful Weasel'
 
 __author__ = 'Robin Andeer'
