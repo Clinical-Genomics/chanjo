@@ -23,14 +23,14 @@ def assign_relative_positions(abs_start, abs_end, overall_start):
   Bases the relative positions from an overall starting position.
 
   Args:
-    abs_start (int): global start of the interval
-    abs_end (int): global end of the interval
+    abs_start (int): global start of the interval, 1-based
+    abs_end (int): global end of the interval, 1-based
     overall_start (int): absolute start of overall group of intervals
 
   Returns:
     tuple of int: relative start and end positions
   """
-  assert abs_start < abs_end, 'Interval must be positive'
+  assert abs_start <= abs_end, 'Interval must be positive'
   assert overall_start <= abs_start, "Interval must overlap 'overall'"
 
   rel_start = abs_start - overall_start
