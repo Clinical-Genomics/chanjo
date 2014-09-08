@@ -10,8 +10,19 @@
 
 This document contains all major version changes between Chanjo releases.
 
-2.1.0 (Active Development)
+2.2.2 (Active Development)
 ---------------------------
+
+2.1.1 (Current stable)
+-----------------------
+
+**Bugfixes**
+
+- Fix interval assertion that didn't allow intervals to start and end on the same chromosomal position.
+
+
+2.1.0
+------
 
 **Features**
 
@@ -28,8 +39,8 @@ This document contains all major version changes between Chanjo releases.
 - Much improved documentation of changes between releases
 
 
-2.0.2 (Current stable)
------------------------
+2.0.2
+------
 
 **Bugfixes**
 
