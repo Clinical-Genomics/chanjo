@@ -28,6 +28,9 @@ class Store(object):
   Bundles functionality required to setup and interact with various
   related genomic interval elements.
 
+  .. versionchanged:: 2.1.0
+    Lazy-loadable, all "init" arguments optional.
+
   Examples:
     >>> chanjo_db = Store('data/elements.sqlite')
     >>> chanjo_db.set_up()
@@ -38,7 +41,7 @@ class Store(object):
     set up in-memory (temporary) database.
 
   Args:
-    uri (str): path/URI to the database to connect to
+    uri (str, optional): path/URI to the database to connect to
     dialect (str, optional): connector + type of database:
       'sqlite'/'mysql'
     debug (bool, optional): whether to output logging information
@@ -51,10 +54,35 @@ class Store(object):
     classes (dict): bound ORM classes
   """
 
-  def __init__(self, uri, dialect='sqlite', debug=False):
+  def __init__(self, uri=None, dialect='sqlite', debug=False):
     super(Store, self).__init__()
     self.uri = uri
+    if uri:
+      self.connect(uri, dialect=dialect, debug=debug)
 
+    # ORM class shortcuts to enable fetching models dynamically
+    self.classes = {
+      'superblock': Superblock,
+      'block': Block,
+      'interval': Interval,
+      'interval_block': Interval_Block,
+      'superblock_data': SuperblockData,
+      'block_data': BlockData,
+      'interval_data': IntervalData,
+      'sample': Sample
+    }
+
+  def connect(self, uri, dialect='sqlite', debug=False):
+    """Configure connection to a SQL database.
+
+    .. versionadded:: 2.1.0
+
+    Args:
+      uri (str): path/URI to the database to connect to
+      dialect (str, optional): connector + type of database:
+        'sqlite'/'mysql'
+      debug (bool, optional): whether to output logging information
+    """
     # connect to the SQL database
     if dialect == 'sqlite':
       self.engine = create_engine("sqlite:///%s" % uri, echo=debug)
@@ -74,17 +102,7 @@ class Store(object):
     # shortcut to query method
     self.query = self.session.query
 
-    # ORM class shortcuts to enable fetching models dynamically
-    self.classes = {
-      'superblock': Superblock,
-      'block': Block,
-      'interval': Interval,
-      'interval_block': Interval_Block,
-      'superblock_data': SuperblockData,
-      'block_data': BlockData,
-      'interval_data': IntervalData,
-      'sample': Sample
-    }
+    return self
 
   @property
   def dialect(self):

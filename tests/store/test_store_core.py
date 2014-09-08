@@ -9,3 +9,17 @@ class TestStore(object):
 
   def test_init(self):
     pass
+
+
+def test_lazy_load():
+  """Test connection after post-init."""
+  store = Store()
+
+  # now we shouldn't have access to aliases
+  assert hasattr(store, 'query') == False
+
+  store.connect(':memory:')
+
+  # ... but now we do!
+  assert hasattr(store, 'query')
+  assert store.dialect == 'sqlite'
