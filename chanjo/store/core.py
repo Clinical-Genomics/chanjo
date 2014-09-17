@@ -108,7 +108,7 @@ class Store(object):
 
     # start a session
     self.session = scoped_session(
-      sessionmaker(autoflush=True, bind=self.engine))
+      sessionmaker(bind=self.engine))
 
     # shortcut to query method
     self.query = self.session.query
@@ -159,10 +159,14 @@ class Store(object):
   def save(self):
     """Manually persist changes made to various elements. Chainable.
 
+    .. versionchanged:: 2.1.2
+      Flush session before commit.
+
     Returns:
       Store: ``self`` for chainability
     """
     # commit/persist dirty changes to the database
+    self.session.flush()
     self.session.commit()
 
     return self
