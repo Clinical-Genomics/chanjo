@@ -6,7 +6,7 @@ chanjo.store.core
 from __future__ import absolute_import, division, unicode_literals
 
 from sqlalchemy import create_engine, func
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 from .models import (
   Base,
@@ -83,21 +83,32 @@ class Store(object):
         'sqlite'/'mysql'
       debug (bool, optional): whether to output logging information
     """
+    kwargs = {'echo': debug, 'convert_unicode': True}
+
     # connect to the SQL database
     if dialect == 'sqlite':
-      self.engine = create_engine("sqlite:///%s" % uri, echo=debug)
+      # conform to the slightly awkward sqlite adapter syntax (///)
+      auth_path = "sqlite:///%s" % uri
 
-    else:
+    elif 'mysql' in dialect:
       # build URI for MySQL containing:
       # <connector>+<sql_type>://<username>:<password>@<server>/<database>
       auth_path = "%(type)s://%(uri)s" % dict(type=dialect, uri=uri)
-      self.engine = create_engine(auth_path, pool_recycle=3600, echo=debug)
+
+      kwargs['pool_recycle'] = 3600
+
+    else:
+      raise NotImplementedError(
+        'Only "sqlite" and "mysql" are supported database dialects.')
+
+    self.engine = create_engine(auth_path, **kwargs)
 
     # make sure the same engine is propagated to the Base classes
     Base.metadata.bind = self.engine
 
     # start a session
-    self.session = sessionmaker(bind=self.engine)()
+    self.session = scoped_session(
+      sessionmaker(bind=self.engine))
 
     # shortcut to query method
     self.query = self.session.query
@@ -148,10 +159,14 @@ class Store(object):
   def save(self):
     """Manually persist changes made to various elements. Chainable.
 
+    .. versionchanged:: 2.1.2
+      Flush session before commit.
+
     Returns:
       Store: ``self`` for chainability
     """
     # commit/persist dirty changes to the database
+    self.session.flush()
     self.session.commit()
 
     return self

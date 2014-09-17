@@ -8,7 +8,7 @@ from toolz.curried import map
 
 from .._compat import text_type
 from ..utils import split
-from .consumers import build_interval_data
+from .stages import build_interval_data
 from .utils import convert_old_interval_id
 
 
@@ -28,6 +28,7 @@ def import_bed(chanjo_db, bed_stream):
 
   # add a new Sample record using the metadata (don't commit yet)
   chanjo_db.add(chanjo_db.create('sample', **metadata))
+  chanjo_db.save()
 
   # suppress Decimal/float conversion warnings
   # ref: http://stackoverflow.com/questions/5225780
@@ -37,14 +38,20 @@ def import_bed(chanjo_db, bed_stream):
     sequence = pipe(
       bed_stream,
       map(text_type.rstrip),
-      map(split(sep='\t'))
+      map(split(sep='\t')),
+      map(build_interval_data(chanjo_db, sample_id, group_id))
     )
 
     # step 3: consume the interval data from the sequence
-    for interval_data in sequence:
-      build_interval_data(chanjo_db, sample_id, group_id, interval_data)
+    for index, interval_data in enumerate(sequence):
+      # add the objects to the session
+      chanjo_db.add(interval_data)
 
-    # step 4: commit updates after loading all intervals
+      if index % 10000 == 0:
+        # commit every 10,000th entry
+        chanjo_db.save()
+
+    # step 4: commit the last interval data
     chanjo_db.save()
 
     # step 5: extend annotations to blocks and superblocks
