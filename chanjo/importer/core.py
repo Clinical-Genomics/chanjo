@@ -122,14 +122,21 @@ def import_json(chanjo_db, json_stream):
   chanjo_db.add(sample)
 
   # for each of the annotations (intervals)
-  chanjo_db.add([chanjo_db.create(
-    'interval_data',
-    parent_id=convert_old_interval_id(annotation[2]),
-    coverage=annotation[0],
-    completeness=annotation[1],
-    group_id=group_id,
-    sample_id=sample_id
-  ) for annotation in annotations])
+  for index, annotation in enumerate(annotations):
+
+    # create and add new interval data object
+    chanjo_db.add(chanjo_db.create(
+      'interval_data',
+      parent_id=convert_old_interval_id(annotation[2]),
+      coverage=annotation[0],
+      completeness=annotation[1],
+      group_id=group_id,
+      sample_id=sample_id
+    ))
+
+    if index % 10000 == 0:
+      # commit every 10,000th entry
+      chanjo_db.save()
 
   # commit intervals before proceeding
   # we do this in part to leverage subsequent SQL queries
