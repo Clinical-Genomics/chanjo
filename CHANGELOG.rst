@@ -13,6 +13,11 @@ This document contains all major version changes between Chanjo releases.
 2.2.2 (Active Development)
 ---------------------------
 
+**Bugfixes**
+
+- Fix bug in import where the program didn't flush the session before committing.
+
+
 2.1.1 (Current stable)
 -----------------------
 
