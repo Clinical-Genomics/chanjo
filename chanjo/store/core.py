@@ -32,7 +32,7 @@ class Store(object):
     Lazy-loadable, all "init" arguments optional.
 
   Examples:
-    >>> chanjo_db = Store('data/elements.sqlite')
+    >>> chanjo_db = Store('data/elements.sqlite3')
     >>> chanjo_db.set_up()
 
   .. note::

@@ -38,7 +38,7 @@ def cli(context, config, db, dialect):
   context.obj = Config(config, markup=markup)
 
   # global defaults
-  db_path = db or context.obj.get('db', 'coverage.sqlite')
+  db_path = db or context.obj.get('db', 'coverage.sqlite3')
   db_dialect = dialect or context.obj.get('dialect', 'sqlite')
 
   context.db = Store(db_path, dialect=db_dialect)

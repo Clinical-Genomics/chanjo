@@ -26,7 +26,7 @@ def export_intervals(chanjo_db, include_header=True, bed_score=0):
   Examples:
     >>> from chanjo import export_intervals, Store
     ... # instantiate a new connection to a Chanjo database
-    >>> db = Store('./coverage.sqlite')
+    >>> db = Store('./coverage.sqlite3')
     >>> with open('intervals.sorted.bed', 'w') as stream:
     ...   # write intervals in BED-format with appropriate headers
     ...   for bed_line in export_intervals(db):

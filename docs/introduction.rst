@@ -16,7 +16,7 @@ As indicated by the picture, Chanjo is built around streams of data that can be 
 
 .. code-block:: console
 
-	$ cat CCDS.txt | chanjo convert | chanjo build coverage.sqlite
+	$ cat CCDS.txt | chanjo convert | chanjo build coverage.sqlite3
 
 
 Demo
@@ -49,7 +49,7 @@ Your first task will be to create a config file (``chanjo.toml``). It can be use
 .. note::
 	Chanjo uses project-level config files by default. This means that it will look for a possible ``chanjo.toml`` file in the **current directory** where you execute your commands. You can also point to a diffrent config file using the ``chanjo -c /path/to/chanjo.toml`` option.
 
-If you accepted all defaults, Chanjo will be set up so that it knows e.g. that you want to store your SQL database in the current direcory with the name "coverage.sqlite".
+If you accepted all defaults, Chanjo will be set up so that it knows e.g. that you want to store your SQL database in the current direcory with the name "coverage.sqlite3".
 
 
 Defining interesting regions
@@ -71,7 +71,7 @@ For whole exome sequencing, this could be your targeted regions. Or for clinical
 
 Initializing a SQL database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-With the Chanjo formatted BED-file we are ready to build our SQL database that will hold the coverage data for long-term storage.
+With the Chanjo formatted BED-file we are ready to build our SQL database that will hold the coverage data for long-term storage. By default Chanjo will setup a SQLite 3 database. Make sure you are using version 3 and not version 2 of SQLite.
 
 .. code-block:: console
 

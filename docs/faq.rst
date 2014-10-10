@@ -33,7 +33,7 @@ Therefore, solving the issue might be as simple as:
 
 .. code-block:: console
 
-  $ sort -k1,1 -k2,2n CCDS.txt | chanjo convert | chanjo build CCDS.sqlite
+  $ sort -k1,1 -k2,2n CCDS.txt | chanjo convert | chanjo build CCDS.sqlite3
 
 
 I can't overwrite exising files using Chanjo!
