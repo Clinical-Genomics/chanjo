@@ -270,5 +270,6 @@ def validate_bed_format(row):
   Returns:
     None
   """
-  assert len(row) > 3, 'Bed Files must have at least 3 tab separated fields.'
-  return None
+  assert len(row) >= 3, 'Bed Files must have at least 3 tab separated fields.'
+
+  return True

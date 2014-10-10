@@ -12,8 +12,10 @@ from chanjo.utils import (
   completeness,
   id_generator,
   BaseInterval,
-  serialize_interval
+  serialize_interval,
+  validate_bed_format
 )
+
 
 def test_RawInterval():
   """Test generating a base :class:`_RawInterval`."""
@@ -110,3 +112,17 @@ def test_id_generator():
 
   # test edge case with 0 lenght
   assert id_generator(0) == ''
+
+
+  def test_validate_bed_format():
+    """Test validating BED format"""
+    # test proper formatting
+    assert validate_bed_format('1\t23\t45\tinterval1'.split('\t')) == True
+
+    # test bad formatting
+    with pytest.raises(AssertionError):
+      assert validate_bed_format('1 23 45 interval1'.split('\t'))
+
+    # test missing fields
+    with pytest.raises(AssertionError):
+      validate_bed_format('1\t23'.split('\t'))
