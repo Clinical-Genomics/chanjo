@@ -6,23 +6,33 @@ python:
   - "3.4"
 
 install:
+  - sudo apt-get update
+
   # install conda (if you have C-extension dependencies)
-  - sudo pip install conda
-  - sudo conda init
-  - sudo conda config --set always_yes yes --set changeps1 no
-  - sudo conda update conda
+
+  # update periodically - saves downloading if version is the same
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget http://repo.continuum.io/miniconda/Miniconda-3.7.0-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget http://repo.continuum.io/miniconda/Miniconda3-3.7.0-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # useful for debugging any issues with conda
+  - conda info -a
 
   # create a new conda env
-  - conda create -q -p $HOME/py --file requirements/conda.txt "python=$TRAVIS_PYTHON_VERSION" sphinx pytest flake8 coverage
-  - export PATH=$HOME/py/bin:$PATH
+  - conda create -q -n test-environment --file requirements/conda.txt python=$TRAVIS_PYTHON_VERSION sphinx pytest flake8 coverage
+  - source activate test-environment
 
   # install (the rest of the) dependencies
   - pip install -r requirements/development.txt
 
   # install your own package + executables
-  - pip install --editable .
-
-  - conda info -a
+  - python setup.py install
 
 script:
   # command to run tests and collect test coverage

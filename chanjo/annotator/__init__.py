@@ -22,3 +22,4 @@ from .stages import (
   prefix,
   process_interval_group
 )
+from .utils import get_sample_id
