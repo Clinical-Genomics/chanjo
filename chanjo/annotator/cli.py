@@ -4,10 +4,12 @@ import json
 
 import click
 from path import path
+from pysam import Samfile
 from toolz import pipe
 from toolz.curried import map
 
 from .core import annotate_bed_stream
+from .utils import get_sample_id
 from ..utils import id_generator, serialize_interval, validate_stdin
 
 
@@ -35,8 +37,10 @@ def annotate(context, bam_path, in_stream, sample, group, cutoff,
   BAM_PATH: Path to BAM-file
   IN_STREAM: Chanjo-style BED-file with interval definitions
   """
-  # user defined sample id or randomly generated
-  sample = (sample or id_generator())
+  # connect to the BAM file
+  with Samfile(bam_path) as bam:
+    # user defined sample id or randomly generated
+    sample = (sample or get_sample_id(bam.header) or id_generator())
 
   # step 1: metadata header
   metadata = dict(
