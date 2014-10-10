@@ -12,8 +12,10 @@ import json
 
 from click.termui import echo, style
 from path import path
+from toolz import reduce
 
 from .questions import questionnaire
+from .utils import rget
 
 
 class Config(dict):
@@ -81,14 +83,21 @@ class Config(dict):
 
     return section, key_parts[0]
 
-  def dotget(self, dot_key, default=None, scope=None):
-    # if scope is None:
-    #   scope = self
+  def get(self, dot_key, default=None, scope=None):
+    """Get nested value using a dot separated key.
 
-    # section, key = self._resolve_key(dot_key, base=scope)
+    Args:
+      dot_key (str): key on the format "section.subsection.key"
+      default (object, optional): default unless key exists
+      scope (dict, optional): nested dict to decend into
 
-    # return section.get('key', default)
-    raise NotImplementedError
+    Returns:
+      object: value for the key or the default object
+    """
+    if scope is None:
+      scope = self
+
+    return reduce(rget(default=default), dot_key.split('.'), scope)
 
   def set(self, dot_key, value, scope=None):
     """Update a config key-value pair."""

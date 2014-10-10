@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
-
 from functools import partial
 import re
+
+from toolz import curry, get
 
 # regular expression to delete ANSI escape sequences (UNIX color codes)
 # ref: http://stackoverflow.com/questions/14693701
@@ -23,3 +24,19 @@ Args:
 Returns:
   str: input string *guaranteed* without ANSI escape characters
 """
+
+
+@curry
+def rget(sequence, key, default=None):
+  """Get element in a sequence or dict.
+
+  Like toolz.get but with parameters in reverse order.
+
+  Args:
+    sequence (sequence or dict): sequence or dict
+    key (str or int): key to access in sequence
+
+  Returns:
+    object: value behind the key
+  """
+  return get(key, sequence, default=default)

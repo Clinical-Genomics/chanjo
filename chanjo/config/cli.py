@@ -20,7 +20,7 @@ def config(context, key, value, remove):
 
   else:
     if value is None:
-      raise ValueError("Unless remove a setting, you must submit a 'value'")
+      click.echo(context.obj.get(key))
 
     if value.isnumeric():
       value = int(value)
