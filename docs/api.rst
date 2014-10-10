@@ -7,6 +7,15 @@ to stay consistent across all 2.x releases.
 
 If you plan to make use of the Public API it would be a good idea to also check out the `Developer's Guide`_ that coveres some additional implementation details.
 
+Chanjo exclusively uses unicode strings throughout the interface. It therefore important to always specify 'utf-8' encoding when e.g. reading files from the OS. In Python 2:
+
+.. code-block:: python
+
+  >>> from codecs import open
+  >>> handle = open('./LICENSE', encoding='utf-8')
+  >>> next(handle)
+  u'The MIT License (MIT)\n'
+
 
 Submodule pipeline functions
 ------------------------------
