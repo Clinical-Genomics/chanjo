@@ -256,3 +256,20 @@ def validate_stdin(context, param, value):
       raise click.BadParameter('you need to pipe something to stdin')
 
   return value
+
+
+def validate_bed_format(row):
+  """Error check correct BED file formatting.
+
+  Does a quick assert that row was successfully split into multiple
+  fields (on tab-character).
+
+  Args:
+    row (list): list of BED fields
+
+  Returns:
+    None
+  """
+  assert len(row) >= 3, 'Bed Files must have at least 3 tab separated fields.'
+
+  return True

@@ -8,7 +8,7 @@ Central pipeline for the Chanjo annotator module.
 from __future__ import absolute_import, unicode_literals
 
 from toolz import concat, pipe
-from toolz.curried import complement, filter, map
+from toolz.curried import complement, filter, map, do
 
 from .._compat import text_type
 from ..depth_reader import BamFile
@@ -20,7 +20,7 @@ from .stages import (
   prefix,
   process_interval_group
 )
-from ..utils import bed_to_interval, split
+from ..utils import bed_to_interval, split, validate_bed_format
 
 
 def annotate_bed_stream(bed_stream, bam_path, cutoff=10, extension=0,
@@ -56,6 +56,7 @@ def annotate_bed_stream(bed_stream, bam_path, cutoff=10, extension=0,
     map(text_type.rstrip),                       # strip invisble chars.
     map(prefix(contig_prefix)),                  # prefix to contig
     map(split(sep='\t')),                        # split lines
+    map(do(validate_bed_format)),                # check correct format
     map(lambda row: bed_to_interval(*row)),      # convert to objects
     map(extend_interval(extension=extension)),   # extend intervals
     group_intervals(bp_threshold=bp_threshold),  # group by threshold
