@@ -20,9 +20,14 @@ def build(context, in_stream, force):
   \b
   IN_STREAM: Chanjo-style BED-file with interval definitions
   """
-  # build a new skeleton SQL interval store
-  init_db(
-    chanjo_db=context.parent.db,
-    bed_stream=in_stream,
-    overwrite=force
-  )
+  try:
+    # build a new skeleton SQL interval store
+    init_db(
+      chanjo_db=context.parent.db,
+      bed_stream=in_stream,
+      overwrite=force
+    )
+
+  except OSError as error:
+    click.echo("[chanjo] %s already exists - use '--force' to overwrite."
+               % error.filename)

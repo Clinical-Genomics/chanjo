@@ -7,6 +7,7 @@ Central pipeline for the Chanjo builder module.
 """
 from __future__ import absolute_import
 import errno
+import os
 
 from path import path
 from toolz import pipe, reduce, concat
@@ -35,7 +36,7 @@ def init_db(chanjo_db, bed_stream, overwrite=False):
       chanjo_db.tear_down()
     elif chanjo_db.dialect == 'sqlite':
       # prevent from wiping existing database to easily
-      raise OSError(errno.EEXIST, chanjo_db.uri)
+      raise OSError(errno.EEXIST, os.strerror(errno.EEXIST), chanjo_db.uri)
 
   # set up new tables
   chanjo_db.set_up()
