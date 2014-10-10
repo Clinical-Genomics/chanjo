@@ -58,7 +58,7 @@ def annotate(context, bam_path, in_stream, sample, group, cutoff,
       contig_prefix=prefix,
       bp_threshold=threshold
     ),
-    map(serialize_interval)    # stringify/bedify
+    map(serialize_interval(bed=True))    # stringify/bedify
   )
 
   # reduce/write the BED lines

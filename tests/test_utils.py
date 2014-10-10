@@ -88,6 +88,10 @@ def test_serialize_interval():
   interval = BaseInterval('chr1', 10, 20)
   assert serialize_interval(interval) == 'chr1\t10\t20'
 
+  # test convertion to BED format
+  interval = BaseInterval('chr1', 123, 123, 'int1')
+  assert serialize_interval(interval, bed=True) == 'chr1\t122\t123\tint1'
+
   # with block ids, should maintain empty intermediate fields!
   interval = BaseInterval('chr22', 101, 200, block_ids=['block11', 'block12'])
   serialized_interval = 'chr22\t101\t200\t\t\t\tblock11,block12'
