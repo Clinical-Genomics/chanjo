@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from codecs import open
+import io
 import json
 import toml
 
@@ -42,14 +42,14 @@ class TestConfig:
 
   def test_load(self):
     # Test loading non-conflicting data
-    with open('tests/fixtures/something.json', encoding='utf-8') as handle:
+    with io.open('tests/fixtures/something.json', encoding='utf-8') as handle:
       self.config.load(handle)
 
     assert self.config['person']['name'] == 'P.T. Anderson'
     assert self.config['title'] == 'Magnolia'
 
     # Test loading conflicting data
-    with open('tests/fixtures/conflict.json', encoding='utf-8') as handle:
+    with io.open('tests/fixtures/conflict.json', encoding='utf-8') as handle:
       self.config.load(handle)
 
     assert self.config['name'] == 'Alfonso Cuarón'
@@ -57,13 +57,15 @@ class TestConfig:
     # Test loading with a non-supported markup engine
     self.config.markup = dict()
     with pytest.raises(NotImplementedError):
-      with open('tests/fixtures/something.json', encoding='utf-8') as handle:
+      with io.open('tests/fixtures/something.json',
+                   encoding='utf-8') as handle:
         self.config.load(handle)
 
     # Test loading config with bad syntax
     self.config.markup = json
     with pytest.raises(ValueError):
-      with open('tests/fixtures/bad-syntax.json', encoding='utf-8') as handle:
+      with io.open('tests/fixtures/bad-syntax.json',
+                   encoding='utf-8') as handle:
         self.config.load(handle)
 
   def test_resolve_key(self):
