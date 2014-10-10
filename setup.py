@@ -10,6 +10,12 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 import sys
 
+# if you are not using vagrant, just delete os.link directly,
+# the hard link only saves a little disk space, so you should not care
+# http://stackoverflow.com/a/22147112/2310187
+if os.environ.get('USER','') == 'vagrant':
+  del os.link
+
 # Shortcut for building/publishing to Pypi
 if sys.argv[-1] == 'publish':
   os.system('python setup.py sdist bdist_wheel upload')
