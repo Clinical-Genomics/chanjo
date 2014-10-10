@@ -23,7 +23,7 @@ Usage:
   >>> with open('intervals.sorted.bed', 'r') as stream:
   ...   # use the BED stream to build a new SQLite database
   ...   # overwrite any potentially existing database
-  ...   builder.init_db(stream, './coverage.sqlite', overwrite=True)
+  ...   builder.init_db(stream, './coverage.sqlite3', overwrite=True)
 
 """
 from __future__ import absolute_import

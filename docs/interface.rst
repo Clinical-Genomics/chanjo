@@ -71,7 +71,7 @@ Chanjo takes advantage of the power behind SQL databases by providing a way to s
 
 .. code-block:: console
 
-	$ chanjo build CCDS.coverage.sqlite CCDS.intervals.bed
+	$ chanjo build CCDS.coverage.sqlite3 CCDS.intervals.bed
 
 As shown below, it's very important to sort the BED-formatted input file before running ``chanjo build``. The input stream should be sorted on:
 
@@ -91,7 +91,7 @@ This is a convenience command to export a BED stream of all intervals as defined
 
 .. code-block:: console
 
-	$ chanjo export CCDS.coverage.sqlite > CCDS.intervals.min.bed
+	$ chanjo export CCDS.coverage.sqlite3 > CCDS.intervals.min.bed
 
 Exporting intervals from a database can be handy since you only need to store the definitions in *one* place (the database). Otherwise it can be easy to forget which original BED-file was initially used.
 
@@ -140,7 +140,7 @@ Simply speaking, "import" will take the output from ``chanjo annotate`` and impo
 .. code-block:: console
 
 	$ chanjo annotate alignment.bam CCDS.intervals.min.bed [...] \
-	> | chanjo import CCDS.coverage.sqlite
+	> | chanjo import CCDS.coverage.sqlite3
 
 **Runtime**: ~1 min (<800 Mb)
 
