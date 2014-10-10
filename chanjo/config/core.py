@@ -7,7 +7,7 @@ Works out of the box with any module that exposes the proper 'load' and
 'dump' methods will work. Fox example 'toml' and 'yaml'.
 """
 from __future__ import absolute_import, unicode_literals
-from codecs import open
+import io
 import json
 
 from click.termui import echo, style
@@ -54,7 +54,7 @@ class Config(dict):
 
       if self.config_path.isfile():
         # Read data from possible config
-        with open(self.config_path, encoding='utf-8') as read_handle:
+        with io.open(self.config_path, encoding='utf-8') as read_handle:
           self.load(read_handle)
 
   def _resolve_key(self, dot_key, base=None):

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from codecs import open
+import io
 
 from chanjo.builder import init_db
 from chanjo.store import Store
@@ -11,7 +11,7 @@ def test_builder_pipeline():
   chanjo_db.set_up()
 
   # test with minimal BED "file"
-  bed_stream = open('tests/fixtures/CCDS.mini.bed', 'r', encoding='utf-8')
+  bed_stream = io.open('tests/fixtures/CCDS.mini.bed', 'r', encoding='utf-8')
   init_db(chanjo_db, bed_stream)
 
   block = chanjo_db.get('block', 'CCDS2.2')

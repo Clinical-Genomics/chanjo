@@ -3,7 +3,7 @@
 """Based on https://github.com/pypa/sampleproject/blob/master/setup.py."""
 from __future__ import unicode_literals
 # To use a consistent encoding
-from codecs import open
+import io
 import os
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
@@ -42,7 +42,7 @@ class PyTest(TestCommand):
 
 # Get the long description from the relevant file
 here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
+with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
   long_description = f.read()
 
 
