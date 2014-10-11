@@ -11,8 +11,8 @@ Chanjo exclusively uses unicode strings throughout the interface. It therefore i
 
 .. code-block:: python
 
-  >>> from codecs import open
-  >>> handle = open('./LICENSE', encoding='utf-8')
+  >>> import io
+  >>> handle = io.open('./LICENSE', encoding='utf-8')
   >>> next(handle)
   u'The MIT License (MIT)\n'
 

@@ -10,16 +10,50 @@
 
 This document contains all major version changes between Chanjo releases.
 
-2.2.2 (Active Development)
----------------------------
+2.3.0 (Active Development)
+--------------------------
+
+
+2.2.0 (Current stable)
+----------------------
+
+**Features**
+
+- Read sample ID from BAM header
+- Validate BED format in "annotate"
+- Enable getting config values from "chanjo.toml" (``chanjo config annotate.cutoff``)
 
 **Bugfixes**
 
-- Fix bug in import where the program didn't flush the session before committing.
+- Fix issue with hardlinks in Vagrant shared folders (setup.py)
+- Change Travis CI setup using official guidelines
+- Fix typography in docs
+- Use io.open instead of codecs.open
+- Use .sqlite3 extension for SQLite databases
+- Better error message when overwriting existing databases
 
 
-2.1.1 (Current stable)
------------------------
+2.1.3
+-----
+
+**Bugfixes**
+
+- Fix misstake in "import" subcommand so it's finally working!
+
+
+2.1.2
+-----
+
+**Bugfixes**
+
+- Fix bug in "import" where the program didn't flush the session before committing.
+- Change "build_interval_data" to only create model without adding to the session.
+- Use "scoped_session" with "sessionmaker".
+- Flush session before each commit call in chanjo.Store.save()
+
+
+2.1.1
+-----
 
 **Bugfixes**
 
@@ -27,7 +61,7 @@ This document contains all major version changes between Chanjo releases.
 
 
 2.1.0
-------
+-----
 
 **Features**
 
