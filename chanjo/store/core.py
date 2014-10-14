@@ -333,7 +333,8 @@ class Store(object):
       block_id,
       mean_block_coverage,
       mean_block_completeness
-    ).join(IntervalData, interval_id==Interval.id).join(IntervalData.parent)\
+    ).join(IntervalData, interval_id==IntervalData.parent_id)\
+     .join(IntervalData.parent)\
      .filter(IntervalData.sample_id==sample_id).group_by(block_id)
 
   def superblock_stats(self, sample_id):
