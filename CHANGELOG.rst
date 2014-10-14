@@ -14,8 +14,16 @@ This document contains all major version changes between Chanjo releases.
 --------------------------
 
 
-2.2.0 (Current stable)
+2.2.1 (Current stable)
 ----------------------
+
+**Bugfixes**
+
+- Fix incorrectly references ID field in join statement (block_stats)
+
+
+2.2.0
+-----
 
 **Features**
 
