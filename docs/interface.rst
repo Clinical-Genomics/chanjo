@@ -6,19 +6,33 @@ Table of Contents
 ------------------
 The page provides an extended look into each of the six subcommands that make up the command line interface of Chanjo. In accordance with UNIX philosophy, they each try to do only one thing really well.
 
-1. init_
-2. convert_
-3. build_
-4. export_
-5. annotate_
-6. import_
-7. `sex checker`_
+1. chanjo_
+2. init_
+3. convert_
+4. build_
+5. export_
+6. annotate_
+7. import_
+8. `sex checker`_
+
+
+.. _chanjo:
+
+chanjo
+------
+The base command which doesn't do anything on it's own. However, there are a few global options accessible at this level. For example, to log debug information (and anything more important) to a file called ``./chanjo.log`` use this command:
+
+.. code-block:: console
+
+  $ chanjo -vvv --log ./chanjo.log [SUBCOMMAND HERE]
+
+To learn more about the global Chanjo options, run ``chanjo --help``.
 
 
 .. _init:
 
 chanjo init
--------------
+-----------
 This command doesn't actually do any computations but rather walks you through the setup of a Chanjo config file. With this in place you won't have to worry about missing to specify default options on the command line. You could for example set which type of SQL database to use or which institute you belong to.
 
 The format of the config is ``.toml``.

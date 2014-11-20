@@ -13,6 +13,10 @@ This document contains all major version changes between Chanjo releases.
 2.3.0 (Active Development)
 --------------------------
 
+**Features**
+
+- New logging module accessible from the command line (-vvv)
+
 **Documentation**
 
 - Add SQL schema drawing to "Code walkthrough"
