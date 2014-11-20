@@ -8,13 +8,16 @@ Command line interface (console entry points). Based on Click_.
 .. _Click: http://click.pocoo.org/
 """
 from __future__ import absolute_import, unicode_literals
+
 from pkg_resources import iter_entry_points
+import sys
 
 import click
 
 from . import __version__
 from ._compat import text_type
 from .config import Config, config_file_name, markup
+from .log import logger, make_handler, LEVELS
 from .store import Store
 
 
@@ -29,10 +32,17 @@ from .store import Store
   '-d', '--dialect',
   type=click.Choice(['sqlite', 'mysql']),
   help='type of SQL database')
+@click.option('-v', '--verbose', count=True)
+@click.option(
+  '-l', '--log', type=click.File('a', encoding='utf-8'), default=sys.stderr)
 @click.version_option(__version__)
 @click.pass_context
-def cli(context, config, db, dialect):
+def cli(context, config, db, dialect, verbose, log):
   """Clinical sequencing coverage analysis tool."""
+  # setup logging
+  make_handler(log, level=LEVELS.get(min(verbose, 3)))
+  logger.info("version %s" % __version__)
+
   # avoid setting global defaults in Click options, do it below when
   # updating the config object
   context.obj = Config(config, markup=markup)
