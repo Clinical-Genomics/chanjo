@@ -13,6 +13,10 @@ This document contains all major version changes between Chanjo releases.
 2.3.0 (Active Development)
 --------------------------
 
+**Documentation**
+
+- Add SQL schema drawing to "Code walkthrough"
+
 
 2.2.1 (Current stable)
 ----------------------
