@@ -16,15 +16,16 @@ To install Miniconda, run:
 
 	$ wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
 	$ bash Miniconda-latest-Linux-x86_64.sh -b
-	$ export PATH="$HOME/miniconda3/bin:$PATH"  # remember to add this to your path!
+	$ export PATH="$HOME/miniconda/bin:$PATH"  # remember to add this to your path!
 
 Now with Miniconda installed we setup a new conda environment.
 
 .. code-block:: console
 
-	$ conda create -n chanjo3 python=3 cython numpy sqlalchemy
+	$ conda create -n chanjo3 python=3 cython numpy sqlalchemy pip
 	$ source activate chanjo3
   $ conda install -c https://conda.binstar.org/robinandeer pysam
+
 
 And now we simply install Chanjo into the new environment without having to worry about tricky C dependencies.
 
