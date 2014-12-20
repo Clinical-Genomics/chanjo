@@ -68,10 +68,10 @@ Anyone can help make this project better - read [CONTRIBUTION](CONTRIBUTION.md) 
 [thesis]: https://s3.amazonaws.com/tudo/chanjo/RobinAndeerMastersThesisFinal_2013.pdf
 
 [coveralls-url]: https://coveralls.io/r/robinandeer/chanjo
-[coveralls-image]: https://img.shields.io/coveralls/robinandeer/chanjo.svg
+[coveralls-image]: https://img.shields.io/coveralls/robinandeer/chanjo.svg?style=flat
 
 [fury-url]: http://badge.fury.io/py/chanjo
 [fury-image]: https://badge.fury.io/py/chanjo.png
 
 [travis-url]: https://travis-ci.org/robinandeer/chanjo
-[travis-image]: https://travis-ci.org/robinandeer/chanjo.png?branch=master
+[travis-image]: https://img.shields.io/travis/robinandeer/chanjo.svg?style=flat
