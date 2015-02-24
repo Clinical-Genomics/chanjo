@@ -13,7 +13,7 @@ import sys
 # if you are not using vagrant, just delete os.link directly,
 # the hard link only saves a little disk space, so you should not care
 # http://stackoverflow.com/a/22147112/2310187
-if os.environ.get('USER','') == 'vagrant':
+if os.environ.get('USER', '') == 'vagrant':
   del os.link
 
 # Shortcut for building/publishing to Pypi

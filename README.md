@@ -33,6 +33,17 @@ Chanjo exposes a composable command line interface. You can always save intermed
 $ chanjo convert CCDS.sorted.txt | chanjo annotate alignment.bam > coverage.bed
 ```
 
+### Chanjo Report
+A shamelessly plug for a neat little Chanjo plugin; [Chanjo-Report][report]. It allows you to extract metrics from Chanjo databases and generate coverage reports as either HTML or PDF.
+
+After you install it using ``pip install chanjo-report`` you will notice a new subcommand under the Chanjo CLI.
+
+```bash
+$ chanjo report
+#sample_id	group_id	cutoff	avg. coverage	avg. completeness	diagnostic yield	gender
+vavaweho	group1	10	155.64825142540616	0.9829187630212934	0.8941083089800483	female
+```
+
 ## Documentation
 Read the Docs is hosting the [official documentation][docs].
 
@@ -66,6 +77,7 @@ Anyone can help make this project better - read [CONTRIBUTION](CONTRIBUTION.md) 
 [docs]: http://www.chanjo.co/en/latest/
 [bedtools]: http://bedtools.readthedocs.org/en/latest/
 [thesis]: https://s3.amazonaws.com/tudo/chanjo/RobinAndeerMastersThesisFinal_2013.pdf
+[report]: https://github.com/robinandeer/chanjo-report
 
 [coveralls-url]: https://coveralls.io/r/robinandeer/chanjo
 [coveralls-image]: https://img.shields.io/coveralls/robinandeer/chanjo.svg?style=flat
