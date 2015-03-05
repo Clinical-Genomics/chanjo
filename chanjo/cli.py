@@ -21,26 +21,22 @@ from .utils import EntryPointsCLI
 
 
 @click.group(cls=EntryPointsCLI)
-@click.option(
-  '-c', '--config',
-  default=config_file_name,
-  type=click.File('w', encoding='utf-8'),
-  help='path to config file')
+@click.option('-c', '--config', default=config_file_name,
+              type=click.File('w', encoding='utf-8'),
+              help='path to config file')
 @click.option('--db', type=text_type, help='path/URI of the SQL database')
-@click.option(
-  '-d', '--dialect',
-  type=click.Choice(['sqlite', 'mysql']),
-  help='type of SQL database')
+@click.option('-d', '--dialect', type=click.Choice(['sqlite', 'mysql']),
+              help='type of SQL database')
 @click.option('-v', '--verbose', count=True)
-@click.option(
-  '-l', '--log', type=click.File('a', encoding='utf-8'), default=sys.stderr)
+@click.option('-l', '--log', type=click.File('a', encoding='utf-8'),
+              default=sys.stderr)
 @click.version_option(__version__)
 @click.pass_context
 def cli(context, config, db, dialect, verbose, log):
   """Clinical sequencing coverage analysis tool."""
   # setup logging
   make_handler(log, level=LEVELS.get(min(verbose, 3)))
-  logger.info("version %s" % __version__)
+  logger.info("version %s", __version__)
 
   # avoid setting global defaults in Click options, do it below when
   # updating the config object

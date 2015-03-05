@@ -20,8 +20,7 @@ from ._compat import text_type
 
 _RawInterval = namedtuple('RawInterval', [
   'contig', 'start', 'end', 'name', 'score', 'strand',
-  'block_ids', 'superblock_ids', 'coverage', 'completeness'
-])
+  'block_ids', 'superblock_ids', 'coverage', 'completeness'])
 
 
 class BaseInterval(_RawInterval):
@@ -186,9 +185,9 @@ def serialize_interval(interval, delimiter='\t', subdelimiter=',', bed=False):
   else:
     base = interval[:6]
 
+  # concat and stringify base, related ids, and (possible) metrics
   return text_type.rstrip(
     delimiter.join(
-      # concat and stringify base, related ids, and (possible) metrics
       map(text_type, concat([base, [block_ids, superblock_ids], interval[8:]]))
     ),
     delimiter   # strip trailing delimiters
@@ -220,9 +219,8 @@ def id_generator(size=8):
   variables = 'aeiou'
   consonants = 'bdfghklmnprstvw'
 
-  return ''.join(
-    [random.choice(variables if i % 2 else consonants) for i in range(size)]
-  )
+  return ''.join([random.choice(variables if i % 2 else consonants)
+                  for i in range(size)])
 
 
 @curry

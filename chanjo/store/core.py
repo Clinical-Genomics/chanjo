@@ -61,16 +61,11 @@ class Store(object):
       self.connect(uri, dialect=dialect, debug=debug)
 
     # ORM class shortcuts to enable fetching models dynamically
-    self.classes = {
-      'superblock': Superblock,
-      'block': Block,
-      'interval': Interval,
-      'interval_block': Interval_Block,
-      'superblock_data': SuperblockData,
-      'block_data': BlockData,
-      'interval_data': IntervalData,
-      'sample': Sample
-    }
+    self.classes = {'superblock': Superblock, 'block': Block,
+                    'interval': Interval, 'interval_block': Interval_Block,
+                    'superblock_data': SuperblockData,
+                    'block_data': BlockData, 'interval_data': IntervalData,
+                    'sample': Sample}
 
   def connect(self, uri, dialect='sqlite', debug=False):
     """Configure connection to a SQL database.
@@ -98,8 +93,8 @@ class Store(object):
       kwargs['pool_recycle'] = 3600
 
     else:
-      raise NotImplementedError(
-        'Only "sqlite" and "mysql" are supported database dialects.')
+      raise NotImplementedError("Only 'sqlite' and 'mysql' are"
+                                "supported database dialects.")
 
     self.engine = create_engine(auth_path, **kwargs)
 
@@ -107,8 +102,7 @@ class Store(object):
     Base.metadata.bind = self.engine
 
     # start a session
-    self.session = scoped_session(
-      sessionmaker(bind=self.engine))
+    self.session = scoped_session(sessionmaker(bind=self.engine))
 
     # shortcut to query method
     self.query = self.session.query
@@ -329,13 +323,10 @@ class Store(object):
     interval_id = interval_block_columns[0]
     block_id = interval_block_columns[1]
 
-    return self.query(
-      block_id,
-      mean_block_coverage,
-      mean_block_completeness
-    ).join(IntervalData, interval_id==IntervalData.parent_id)\
-     .join(IntervalData.parent)\
-     .filter(IntervalData.sample_id==sample_id).group_by(block_id)
+    return (self.query(block_id, mean_block_coverage, mean_block_completeness)
+            .join(IntervalData, interval_id==IntervalData.parent_id)
+            .join(IntervalData.parent)
+            .filter(IntervalData.sample_id==sample_id).group_by(block_id))
 
   def superblock_stats(self, sample_id):
     """Calculate superblock level metrics to annotate genes.
@@ -358,10 +349,8 @@ class Store(object):
     Returns:
       list: list of tuples: ``(<gene_id>, <coverage>, <completeness>)``
     """
-    return self.query(
-      Block.superblock_id,
-      func.avg(BlockData.coverage),
-      func.avg(BlockData.completeness)
-    ).join(BlockData, Block.id==BlockData.parent_id)\
-     .filter(BlockData.sample_id == sample_id)\
-     .group_by(Block.superblock_id)
+    return (self.query(Block.superblock_id, func.avg(BlockData.coverage),
+                          func.avg(BlockData.completeness))
+            .join(BlockData, Block.id==BlockData.parent_id)
+            .filter(BlockData.sample_id == sample_id)
+            .group_by(Block.superblock_id))

@@ -7,17 +7,8 @@ from . import __title__
 logger = logging.getLogger(__title__)
 logger.setLevel(logging.DEBUG)
 
-# create formatter
-formatter = logging.Formatter(
-  "%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s"
-)
-
-LEVELS = {
-  0: logging.ERROR,
-  1: logging.WARN,
-  2: logging.INFO,
-  3: logging.DEBUG
-}
+LEVELS = {0: logging.ERROR, 1: logging.WARN, 2: logging.INFO,
+          3: logging.DEBUG}
 
 
 def make_handler(stream, level=logging.INFO):
@@ -35,6 +26,9 @@ def make_handler(stream, level=logging.INFO):
   handler.setLevel(level)
 
   # set formatter
+  # create formatter
+  formatter = logging.Formatter(
+    "%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s")
   handler.setFormatter(formatter)
 
   # add handler to logger
