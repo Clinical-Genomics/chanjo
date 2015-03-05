@@ -8,6 +8,7 @@ Chanjo.
 """
 from __future__ import absolute_import, division, unicode_literals
 from collections import namedtuple
+import pkg_resources
 import random
 import sys
 
@@ -273,3 +274,15 @@ def validate_bed_format(row):
   assert len(row) >= 3, 'Bed Files must have at least 3 tab separated fields.'
 
   return True
+
+
+class EntryPointsCLI(click.MultiCommand):
+  """Add subcommands dynamically to a CLI via entry points."""
+  def list_commands(self, ctx):
+    """List the available commands."""
+    return [entry_point.name for entry_point in
+            pkg_resources.iter_entry_points('chanjo.subcommands')]
+
+  def get_command(self, ctx, name):
+    """Load one of the available commands."""
+    return pkg_resources.load_entry_point('chanjo', 'chanjo.subcommands', name)

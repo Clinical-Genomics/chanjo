@@ -8,8 +8,6 @@ Command line interface (console entry points). Based on Click_.
 .. _Click: http://click.pocoo.org/
 """
 from __future__ import absolute_import, unicode_literals
-
-from pkg_resources import iter_entry_points
 import sys
 
 import click
@@ -19,9 +17,10 @@ from ._compat import text_type
 from .config import Config, config_file_name, markup
 from .log import logger, make_handler, LEVELS
 from .store import Store
+from .utils import EntryPointsCLI
 
 
-@click.group()
+@click.group(cls=EntryPointsCLI)
 @click.option(
   '-c', '--config',
   default=config_file_name,
@@ -55,8 +54,3 @@ def cli(context, config, db, dialect, verbose, log):
 
   # update the context with new defaults from the config file
   context.default_map = context.obj
-
-
-# add subcommands dynamically to the CLI
-for entry_point in iter_entry_points('chanjo.subcommands'):
-  cli.add_command(entry_point.load())
