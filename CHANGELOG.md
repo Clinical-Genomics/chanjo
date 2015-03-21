@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.3.2] - 2015-03-21
+### Fixed
+- Refactor ``EntryPointsCLI`` to allow for external subcommands
+
 ## [2.3.1] - 2015-03-05
 ### Changed
 - use custom "multi command class" to load dynamic entry point plugins
