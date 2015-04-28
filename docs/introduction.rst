@@ -16,7 +16,7 @@ As indicated by the picture, Chanjo is built around streams of data that can be 
 
 .. code-block:: console
 
-	$ cat CCDS.txt | chanjo convert | chanjo build coverage.sqlite3
+	$ cat CCDS.txt | chanjo convert | chanjo --db="coverage.sqlite3" build
 
 
 Demo
