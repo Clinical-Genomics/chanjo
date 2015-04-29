@@ -22,6 +22,43 @@ from .stages import (
 )
 from ..utils import bed_to_interval, split, validate_bed_format
 
+def apply_bed_stream(bed_stream, bam_path, fn, extension=0,
+                     contig_prefix='', bp_threshold=17000):
+  """Maps a function to all intervals of a BED stream
+  Args:
+    bed_stream (sequence): usually a BED-file handle to read from
+    bam_path (str): path to BAM-file
+    fn: function that takes a list of intervals and read depths
+      and computes a summary statistic over them. See
+      annotator.stages.calculate_metrics for an example.
+    cutoff (int, optional): threshold for completeness calculation,
+      defaults to 10
+    extension (int, optional): number of bases to extend each interval
+      with (+/-), defaults to 0
+    contig_prefix (str, optional): rename contigs by prefixing,
+      defaults to empty string
+    bp_threshold (int, optional): optimization threshold for reading
+      BAM-file in chunks, default to 17000
+  """
+  # setup: connect to BAM-file
+  bam = BamFile(bam_path)
+
+  # the pipeline
+  return pipe(
+    bed_stream,
+    filter(complement(comment_sniffer)),         # filter out comments
+    map(text_type.rstrip),                       # strip invisble chars.
+    map(prefix(contig_prefix)),                  # prefix to contig
+    map(split(sep='\t')),                        # split lines
+    map(do(validate_bed_format)),                # check correct format
+    map(lambda row: bed_to_interval(*row)),      # convert to objects
+    map(extend_interval(extension=extension)),   # extend intervals
+    group_intervals(bp_threshold=bp_threshold),  # group by threshold
+    map(process_interval_group(bam)),            # read coverage
+    concat,                                      # flatten list of lists
+    map(fn)                                      # map provided function
+  )
+
 
 def annotate_bed_stream(bed_stream, bam_path, cutoff=10, extension=0,
                         contig_prefix='', bp_threshold=17000):
@@ -47,20 +84,7 @@ def annotate_bed_stream(bed_stream, bam_path, cutoff=10, extension=0,
       completeness (float)
   """
   # setup: connect to BAM-file
-  bam = BamFile(bam_path)
+  fn = calculate_metrics(threshold=cutoff)
 
-  # the pipeline
-  return pipe(
-    bed_stream,
-    filter(complement(comment_sniffer)),         # filter out comments
-    map(text_type.rstrip),                       # strip invisble chars.
-    map(prefix(contig_prefix)),                  # prefix to contig
-    map(split(sep='\t')),                        # split lines
-    map(do(validate_bed_format)),                # check correct format
-    map(lambda row: bed_to_interval(*row)),      # convert to objects
-    map(extend_interval(extension=extension)),   # extend intervals
-    group_intervals(bp_threshold=bp_threshold),  # group by threshold
-    map(process_interval_group(bam)),            # read coverage
-    concat,                                      # flatten list of lists
-    map(calculate_metrics(threshold=cutoff))     # calculate cov./compl.
-  )
+  return apply_bed_stream(bed_stream, bam_path, fn, extension,
+                          contig_prefix, bp_threshold)
