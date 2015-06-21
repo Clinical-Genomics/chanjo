@@ -2,13 +2,5 @@
 from __future__ import absolute_import
 
 from .core import Store
-from .models import (
-  Block,
-  BlockData,
-  Interval,
-  IntervalData,
-  Interval_Block,
-  Sample,
-  Superblock,
-  SuperblockData
-)
+from .models import (Gene, Transcript, Exon, Exon_Transcript,
+                     ExonData, Sample)

@@ -8,17 +8,8 @@ from __future__ import absolute_import, division, unicode_literals
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from .models import (
-  Base,
-  Superblock,
-  Block,
-  Interval,
-  Interval_Block,
-  SuperblockData,
-  BlockData,
-  IntervalData,
-  Sample
-)
+from .models import (Base, Gene, Transcript, Exon, Exon_Transcript,
+                     ExonData, Sample)
 
 
 class Store(object):
