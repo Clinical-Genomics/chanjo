@@ -108,7 +108,6 @@ setup(
       'ccds = chanjo.converter:ccds_to_bed',
     ],
     'chanjo.subcommands': [
-      'annotate = chanjo.annotator:annotate',
       'build = chanjo.builder:build',
       'config = chanjo.config:config',
       'convert = chanjo.converter:convert',

@@ -13,18 +13,6 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 # +--------------------------------------------------------------------+
-# | Association tables
-# | ~~~~~~~~~~~~~~~~~~~
-# | Provides the many-to-many relationships between:
-# | - Interval<->Block
-# +--------------------------------------------------------------------+
-Exon_Transcript = Table('exon__transcript', Base.metadata,
-  Column('exon_id', Integer, ForeignKey('exon.id')),
-  Column('transcript_id', Integer, ForeignKey('transcript.id'))
-)
-
-
-# +--------------------------------------------------------------------+
 # | Gene ORM
 # +--------------------------------------------------------------------+
 class Gene(Base):
@@ -36,22 +24,12 @@ class Gene(Base):
 
   Args:
     gene_id (str): unique gene id e.g. HGNC gene symbol
-    contig (str): contig/chromosome id
-    start (int): 1-based start of the superblock (first interval)
-    end (int): 1-based end of the superblock (last interval, no UTR)
-    strand (str): strand +/-
-    secondary_id (str): e.g. Entrez gene id
   """
 
   __tablename__ = 'gene'
 
   id = Column(Integer, primary_key=True)
   gene_id = Column(String(32), unique=True)
-  secondary_id = Column(String(32))
-  contig = Column(String(5))
-  start = Column(Integer)
-  end = Column(Integer)
-  strand = Column(String(1))
 
 # +--------------------------------------------------------------------+
 # | Transcript ORM
@@ -64,40 +42,17 @@ class Transcript(Base):
 
   Args:
     transcript_id (str): unique block id (e.g. CCDS transcript id)
-    contig (str): contig/chromosome id
-    start (int): 1-based start of the block (first exon)
-    end (int): 1-based end of the block (last exon, no UTR)
-    strand (str): strand +/-
     gene_id (str): related gene
-    secondary_id (str, optional): secondard transcript id
   """
 
   __tablename__ = 'block'
 
   id = Column(Integer, primary_key=True)
-  transcript_id = Column(String(32), unique=True)
-  secondary_id = Column(String(32))
-  contig = Column(String(5))
-  start = Column(Integer)
-  end = Column(Integer)
-  strand = Column(String(1))
+  transcript_id = Column(String(32))
+  exon_id = Column(Integer, ForeignKey('exon.id'))
 
-  gene_id = Column(String(32), ForeignKey('gene.id'))
-  gene = relationship(Gene, backref=backref('transcripts', order_by=start))
-
-  def __len__(self):
-    """Return the combined number of exon bases.
-
-    Excludes intronic bases.
-
-    Returns:
-      int: total exonic length of the block
-    """
-    base_count = 0
-    for interval in self.exons:
-      base_count += len(interval)
-
-    return base_count
+  # gene_id = Column(String(32), ForeignKey('gene.id'))
+  # gene = relationship(Gene, backref=backref('transcripts'))
 
 
 # +--------------------------------------------------------------------+
@@ -115,23 +70,15 @@ class Exon(Base):
     contig (str): contig/chromosome id
     start (int): 1-based start of the exon
     end (int): 1-based end of the exon
-    strand (str): strand +/-
   """
 
   __tablename__ = 'exon'
 
   id = Column(Integer, primary_key=True)
   exon_id = Column(String(32), unique=True)
-  contig = Column(String(5))
+  chromosome = Column(String(32))
   start = Column(Integer)
   end = Column(Integer)
-  strand = Column(String(1))
-  first = Column(Boolean)
-  last = Column(Boolean)
-
-  # defines the ``backref`` to give transcripts an exons property
-  blocks = relationship(Transcript, secondary=Exon_Transcript,
-                        backref=backref('exons', order_by=start))
 
   def __len__(self):
     """Return the number of bases.
@@ -167,12 +114,7 @@ class Sample(Base):
 
   id = Column(Integer, primary_key=True)
   sample_id = Column(String(32), unique=True)
-  group_id = Column(String(32), index=True)
-
-  cutoff = Column(Integer)
-  extension = Column(Integer)
-  coverage_source = Column(Text)
-  element_source = Column(Text)
+  group = Column(String(32), index=True)
   created_at = Column(DateTime, default=datetime.now)
   updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
@@ -180,7 +122,7 @@ class Sample(Base):
 # +--------------------------------------------------------------------+
 # | Exon Data ORM
 # +--------------------------------------------------------------------+
-class ExonData(Base):
+class Statistic(Base):
 
   """Coverage metrics for a single exon interval and a given sample.
 
@@ -196,10 +138,10 @@ class ExonData(Base):
   __tablename__ = 'exon_data'
 
   id = Column(Integer, primary_key=True)
-  metric = Column(String(32))
-  value = Column(Float)
-
   sample_id = Column(Integer, ForeignKey('sample.id'))
   sample = relationship(Sample, backref=backref('exon_data'))
   parent_id = Column(Integer, ForeignKey('exon.id'))
   parent = relationship(Exon, backref=backref('data'))
+
+  metric = Column(String(32))
+  value = Column(Float)
