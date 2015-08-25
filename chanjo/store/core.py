@@ -8,8 +8,7 @@ from __future__ import absolute_import, division, unicode_literals
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from .models import (Base, Gene, Transcript, Exon, Exon_Transcript,
-                     ExonData, Sample)
+from .models import (Base, Gene, Transcript, Exon, Sample)
 
 
 class Store(object):
@@ -52,11 +51,8 @@ class Store(object):
       self.connect(uri, dialect=dialect, debug=debug)
 
     # ORM class shortcuts to enable fetching models dynamically
-    self.classes = {'superblock': Superblock, 'block': Block,
-                    'interval': Interval, 'interval_block': Interval_Block,
-                    'superblock_data': SuperblockData,
-                    'block_data': BlockData, 'interval_data': IntervalData,
-                    'sample': Sample}
+    self.classes = {'gene': Gene, 'transcript': Transcript,
+                    'exon': Exon, 'sample': Sample}
 
   def connect(self, uri, dialect='sqlite', debug=False):
     """Configure connection to a SQL database.

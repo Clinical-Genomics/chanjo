@@ -5,7 +5,6 @@ from toolz import pipe, concat, juxt, last
 from toolz.curried import compose, map, take
 
 from .producers import fetch_records
-from ..store import Interval
 
 
 def export_intervals(chanjo_db, include_header=True, bed_score=0):
