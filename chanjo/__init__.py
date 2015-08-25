@@ -13,7 +13,6 @@ from .builder import init_db
 from .converter import ccds_to_bed
 from .exporter import export_intervals
 from .importer import import_bed, import_json
-from .sex_checker import gender_from_bam
 from .store import Store
 from .utils import (average, BaseInterval, bed_to_interval, completeness,
                     id_generator, serialize_interval, split)
