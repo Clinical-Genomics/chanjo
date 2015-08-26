@@ -10,13 +10,7 @@ import errno
 import os
 
 from path import path
-from toolz import pipe, reduce, concat
-from toolz.curried import map
 
-from .._compat import text_type
-from .consumers import commit_per_contig
-from .stages import aggregate, build_block, build_interval, build_superblock
-from ..utils import bed_to_interval, split
 from ..store import Exon
 
 

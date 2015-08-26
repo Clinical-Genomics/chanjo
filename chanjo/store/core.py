@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, unicode_literals
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from .models import (Base, Gene, Transcript, Exon, Sample)
+from .models import (BASE, Gene, Transcript, Exon, Sample)
 
 
 class Store(object):
@@ -85,8 +85,8 @@ class Store(object):
 
     self.engine = create_engine(auth_path, **kwargs)
 
-    # make sure the same engine is propagated to the Base classes
-    Base.metadata.bind = self.engine
+    # make sure the same engine is propagated to the BASE classes
+    BASE.metadata.bind = self.engine
 
     # start a session
     self.session = scoped_session(sessionmaker(bind=self.engine))
@@ -114,7 +114,7 @@ class Store(object):
       Store: self
     """
     # create the tables
-    Base.metadata.create_all(self.engine)
+    BASE.metadata.create_all(self.engine)
 
     return self
 
@@ -133,9 +133,19 @@ class Store(object):
       Store: self
     """
     # drop/delete the tables
-    Base.metadata.drop_all(self.engine)
+    BASE.metadata.drop_all(self.engine)
 
     return self
+
+  def get_or_create(self, model, **kwargs):
+    instance = self.query(model).filter_by(**kwargs).first()
+    if instance:
+      return instance
+    else:
+      instance = model(**kwargs)
+      self.add(instance)
+      self.save()
+      return instance
 
   def save(self):
     """Manually persist changes made to various elements. Chainable.
@@ -225,7 +235,7 @@ class Store(object):
     Returns:
       Store: ``self`` for chainability
     """
-    if isinstance(elements, Base):
+    if isinstance(elements, BASE):
       # Add the record to the session object
       self.session.add(elements)
 
