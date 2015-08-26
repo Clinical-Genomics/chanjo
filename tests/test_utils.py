@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from __future__ import division
 
-import numpy as np
 import pytest
 
 from chanjo._compat import text_type
@@ -59,29 +58,6 @@ def test_bed_to_interval():
   with pytest.raises(ValueError):
     # interval with invalid coordinates/arguments
     bed_to_interval(20, 'X', 24, 'int2', 0, '-')
-
-
-def test_average():
-  """Test calculating average of a list of values."""
-  values = [0, 5, 5, 6]
-  # 'without' numpy
-  assert average(values) == 4.
-
-  # with numpy array
-  assert average(np.array(values)) == 4.
-
-
-def test_completeness():
-  """Test calculating completeness of a list of read depths."""
-  # test simple case
-  assert completeness(np.array([0, 10, 10, 20, 10, 0])) == 4/6
-
-  # test edge case with 0 positions, should *not* raise
-  # ``ZeroDivisionError``.
-  assert completeness(np.array([])) == 0.
-
-  # test with a different ``threshold``
-  assert completeness(np.array([20, 40, 10, 0, 10]), threshold=30) == 1/5
 
 
 def test_serialize_interval():

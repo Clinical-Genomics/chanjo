@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-from chanjo.store import Interval, Interval_Block
+from chanjo.store import Exon, Exon_Transcript
 
 
 def test_Interval_Block():
   # test table name
-  assert Interval_Block.name == 'interval__block'
+  assert Exon_Transcript.name == 'exon__transcript'
 
 
 def test_Interval():
   # set up
-  interval = Interval('interval1', 'chr1', 10, 1000, '-')
+  exon = Exon(exon_id='exon1', chromosome='chr1', start=10, end=1000)
 
-  assert len(interval) == 991
+  assert len(exon) == 991
