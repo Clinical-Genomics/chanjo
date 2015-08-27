@@ -18,7 +18,7 @@ def test_lazy_load():
     # now we shouldn't have access to aliases
     assert hasattr(store, 'query') == False
 
-    store.connect(':memory:')
+    store.connect('sqlite://')
 
     # ... but now we do!
     assert hasattr(store, 'query')

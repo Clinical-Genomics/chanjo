@@ -6,6 +6,7 @@ chanjo.config.core
 Works out of the box with any module that exposes the proper 'load' and
 'dump' methods will work. Fox example 'toml' and 'yaml'.
 """
+from __future__ import absolute_import
 import io
 import json
 
