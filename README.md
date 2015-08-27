@@ -21,13 +21,12 @@ $ pip install chanjo
 
 ```bash
 $ git clone https://github.com/robinandeer/chanjo.git && cd chanjo
-$ pip install --editable .
+$ vagrant up
+$ vagrant ssh
 ```
 
-Do note that Chanjo is built on some of kind-of tricky dependencies. If you are experiencing any issues, help is just a click away in the [documentation][docs].
-
 ## Usage
-Chanjo exposes a composable command line interface. You can always save intermediary files at any stage and customize every option. However, using a ``chanjo.toml`` config and UNIX pipes you can end up with something like:
+Chanjo exposes a composable command line interface. You can always save intermediary files at any stage and customize every option. However, using a ``chanjo.yaml`` config and UNIX pipes you can end up with something like:
 
 ```bash
 $ chanjo convert CCDS.sorted.txt | chanjo annotate alignment.bam > coverage.bed

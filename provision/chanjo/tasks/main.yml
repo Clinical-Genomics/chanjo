@@ -1,0 +1,11 @@
+---
+- set_fact:
+    pip_exe: "{{ miniconda_home }}/envs/prod/bin/pip"
+
+- name: install packages
+  pip: executable="{{ pip_exe }}" extra_args="--editable"
+       name="{{ install_dir }}"
+
+- name: install dev dependencies
+  pip: executable="{{ pip_exe }}"
+       requirements={{ install_dir }}/requirements/development.txt
