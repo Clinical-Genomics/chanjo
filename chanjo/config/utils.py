@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
 from functools import partial
 import re
 
@@ -14,29 +13,29 @@ remove_ansi.__doc__ = """Remove ANSI escape characters from a string.
 
 .. code-block:: python
 
-  >>> ansi_string = '[\x1b[32m?\x1b[0m] name: '
-  >>> remove_ansi(ansi_string)
-  '[?] name: '
+    >>> ansi_string = '[\x1b[32m?\x1b[0m] name: '
+    >>> remove_ansi(ansi_string)
+    '[?] name: '
 
 Args:
-  ansi_string (str): string, possibly containing ANSI escape characters
+    ansi_string (str): string, possibly containing ANSI escape characters
 
 Returns:
-  str: input string *guaranteed* without ANSI escape characters
+    str: input string *guaranteed* without ANSI escape characters
 """
 
 
 @curry
 def rget(sequence, key, default=None):
-  """Get element in a sequence or dict.
+    """Get element in a sequence or dict.
 
-  Like toolz.get but with parameters in reverse order.
+    Like toolz.get but with parameters in reverse order.
 
-  Args:
-    sequence (sequence or dict): sequence or dict
-    key (str or int): key to access in sequence
+    Args:
+        sequence (sequence or dict): sequence or dict
+        key (str or int): key to access in sequence
 
-  Returns:
-    object: value behind the key
-  """
-  return get(key, sequence, default=default)
+    Returns:
+        object: value behind the key
+    """
+    return get(key, sequence, default=default)

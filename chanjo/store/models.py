@@ -1,336 +1,189 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
 from datetime import datetime
 
-from sqlalchemy import (
-  Table, Column, ForeignKey, String, Integer,
-  DateTime, Text, Float, Boolean
-)
+from sqlalchemy import (Column, DateTime, Float, ForeignKey, Integer, String,
+                        Table, UniqueConstraint)
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 
 # base for declaring a mapping
-Base = declarative_base()
+BASE = declarative_base()
+
 
 # +--------------------------------------------------------------------+
 # | Association tables
 # | ~~~~~~~~~~~~~~~~~~~
 # | Provides the many-to-many relationships between:
-# | - Interval<->Block
+# | - Exon<->Transcript
 # +--------------------------------------------------------------------+
-Interval_Block = Table('interval__block', Base.metadata,
-  Column('interval_id', String(32), ForeignKey('interval.id')),
-  Column('block_id', String(32), ForeignKey('block.id'))
-)
-
-
-# +--------------------------------------------------------------------+
-# | Superblock ('gene') ORM
-# +--------------------------------------------------------------------+
-class Superblock(Base):
-
-  """Collection of blocks and potentially overlapping intervals.
-
-  A :class:`Superblock` can be related to multiple blocks and multiple
-  intervals.
-
-  Args:
-    superblock_id (str): unique superblock id e.g. HGNC gene symbol
-    contig (str): contig/chromosome id
-    start (int): 1-based start of the superblock (first interval)
-    end (int): 1-based end of the superblock (last interval, no UTR)
-    strand (str): strand +/-
-    secondary_id (str): e.g. Entrez gene id
-  """
-
-  __tablename__ = 'superblock'
-
-  id = Column(String(32), primary_key=True)
-  secondary_id = Column(String(32))
-  contig = Column(String(5))
-  start = Column(Integer)
-  end = Column(Integer)
-  strand = Column(String(1))
-
-  def __init__(self, superblock_id=None, contig=None, start=None,
-               end=None, strand=None, secondary_id=None):
-    super(Superblock, self).__init__()
-
-    self.id = superblock_id
-    self.secondary_id = secondary_id
-    self.contig = contig
-    self.start = start
-    self.end = end
-    self.strand = strand
+Exon_Transcript = Table(
+    'exon__transcript',
+    BASE.metadata,
+    Column('interval_id', Integer, ForeignKey('exon.id')),
+    Column('block_id', Integer, ForeignKey('transcript.id')))
 
 
 # +--------------------------------------------------------------------+
-# | Block ('transcript') ORM
+# | Gene ORM
 # +--------------------------------------------------------------------+
-class Block(Base):
+class Gene(BASE):
 
-  """Set of non-overlapping intervals.
+    """Collection of transcripts and potentially overlapping exons.
 
-  A :class:`Block` can *only* be related to a single superset.
+    A :class:`Gene` can be related to multiple transcripts and multiple
+    exons.
 
-  Args:
-    block_id (str): unique block id (e.g. CCDS transcript id)
-    contig (str): contig/chromosome id
-    start (int): 1-based start of the block (first interval)
-    end (int): 1-based end of the block (last interval, no UTR)
-    strand (str): strand +/-
-    superblock_id (str): related superblock id, e.g. HGNC gene symbol
-    secondary_id (str, optional): secondard block id
-  """
-
-  __tablename__ = 'block'
-
-  id = Column(String(32), primary_key=True)
-  secondary_id = Column(String(32))
-  contig = Column(String(5))
-  start = Column(Integer)
-  end = Column(Integer)
-  strand = Column(String(1))
-
-  superblock_id = Column(String(32), ForeignKey('superblock.id'))
-  superblock = relationship(
-    Superblock, backref=backref('blocks', order_by=start))
-
-  def __init__(self, block_id=None, contig=None, start=None, end=None,
-               strand=None, superblock_id=None, secondary_id=None):
-    super(Block, self).__init__()
-
-    self.id = block_id
-    self.contig = contig
-    self.start = start
-    self.end = end
-    self.strand = strand
-    self.superblock_id = superblock_id
-    self.secondary_id = secondary_id
-
-  def __len__(self):
-    """Return the combined number of exon bases.
-
-    Excludes intronic bases.
-
-    Returns:
-      int: total 'intervalic' (exonic) length of the block
+    Args:
+        gene_id (str): unique gene id e.g. HGNC gene symbol
     """
-    base_count = 0
-    for interval in self.intervals:
-      base_count += len(interval)
 
-    return base_count
+    __tablename__ = 'gene'
+    __table_args__ = (UniqueConstraint('chromosome', 'start', 'end',
+                                       name='_coordinates'),)
+
+    id = Column(Integer, primary_key=True)
+    gene_id = Column(String(32), unique=True)
+    chromosome = Column(String(32))
+    start = Column(Integer)
+    end = Column(Integer)
 
 
 # +--------------------------------------------------------------------+
-# | Interval ('exon') ORM
-# | TODO: rename this class to not be the same as named tuple!!
+# | Transcript ORM
 # +--------------------------------------------------------------------+
-class Interval(Base):
+class Transcript(BASE):
 
-  """A continous genetic interval on a given contig (e.g. exon).
+    """Set of non-overlapping exons.
 
-  A :class:`Interval` can be related to a multiple :class:`Block`
-  (transcripts). Start and end coordinates are 1-based.
+    A :class:`Transcript` can *only* be related to a single gene.
 
-  Args:
-    interval_id (str): unique interval id
-    contig (str): contig/chromosome id
-    start (int): 1-based start of the interval
-    end (int): 1-based end of the interval
-    strand (str): strand +/-
-  """
-
-  __tablename__ = 'interval'
-
-  id = Column(String(32), primary_key=True)
-  contig = Column(String(5))
-  start = Column(Integer)
-  end = Column(Integer)
-  strand = Column(String(1))
-  first = Column(Boolean)
-  last = Column(Boolean)
-
-  # defines the ``backref`` to give transcripts an exons property
-  blocks = relationship(Block, secondary=Interval_Block,
-                        backref=backref('intervals', order_by=start))
-
-  def __init__(self, interval_id, contig, start, end, strand):
-    super(Interval, self).__init__()
-
-    self.id = interval_id
-    self.contig = contig
-    self.start = start
-    self.end = end
-    self.strand = strand
-
-  def __len__(self):
-    """Return the number of bases.
-
-    Returns:
-      int: length of interval in number of bases
+    Args:
+        transcript_id (str): unique block id (e.g. CCDS transcript id)
+        gene_id (str): related gene
     """
-    # add +1 because both coordinates are 1-based (number of *bases*)
-    return (self.end - self.start) + 1
+
+    __tablename__ = 'transcript'
+
+    id = Column(Integer, primary_key=True)
+    transcript_id = Column(String(32))
+
+    gene_id = Column(String(32), ForeignKey('gene.id'))
+    gene = relationship(Gene, backref=backref('transcripts'))
+
+
+# +--------------------------------------------------------------------+
+# | Exon ORM
+# +--------------------------------------------------------------------+
+class Exon(BASE):
+
+    """A continous genetic interval on a given contig.
+
+    A :class:`Exon` can be related to a multiple :class:`Transcript`.
+    Start and end coordinates are 1-based.
+
+    Args:
+        exon_id (str): unique exon id
+        contig (str): contig/chromosome id
+        start (int): 1-based start of the exon
+        end (int): 1-based end of the exon
+    """
+
+    __tablename__ = 'exon'
+    __table_args__ = (UniqueConstraint('chromosome', 'start', 'end',
+                                       name='_coordinates'),)
+
+    id = Column(Integer, primary_key=True)
+    exon_id = Column(String(32), unique=True)
+    chromosome = Column(String(32))
+    start = Column(Integer)
+    end = Column(Integer)
+
+    transcripts = relationship(Transcript, secondary=Exon_Transcript,
+                               backref=backref('exons', order_by=start))
+
+    def __len__(self):
+        """Return the number of bases.
+
+        Returns:
+            int: length of interval in number of bases
+        """
+        # add +1 because both coordinates are 1-based (number of *bases*)
+        return (self.end - self.start) + 1
 
 
 # +--------------------------------------------------------------------+
 # | Sample ORM classes
 # +--------------------------------------------------------------------+
-class Sample(Base):
+class Sample(BASE):
 
-  """Metadata for a single (unique) sample.
+    """Metadata for a single (unique) sample.
 
-  :class:`Sample` helps out in consolidating important information in
-  one place.
+    :class:`Sample` helps out in consolidating important information in
+    one place.
 
-  .. versionadded:: 0.4.0
+    .. versionadded:: 0.4.0
 
-  Args:
-    sample_id (str): unique sample id
-    group_id (str): unique group id
-    cutoff (int): cutoff used for completeness
-    extension (bool): number of bases added to each interval
-    coverage_source (str): path to the BAM file used
-  """
+    Args:
+        sample_id (str): unique sample id
+        group_id (str): unique group id
+        cutoff (int): cutoff used for completeness
+        extension (bool): number of bases added to each interval
+        coverage_source (str): path to the BAM file used
+    """
 
-  __tablename__ = 'sample'
+    __tablename__ = 'sample'
 
-  id = Column(String(32), primary_key=True)
-  group_id = Column(String(32), index=True)
-
-  cutoff = Column(Integer)
-  extension = Column(Integer)
-  coverage_source = Column(Text)
-  element_source = Column(Text)
-  created_at = Column(DateTime, default=datetime.now)
-  updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
-
-  def __init__(self, sample_id, **kwargs):
-    super(Sample, self).__init__()
-
-    self.id = sample_id
-
-    for key, value in kwargs.items():
-      setattr(self, key, value)
+    id = Column(Integer, primary_key=True)
+    sample_id = Column(String(32), unique=True)
+    group = Column(String(32), index=True)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
 
 # +--------------------------------------------------------------------+
-# | Interval Data ORM
+# | Exon Data ORM
 # +--------------------------------------------------------------------+
-class IntervalData(Base):
+class Statistic(object):
 
-  """Coverage metrics for a single interval and a given sample.
+    """Coverage metrics for a single element and a given sample.
 
-  :class:`IntervalData` has a many-to-one relationship with it's parent
-  interval object through it's ``parent_id`` attribute.
+    Args:
+        sample_id (int): unique sample identifier
+        group_id (str): group identifier
+    """
+    id = Column(Integer, primary_key=True)
 
-  Args:
-    parent_id (int): parent record Interval id
-    sample_id (str): unique sample identifier
-    group_id (str): group identifier
-    coverage (float): average coverage for the exon
-    completeness (float): ratio of adequately covered bases
-  """
-
-  __tablename__ = 'interval_data'
-
-  id = Column(Integer, primary_key=True, autoincrement=True)
-  coverage = Column(Float)
-  completeness = Column(Float)
-
-  # These columns map coverage/completeness to sample+group
-  sample_id = Column(String(32), ForeignKey('sample.id'))
-  sample = relationship(Sample, backref=backref('intervals'))
-  group_id = Column(String(32), index=True)
-
-  # Genetic relationship
-  parent_id = Column(String(32), ForeignKey('interval.id'))
-  parent = relationship(Interval, backref=backref('data'))
-
-  def __init__(self, **kwargs):
-    super(IntervalData, self).__init__()
-
-    for key, value in kwargs.items():
-      setattr(self, key, value)
+    metric = Column(String(32))
+    value = Column(Float)
 
 
-# +--------------------------------------------------------------------+
-# | Block Data ORM
-# +--------------------------------------------------------------------+
-class BlockData(Base):
+class GeneStatistic(Statistic, BASE):
 
-  """Coverage metrics for a single block and a given sample.
+    """
 
-  It has a many-to-one relationship with it's parent set object through
-  it's ``parent_id`` attribute.
+    Args:
+        parent_id (int): parent record Gene id
+    """
 
-  Args:
-    parent_id (int): Set id
-    sample_id (str): unique sample identifier
-    group_id (str): group identifier
-    coverage (float): average coverage for the set
-    completeness (float): ratio of adequately covered bases
-  """
+    __tablename__ = 'gene_stat'
 
-  __tablename__ = 'block_data'
-
-  id = Column(Integer, primary_key=True, autoincrement=True)
-  coverage = Column(Float)
-  completeness = Column(Float)
-
-  # These columns map coverage/completeness to an individual+group
-  sample_id = Column(String(32), ForeignKey('sample.id'))
-  sample = relationship(Sample, backref=backref('blocks'))
-  group_id = Column(String(32), index=True)
-
-  # Genetic relationship
-  parent_id = Column(String(32), ForeignKey('block.id'))
-  parent = relationship(Block, backref=backref('data'))
-
-  def __init__(self, **kwargs):
-    super(BlockData, self).__init__()
-
-    for key, value in kwargs.items():
-      setattr(self, key, value)
+    sample_id = Column(Integer, ForeignKey('sample.id'))
+    sample = relationship(Sample, backref=backref('gene_stats'))
+    gene_id = Column(Integer, ForeignKey('gene.id'))
+    gene = relationship(Gene, backref=backref('stats'))
 
 
-# +--------------------------------------------------------------------+
-# | Superset Data ORM classes
-# +--------------------------------------------------------------------+
-class SuperblockData(Base):
+class ExonStatistic(Statistic, BASE):
 
-  """Coverage metrics for a single superblock and a given sample.
+    """
 
-  It has a many-to-one relationship with it's parent superset object
-  through it's ``parent_id`` attribute.
+    Args:
+        parent_id (int): parent record Exon id
+    """
 
-  Args:
-    parent_id (int): Superblock id
-    sample_id (str): unique sample identifier
-    group_id (str): group identifier
-    coverage (float): average coverage for the superset
-    completeness (float): ratio of adequately covered bases
-  """
+    __tablename__ = 'exon_stat'
 
-  __tablename__ = 'superblock_data'
-
-  id = Column(Integer, primary_key=True, autoincrement=True)
-  coverage = Column(Float)
-  completeness = Column(Float)
-
-  # These columns map coverage/completeness to an individual+group
-  sample_id = Column(String(32), ForeignKey('sample.id'))
-  sample = relationship(Sample, backref=backref('superblocks'))
-  group_id = Column(String(32), index=True)
-
-  # Genetic relationship
-  parent_id = Column(String(32), ForeignKey('superblock.id'))
-  parent = relationship(Superblock, backref=backref('data'))
-
-  def __init__(self, **kwargs):
-    super(SuperblockData, self).__init__()
-
-    for key, value in kwargs.items():
-      setattr(self, key, value)
+    sample_id = Column(Integer, ForeignKey('sample.id'))
+    sample = relationship(Sample, backref=backref('exon_stats'))
+    exon_id = Column(Integer, ForeignKey('exon.id'))
+    exon = relationship(Exon, backref=backref('stats'))

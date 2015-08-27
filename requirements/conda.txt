@@ -1,5 +1,4 @@
 # Conda installables
-cython
-numpy
 setuptools
 sqlalchemy>=0.8.2
+pyyaml
