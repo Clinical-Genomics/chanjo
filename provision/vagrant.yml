@@ -1,0 +1,14 @@
+---
+- hosts: all
+  remote_user: vagrant
+  sudo: yes
+  roles:
+    - common
+    - robinandeer.miniconda
+    - chanjo
+
+  vars:
+    # must be absolute path
+    miniconda_home: /home/vagrant/miniconda
+    miniconda_modify_path: yes
+    install_dir: /vagrant
