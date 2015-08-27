@@ -12,7 +12,7 @@ bed_lines = get_bedlines()
 
 class TestSambamba:
     def setup(self):
-        self.store = Store(':memory:')
+        self.store = Store('sqlite://')
         self.store.set_up()
         self.row_data = parse_bed.chanjo(bed_lines)
 
