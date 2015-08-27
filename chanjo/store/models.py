@@ -19,8 +19,8 @@ BASE = declarative_base()
 Exon_Transcript = Table(
     'exon__transcript',
     BASE.metadata,
-    Column('interval_id', Integer, ForeignKey('exon.id')),
-    Column('block_id', Integer, ForeignKey('transcript.id')))
+    Column('exon_id', Integer, ForeignKey('exon.id')),
+    Column('transcript_id', Integer, ForeignKey('transcript.id')))
 
 
 # +--------------------------------------------------------------------+

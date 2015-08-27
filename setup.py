@@ -97,6 +97,7 @@ setup(
         'chanjo.subcommands': [
             'demo = chanjo.demo:demo',
             'init = chanjo.cli:init_command',
+            'load = chanjo.cli:load_command',
         ]
     },
 
