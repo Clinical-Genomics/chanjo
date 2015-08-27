@@ -17,7 +17,7 @@ class TestSambamba:
         self.row_data = parse_bed.chanjo(bed_lines)
 
     def teardown(self):
-        self.store.tare_down()
+        self.store.tear_down()
         self.store.session.close()
 
     def test_connection(self):
