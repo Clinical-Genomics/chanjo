@@ -1,7 +1,7 @@
 ---
 - hosts: all
   remote_user: vagrant
-  sudo: yes
+  sudo: no
   roles:
     - common
     - robinandeer.miniconda

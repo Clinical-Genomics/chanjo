@@ -1,4 +1,4 @@
 # Conda installables
 setuptools
-sqlalchemy>=0.8.2
-pyyaml
+SQLAlchemy>=0.8.2
+PyYAML
