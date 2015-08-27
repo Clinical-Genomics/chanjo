@@ -5,6 +5,7 @@ coverage
 coveralls
 flake8
 invoke
+ipdb
 pytest
 sphinx
 sphinxcontrib-napoleon

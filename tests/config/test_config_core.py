@@ -5,7 +5,7 @@ import json
 import pytest
 import yaml
 
-from chanjo.config import Config, _resolve_key
+from chanjo.config import Config
 
 
 def test_init():
@@ -70,12 +70,13 @@ class TestConfig:
 
     def test_resolve_key(self):
         # Test simple case
-        section, key = _resolve_key(self.config, 'person.name')
+        section, key = self.config._resolve_key('person.name')
         assert section == self.defaults['person']
         assert key == 'name'
 
         # Test with a different base
-        section, key = _resolve_key(self.config.user_data, 'person.job')
+        section, key = self.config._resolve_key('person.job',
+                                                base=self.config.user_data)
         assert section == {}  # 'user_data' is an empty ``dict`` in this case
         assert key == 'job'
 

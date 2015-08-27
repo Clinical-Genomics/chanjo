@@ -49,7 +49,8 @@ class Config(dict):
 
     def load(self, read_handle):
         try:
-            self.user_data.update(self.markup.load(read_handle))
+            values = self.markup.load(read_handle) or {}
+            self.user_data.update(values)
             self.update(**self.user_data)
         except AttributeError:
             raise NotImplementedError("Markup (%s) must expose a 'load'-method"
@@ -73,31 +74,37 @@ class Config(dict):
             self.markup.dump(self.user_data, write_handle, **options)
         return self
 
-    def set(self, dot_key, value, base=None):
+    def set(self, dot_key, value, scope=None):
         """Update a config key-value pair."""
-        section, key = _resolve_key((base or self), dot_key)
+        if scope is None:
+            scope = self
+        section, key = self._resolve_key(dot_key, base=scope)
         # Set key-value pair
         section[key] = value
         return self
 
+    def _resolve_key(self, dot_key, base=None):
+        """Resolve a "dot key" (e.g. person.age).
 
-def _resolve_key(base, dot_key):
-    """Resolve a "dot key" (e.g. person.age).
+        Private method.
 
-    Private method.
+        Args:
+            dot_key (str):
+        """
+        # The key can be provided as a path to nested pairs
+        key_parts = dot_key.split('.')
+        key_parts.reverse()
 
-    Args:
-        base (dict): nested dictionary
-        dot_key (str):
-    """
-    # the key can be provided as a path to nested pairs
-    key_parts = dot_key.split('.')
-    key_parts.reverse()
+        if base is None:
+            section = self
+        else:
+            section = base
 
-    while len(key_parts) > 1:
-        key_part = key_parts.pop()
-        if key_part not in base:
-            base[key_part] = {}
-        base = base[key_part]
+        while len(key_parts) > 1:
+            key_part = key_parts.pop()
+            if key_part not in section:
+                section[key_part] = {}
 
-    return base, key_parts[0]
+            section = section[key_part]
+
+        return section, key_parts[0]

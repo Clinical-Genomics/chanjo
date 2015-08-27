@@ -11,9 +11,9 @@ required).
 """
 import sys
 
-from .cli import cli
+from .cli import root_command
 
 
 if __name__ == '__main__':
     # exit using whatever exit code the main returned
-    sys.exit(cli())
+    sys.exit(root_command())

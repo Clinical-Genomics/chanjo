@@ -92,12 +92,11 @@ setup(
     # target platform.
     entry_points={
         'console_scripts': [
-            'chanjo = chanjo.__main__:cli',
+            'chanjo = chanjo.__main__:root_command',
         ],
         'chanjo.subcommands': [
-            'config = chanjo.config:config',
             'demo = chanjo.demo:demo',
-            'init = chanjo.config:init',
+            'init = chanjo.cli:init_command',
         ]
     },
 
