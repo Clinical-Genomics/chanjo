@@ -4,6 +4,7 @@ chanjo.store.core
 ~~~~~~~~~~~~~~~~~~
 """
 from __future__ import division
+import os
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
@@ -34,8 +35,6 @@ class Store(object):
 
     Args:
         uri (Optional[str]): path/URI to the database to connect to
-        dialect (Optional[str]): connector + type of database:
-                                 'sqlite'/'mysql'
         debug (Optional[bool]): whether to output logging information
 
     Attributes:
@@ -46,42 +45,35 @@ class Store(object):
         classes (dict): bound ORM classes
     """
 
-    def __init__(self, uri=None, dialect='sqlite', debug=False):
+    def __init__(self, uri=None, debug=False):
         super(Store, self).__init__()
         self.uri = uri
         if uri:
-            self.connect(uri, dialect=dialect, debug=debug)
+            self.connect(uri, debug=debug)
 
         # ORM class shortcuts to enable fetching models dynamically
         self.classes = {'gene': Gene, 'transcript': Transcript,
                         'exon': Exon, 'sample': Sample}
 
-    def connect(self, uri, dialect='sqlite', debug=False):
+    def connect(self, db_uri, debug=False):
         """Configure connection to a SQL database.
 
         .. versionadded:: 2.1.0
 
         Args:
-            uri (str): path/URI to the database to connect to
-            dialect (Optional[str]): connector + type of database:
-                                     'sqlite'/'mysql'
+            db_uri (str): path/URI to the database to connect to
             debug (Optional[bool]): whether to output logging information
         """
         kwargs = {'echo': debug, 'convert_unicode': True}
         # connect to the SQL database
-        if dialect == 'sqlite':
-            # conform to the slightly awkward sqlite adapter syntax (///)
-            auth_path = "sqlite:///%s" % uri
-        elif 'mysql' in dialect:
-            # build URI for MySQL containing:
-            # <connector>+<sql_type>://<username>:<password>@<server>/<database>
-            auth_path = "%(type)s://%(uri)s" % dict(type=dialect, uri=uri)
+        if 'mysql' in db_uri:
             kwargs['pool_recycle'] = 3600
-        else:
-            raise NotImplementedError("Only 'sqlite' and 'mysql' are"
-                                      "supported database dialects.")
+        elif ':' not in db_uri:
+            # expect only a path to a sqlite database
+            db_path = os.path.abspath(os.path.expanduser(db_uri))
+            db_uri = "sqlite:///{}".format(db_path)
 
-        self.engine = create_engine(auth_path, **kwargs)
+        self.engine = create_engine(db_uri, **kwargs)
         # make sure the same engine is propagated to the BASE classes
         BASE.metadata.bind = self.engine
         # start a session
