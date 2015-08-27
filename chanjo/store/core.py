@@ -3,351 +3,261 @@
 chanjo.store.core
 ~~~~~~~~~~~~~~~~~~
 """
-from __future__ import absolute_import, division, unicode_literals
+from __future__ import division
 
-from sqlalchemy import create_engine, func
+from sqlalchemy import create_engine
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.sql.expression import ClauseElement
 
 from .models import (BASE, Gene, Transcript, Exon, Sample)
 
 
 class Store(object):
 
-  """SQLAlchemy-based database object.
+    """SQLAlchemy-based database object.
 
-  Bundles functionality required to setup and interact with various
-  related genomic interval elements.
+    Bundles functionality required to setup and interact with various
+    related genomic interval elements.
 
-  .. versionchanged:: 2.1.0
-    Lazy-loadable, all "init" arguments optional.
-
-  Examples:
-    >>> chanjo_db = Store('data/elements.sqlite3')
-    >>> chanjo_db.set_up()
-
-  .. note::
-
-    For testing pourposes use ``:memory:`` as the ``path`` argument to
-    set up in-memory (temporary) database.
-
-  Args:
-    uri (str, optional): path/URI to the database to connect to
-    dialect (str, optional): connector + type of database:
-      'sqlite'/'mysql'
-    debug (bool, optional): whether to output logging information
-
-  Attributes:
-    uri (str): path/URI to the database to connect to
-    engine (class): SQLAlchemy engine, defines what database to use
-    session (class): SQLAlchemy ORM session, manages persistance
-    query (method): SQLAlchemy ORM query builder method
-    classes (dict): bound ORM classes
-  """
-
-  def __init__(self, uri=None, dialect='sqlite', debug=False):
-    super(Store, self).__init__()
-    self.uri = uri
-    if uri:
-      self.connect(uri, dialect=dialect, debug=debug)
-
-    # ORM class shortcuts to enable fetching models dynamically
-    self.classes = {'gene': Gene, 'transcript': Transcript,
-                    'exon': Exon, 'sample': Sample}
-
-  def connect(self, uri, dialect='sqlite', debug=False):
-    """Configure connection to a SQL database.
-
-    .. versionadded:: 2.1.0
-
-    Args:
-      uri (str): path/URI to the database to connect to
-      dialect (str, optional): connector + type of database:
-        'sqlite'/'mysql'
-      debug (bool, optional): whether to output logging information
-    """
-    kwargs = {'echo': debug, 'convert_unicode': True}
-
-    # connect to the SQL database
-    if dialect == 'sqlite':
-      # conform to the slightly awkward sqlite adapter syntax (///)
-      auth_path = "sqlite:///%s" % uri
-
-    elif 'mysql' in dialect:
-      # build URI for MySQL containing:
-      # <connector>+<sql_type>://<username>:<password>@<server>/<database>
-      auth_path = "%(type)s://%(uri)s" % dict(type=dialect, uri=uri)
-
-      kwargs['pool_recycle'] = 3600
-
-    else:
-      raise NotImplementedError("Only 'sqlite' and 'mysql' are"
-                                "supported database dialects.")
-
-    self.engine = create_engine(auth_path, **kwargs)
-
-    # make sure the same engine is propagated to the BASE classes
-    BASE.metadata.bind = self.engine
-
-    # start a session
-    self.session = scoped_session(sessionmaker(bind=self.engine))
-
-    # shortcut to query method
-    self.query = self.session.query
-
-    return self
-
-  @property
-  def dialect(self):
-    """Return database dialect name used for the current connection.
-
-    Dynamic attribute.
-
-    Returns:
-      str: name of dialect used for database connection
-    """
-    return self.engine.dialect.name
-
-  def set_up(self):
-    """Initialize a new database with the default tables and columns.
-
-    Returns:
-      Store: self
-    """
-    # create the tables
-    BASE.metadata.create_all(self.engine)
-
-    return self
-
-  def tare_down(self):
-    """Misspelled method. See/Use ``tear_down``.
-
-    .. deprecated:: 2.0.2
-      Use :py:meth:`chanjo.Store.tear_down` instead.
-    """
-    return self.tear_down()
-
-  def tear_down(self):
-    """Tear down a database (tables and columns).
-
-    Returns:
-      Store: self
-    """
-    # drop/delete the tables
-    BASE.metadata.drop_all(self.engine)
-
-    return self
-
-  def get_or_create(self, model, **kwargs):
-    instance = self.query(model).filter_by(**kwargs).first()
-    if instance:
-      return instance
-    else:
-      instance = model(**kwargs)
-      self.add(instance)
-      self.save()
-      return instance
-
-  def save(self):
-    """Manually persist changes made to various elements. Chainable.
-
-    .. versionchanged:: 2.1.2
-      Flush session before commit.
-
-    Returns:
-      Store: ``self`` for chainability
-    """
-    # commit/persist dirty changes to the database
-    self.session.flush()
-    self.session.commit()
-
-    return self
-
-  def get(self, typ, type_id):
-    """Fetch a specific element or ORM class.
-
-    Calls itself recursively when asked to fetch an element.
-
-    Args:
-      typ (str): element key or 'class'
-      type_id (str): element id or ORM model id
-
-    Returns:
-      model: element or ORM class
+    .. versionchanged:: 2.1.0
+        Lazy-loadable, all "init" arguments optional.
 
     Examples:
-      >>> gene = db.get('gene', 'GIT1')
-    """
-    if typ == 'class':
-      return self.classes.get(type_id, None)
-
-    # get an ORM class (recursive)
-    klass = self.get('class', typ)
-
-    # return the requested element object (or ``None``) if not found
-    return self.session.query(klass).get(type_id)
-
-  def find(self, klass_id, query=None, attrs=None):
-    """Fetch one or more elements based on the query.
-
-    If the 'query' parameter is a string :meth:`~chanjo.Store.find`
-    will fetch one element; just like `get`. If query is a list it will
-    match element ids to items in that list and return a list of
-    elements. If 'query' is ``None`` all elements of that class will
-    be returned.
-
-    Args:
-      klass_id (str): type of element to find
-      query (str/list, optional): element Id(s)
-      attrs (list, optional): list of columns to fetch
-
-    Returns:
-      object/list: element(s) from the database
-    """
-    # get an ORM class
-    klass = self.get('class', klass_id)
-
-    if attrs is not None:
-      params = [getattr(klass, attr) for attr in attrs]
-    else:
-      params = (klass,)
-
-    if query is None:
-      # return all `klass_id` elements in the database
-      return self.session.query(*params).all()
-
-    elif isinstance(query, list):
-      # return all `klass_id` elements in the database
-      return self.session.query(*params).filter(klass.id.in_(query)).all()
-
-    elif isinstance(query, str):
-      # call 'get' to return the single element
-      return self.get(klass_id, query)
-
-    else:
-      raise ValueError("'query' must be 'None', 'list', or 'str'")
-
-  def add(self, elements):
-    """Add one or more new elements and commit the changes. Chainable.
-
-    Args:
-      elements (orm/list): new ORM object instance or list of such
-
-    Returns:
-      Store: ``self`` for chainability
-    """
-    if isinstance(elements, BASE):
-      # Add the record to the session object
-      self.session.add(elements)
-
-    elif isinstance(elements, list):
-      # Add all records to the session object
-      self.session.add_all(elements)
-
-    return self
-
-  def create(self, class_id, *args, **kwargs):
-    r"""Create a new instance of an ORM element.
-
-    If attributes are supplied as a tuple they must be in the correct
-    order. Supplying a `dict` doesn't require the attributes to be in
-    any particular order.
-
-    Args:
-      class_id (str): choice between "superblock", "block", "interval"
-      \*args (tuple): list the element attributes in the *correct order*
-      \**kwargs (dict): element attributes in whatever order you like
-
-    Returns:
-      orm: new ORM instance object
-    """
-    if args:
-      # unpack tuple
-      return self.get('class', class_id)(*args)
-
-    elif kwargs:
-      # unpack dictionary
-      return self.get('class', class_id)(**kwargs)
-
-    else:
-      raise TypeError('Submit attributes as arguments or keyword arguments')
-
-  def block_stats(self, sample_id):
-    """Calculate block level metrics to annotate 'transcripts'.
-
-    Requires all related intervals to already be properly annotated.
-
-    What's happening is we sum read depths and adequately covered bases
-    for each interval in a block and then divide those numbers by the
-    total interval length of the block.
+        >>> chanjo_db = Store('data/elements.sqlite3')
+        >>> chanjo_db.set_up()
 
     .. note::
 
-      Block annotation needs to be carried out before annotating
-      superblocks!
+        For testing pourposes use ``:memory:`` as the ``path`` argument to
+        set up in-memory (temporary) database.
 
     Args:
-      sample_id (str): sample Id to match with coverage annotations
+        uri (Optional[str]): path/URI to the database to connect to
+        dialect (Optional[str]): connector + type of database:
+                                 'sqlite'/'mysql'
+        debug (Optional[bool]): whether to output logging information
 
-    Returns
-      list: list of tuples: ``(<block Id>, <coverage>, <completeness>)``
+    Attributes:
+        uri (str): path/URI to the database to connect to
+        engine (class): SQLAlchemy engine, defines what database to use
+        session (class): SQLAlchemy ORM session, manages persistance
+        query (method): SQLAlchemy ORM query builder method
+        classes (dict): bound ORM classes
     """
-    # length of an interval (in number of bases, hence +1)
-    interval_length = Interval.end - Interval.start + 1
 
-    # length of interval * mean coverage
-    cum_interval_coverage = interval_length * IntervalData.coverage
+    def __init__(self, uri=None, dialect='sqlite', debug=False):
+        super(Store, self).__init__()
+        self.uri = uri
+        if uri:
+            self.connect(uri, dialect=dialect, debug=debug)
 
-    # summed 'cumulative' coverage for all intervals (of a block)
-    cum_block_coverage = func.sum(cum_interval_coverage)
+        # ORM class shortcuts to enable fetching models dynamically
+        self.classes = {'gene': Gene, 'transcript': Transcript,
+                        'exon': Exon, 'sample': Sample}
 
-    # summed interval lengths of all intervals (of a block)
-    total_block_length = func.sum(interval_length)
+    def connect(self, uri, dialect='sqlite', debug=False):
+        """Configure connection to a SQL database.
 
-    # cumulative block coverage divided by total block length
-    mean_block_coverage = cum_block_coverage / total_block_length
+        .. versionadded:: 2.1.0
 
-    # length of interval * mean completeness
-    cum_interval_completeness = interval_length * IntervalData.completeness
+        Args:
+            uri (str): path/URI to the database to connect to
+            dialect (Optional[str]): connector + type of database:
+                                     'sqlite'/'mysql'
+            debug (Optional[bool]): whether to output logging information
+        """
+        kwargs = {'echo': debug, 'convert_unicode': True}
+        # connect to the SQL database
+        if dialect == 'sqlite':
+            # conform to the slightly awkward sqlite adapter syntax (///)
+            auth_path = "sqlite:///%s" % uri
+        elif 'mysql' in dialect:
+            # build URI for MySQL containing:
+            # <connector>+<sql_type>://<username>:<password>@<server>/<database>
+            auth_path = "%(type)s://%(uri)s" % dict(type=dialect, uri=uri)
+            kwargs['pool_recycle'] = 3600
+        else:
+            raise NotImplementedError("Only 'sqlite' and 'mysql' are"
+                                      "supported database dialects.")
 
-    # summed cumulative completeness for all intervals (of a block)
-    cum_block_completeness = func.sum(cum_interval_completeness)
+        self.engine = create_engine(auth_path, **kwargs)
+        # make sure the same engine is propagated to the BASE classes
+        BASE.metadata.bind = self.engine
+        # start a session
+        self.session = scoped_session(sessionmaker(bind=self.engine))
+        # shortcut to query method
+        self.query = self.session.query
+        return self
 
-    # cumulative block completeness divided by total block length
-    mean_block_completeness = cum_block_completeness / total_block_length
+    @property
+    def dialect(self):
+        """Return database dialect name used for the current connection.
 
-    # values to fetch
-    interval_block_columns = Interval_Block.columns.values()
-    interval_id = interval_block_columns[0]
-    block_id = interval_block_columns[1]
+        Dynamic attribute.
 
-    return (self.query(block_id, mean_block_coverage, mean_block_completeness)
-            .join(IntervalData, interval_id==IntervalData.parent_id)
-            .join(IntervalData.parent)
-            .filter(IntervalData.sample_id==sample_id).group_by(block_id))
+        Returns:
+            str: name of dialect used for database connection
+        """
+        return self.engine.dialect.name
 
-  def superblock_stats(self, sample_id):
-    """Calculate superblock level metrics to annotate genes.
+    def set_up(self):
+        """Initialize a new database with the default tables and columns.
 
-    Requires all related blocks to already be properly annotated.
+        Returns:
+            Store: self
+        """
+        # create the tables
+        BASE.metadata.create_all(self.engine)
+        return self
 
-    What's happening is that we are simply taking the average of the
-    metrics on the transcript level and applying that as gene metrics.
-    This gives a decent, albeit not perfect, represenation of gene
-    level metrics.
+    def tear_down(self):
+        """Tear down a database (tables and columns).
 
-    .. note::
+        Returns:
+            Store: self
+        """
+        # drop/delete the tables
+        BASE.metadata.drop_all(self.engine)
+        return self
 
-      Annotation of transcripts needs to be acomplished before
-      annotating genes!
+    def get_or_create(self, model, **kwargs):
+        """Get or create a record in the database."""
+        try:
+            query = self.query(model).filter_by(**kwargs)
+            instance = query.first()
+            if instance:
+                return instance, False
+            else:
+                self.session.begin(nested=True)
+                try:
+                    params = dict((key, value) for key, value
+                                  in kwargs.iteritems()
+                                  if not isinstance(value, ClauseElement))
+                    instance = model(**params)
+                    self.session.add(instance)
+                    self.session.commit()
+                    return instance, True
+                except IntegrityError as error:
+                    self.session.rollback()
+                    instance = query.one()
+                    return instance, False
+        except Exception as exception:
+            raise exception
 
-    Args:
-      sample_id (str): sample Id to match with coverage annotations
+    def save(self):
+        """Manually persist changes made to various elements. Chainable.
 
-    Returns:
-      list: list of tuples: ``(<gene_id>, <coverage>, <completeness>)``
-    """
-    return (self.query(Block.superblock_id, func.avg(BlockData.coverage),
-                          func.avg(BlockData.completeness))
-            .join(BlockData, Block.id==BlockData.parent_id)
-            .filter(BlockData.sample_id == sample_id)
-            .group_by(Block.superblock_id))
+        .. versionchanged:: 2.1.2
+            Flush session before commit.
+
+        Returns:
+            Store: ``self`` for chainability
+        """
+        # commit/persist dirty changes to the database
+        self.session.flush()
+        self.session.commit()
+        return self
+
+    def get(self, typ, type_id):
+        """Fetch a specific element or ORM class.
+
+        Calls itself recursively when asked to fetch an element.
+
+        Args:
+            typ (str): element key or 'class'
+            type_id (str): element id or ORM model id
+
+        Returns:
+            model: element or ORM class
+
+        Examples:
+            >>> gene = db.get('gene', 'GIT1')
+        """
+        if typ == 'class':
+            return self.classes.get(type_id, None)
+
+        # get an ORM class (recursive)
+        klass = self.get('class', typ)
+
+        # return the requested element object (or ``None``) if not found
+        return self.session.query(klass).get(type_id)
+
+    def find(self, klass_id, query=None, attrs=None):
+        """Fetch one or more elements based on the query.
+
+        If the 'query' parameter is a string :meth:`~chanjo.Store.find`
+        will fetch one element; just like `get`. If query is a list it will
+        match element ids to items in that list and return a list of
+        elements. If 'query' is ``None`` all elements of that class will
+        be returned.
+
+        Args:
+            klass_id (str): type of element to find
+            query (str/list, optional): element Id(s)
+            attrs (list, optional): list of columns to fetch
+
+        Returns:
+            object/list: element(s) from the database
+        """
+        # get an ORM class
+        klass = self.get('class', klass_id)
+
+        if attrs is not None:
+            params = [getattr(klass, attr) for attr in attrs]
+        else:
+            params = (klass,)
+
+        if query is None:
+            # return all `klass_id` elements in the database
+            return self.query(*params).all()
+        elif isinstance(query, list):
+            # return all `klass_id` elements in the database
+            return self.query(*params).filter(klass.id.in_(query)).all()
+        elif isinstance(query, str):
+            # call 'get' to return the single element
+            return self.get(klass_id, query)
+        else:
+            raise ValueError("'query' must be 'None', 'list', or 'str'")
+
+    def add(self, elements):
+        """Add one or more new elements and commit the changes. Chainable.
+
+        Args:
+            elements (orm/list): new ORM object instance or list of such
+
+        Returns:
+            Store: ``self`` for chainability
+        """
+        if isinstance(elements, BASE):
+            # Add the record to the session object
+            self.session.add(elements)
+        elif isinstance(elements, list):
+            # Add all records to the session object
+            self.session.add_all(elements)
+        return self
+
+    def create(self, class_id, *args, **kwargs):
+        r"""Create a new instance of an ORM element.
+
+        If attributes are supplied as a tuple they must be in the correct
+        order. Supplying a `dict` doesn't require the attributes to be in
+        any particular order.
+
+        Args:
+            class_id (str): choice between "superblock", "block", "interval"
+            \*args (tuple): list the element attributes in the *correct order*
+            \**kwargs (dict): element attributes in whatever order you like
+
+        Returns:
+            orm: new ORM instance object
+        """
+        if args:
+            # unpack tuple
+            return self.get('class', class_id)(*args)
+        elif kwargs:
+            # unpack dictionary
+            return self.get('class', class_id)(**kwargs)
+        else:
+            error_msg = 'Submit attributes as arguments or keyword arguments'
+            raise TypeError(error_msg)

@@ -7,7 +7,6 @@ Command line interface (console entry points). Based on Click_.
 
 .. _Click: http://click.pocoo.org/
 """
-from __future__ import absolute_import, unicode_literals
 import sys
 
 import click
@@ -33,20 +32,20 @@ from .utils import EntryPointsCLI
 @click.version_option(__version__)
 @click.pass_context
 def cli(context, config, db, dialect, verbose, log):
-  """Clinical sequencing coverage analysis tool."""
-  # setup logging
-  make_handler(log, level=LEVELS.get(min(verbose, 3)))
-  logger.info("version %s", __version__)
+    """Clinical sequencing coverage analysis tool."""
+    # setup logging
+    make_handler(log, level=LEVELS.get(min(verbose, 3)))
+    logger.info("version %s", __version__)
 
-  # avoid setting global defaults in Click options, do it below when
-  # updating the config object
-  context.obj = Config(config, markup=markup)
+    # avoid setting global defaults in Click options, do it below when
+    # updating the config object
+    context.obj = Config(config, markup=markup)
 
-  # global defaults
-  db_path = db or context.obj.get('db', 'coverage.sqlite3')
-  db_dialect = dialect or context.obj.get('dialect', 'sqlite')
+    # global defaults
+    db_path = db or context.obj.get('db', 'coverage.sqlite3')
+    db_dialect = dialect or context.obj.get('dialect', 'sqlite')
 
-  context.db = Store(db_path, dialect=db_dialect)
+    context.db = Store(db_path, dialect=db_dialect)
 
-  # update the context with new defaults from the config file
-  context.default_map = context.obj
+    # update the context with new defaults from the config file
+    context.default_map = context.obj

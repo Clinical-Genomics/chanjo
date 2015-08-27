@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
 from datetime import datetime
 
-from sqlalchemy import (
-  Table, Column, ForeignKey, String, Integer,
-  DateTime, Text, Float, Boolean, UniqueConstraint
-)
+from sqlalchemy import (Column, DateTime, Float, ForeignKey, Integer, String,
+                        Table, UniqueConstraint)
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 
