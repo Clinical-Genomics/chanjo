@@ -5,7 +5,7 @@ import json
 import pytest
 import yaml
 
-from chanjo.config import Config, _resolve_key, set_value
+from chanjo.config import Config, _resolve_key
 
 
 def test_init():
@@ -70,29 +70,29 @@ class TestConfig:
 
     def test_resolve_key(self):
         # Test simple case
-        section, key = _resolve_key('person.name', self.config)
+        section, key = _resolve_key(self.config, 'person.name')
         assert section == self.defaults['person']
         assert key == 'name'
 
         # Test with a different base
-        section, key = _resolve_key('person.job', base=self.config.user_data)
+        section, key = _resolve_key(self.config.user_data, 'person.job')
         assert section == {}  # 'user_data' is an empty ``dict`` in this case
         assert key == 'job'
 
-    def test_set_value(self):
+    def test_set(self):
         # Test setting a global setting
-        set_value(self.config, 'country', 'United States')
+        self.config.set('country', 'United States')
         assert self.config['country'] == 'United States'
 
         # Test setting a nested setting (in existing sub-group)
-        set_value(self.config, 'person.name', 'Quentin Tarantino')
+        self.config.set('person.name', 'Quentin Tarantino')
         assert self.config['person']['name'] == 'Quentin Tarantino'
 
         # Test setting a nested setting (in a new sub-group)
-        set_value(self.config, 'bonus.joke', 'Knock, knock.')
+        self.config.set('bonus.joke', 'Knock, knock.')
         assert self.config['bonus']['joke'] == 'Knock, knock.'
 
         # Test multiple nested settings
         value = 'Do not ask me'
-        set_value(self.config, 'what.is.this.useful.for', value)
+        self.config.set('what.is.this.useful.for', value)
         assert self.config['what']['is']['this']['useful']['for'] == value

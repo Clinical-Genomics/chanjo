@@ -9,10 +9,7 @@ Works out of the box with any module that exposes the proper 'load' and
 import io
 import json
 
-from click.termui import echo, style
 from path import path
-
-from .questions import questionnaire
 
 
 class Config(dict):
@@ -76,40 +73,21 @@ class Config(dict):
             self.markup.dump(self.user_data, write_handle, **options)
         return self
 
-
-def init_pipeline(program, config, questions):
-    """Initializes a config object by interactively asking questions to a
-    user. Non-pure."""
-    if config.user_data:
-        # Some existing user settings were found, warn about overwriting them
-        message = "%(program)s %(note)s\tThe existing %(file)s will be updated"
-        segments = dict(program=program, note=style('existing', fg='yellow'),
-                        file=style(config.config_path.basename(), fg='white'))
-        echo(message % segments)
-
-    # Launch questionnaire
-    user_defaults = questionnaire(questions)
-    # Set the selected user defaults
-    for dot_key, value in user_defaults.items():
-        config.set(config.user_data, dot_key, value)
-
-    # Write to the config file
-    config.save()
+    def set(self, dot_key, value, base=None):
+        """Update a config key-value pair."""
+        section, key = _resolve_key((base or self), dot_key)
+        # Set key-value pair
+        section[key] = value
+        return self
 
 
-def set_value(base, dot_key, value):
-    """Update a config key-value pair."""
-    section, key = _resolve_key(dot_key, base)
-    # Set key-value pair
-    section[key] = value
-
-
-def _resolve_key(dot_key, base):
+def _resolve_key(base, dot_key):
     """Resolve a "dot key" (e.g. person.age).
 
     Private method.
 
     Args:
+        base (dict): nested dictionary
         dot_key (str):
     """
     # the key can be provided as a path to nested pairs

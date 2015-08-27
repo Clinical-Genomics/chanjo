@@ -7,8 +7,7 @@ Config module with Click integration.
 """
 import yaml as markup
 
-from .cli import init
-from .core import Config, init_pipeline, _resolve_key, set_value
+from .core import Config, _resolve_key
 from .questions import ask, build_prompt, questionnaire
 from .utils import remove_ansi
 
