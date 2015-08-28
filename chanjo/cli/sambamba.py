@@ -49,10 +49,4 @@ def sambamba(context, bam_file, exon_bed, gene_bed, cov_treshold, outfile):
         region_file = gene_bed
     
     run_sambamba(bam_file, region_file, outfile, cov_treshold)
-    
 
-if __name__ == '__main__':
-    from chanjo import logger
-    from chanjo.log import init_log
-    init_log(logger, loglevel="DEBUG")
-    sambamba()
