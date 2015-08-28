@@ -4,6 +4,7 @@
   sudo: no
   roles:
     - common
+    - sambamba
     - robinandeer.miniconda
     - chanjo
 
