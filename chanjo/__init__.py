@@ -10,7 +10,7 @@ and embraces functional programming patterns.
 """
 
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 __banner__ = r"""
        ______               ________
