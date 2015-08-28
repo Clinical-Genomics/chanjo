@@ -20,27 +20,21 @@ $ pip install chanjo
 ... or locally for development:
 
 ```bash
+$ ansible-galaxy install robinandeer.miniconda
 $ git clone https://github.com/robinandeer/chanjo.git && cd chanjo
 $ vagrant up
 $ vagrant ssh
 ```
 
 ## Usage
-Chanjo exposes a composable command line interface. You can always save intermediary files at any stage and customize every option. However, using a ``chanjo.yaml`` config and UNIX pipes you can end up with something like:
+Chanjo exposes a composable command line interface with a nifty config file implementation.
 
 ```bash
-$ chanjo convert CCDS.sorted.txt | chanjo annotate alignment.bam > coverage.bed
-```
-
-### Chanjo Report
-A shamelessly plug for a neat little Chanjo plugin; [Chanjo-Report][report]. It allows you to extract metrics from Chanjo databases and generate coverage reports as either HTML or PDF.
-
-After you install it using ``pip install chanjo-report`` you will notice a new subcommand under the Chanjo CLI.
-
-```bash
-$ chanjo report
-#sample_id	group_id	cutoff	avg. coverage	avg. completeness	diagnostic yield	gender
-vavaweho	group1	10	155.64825142540616	0.9829187630212934	0.8941083089800483	female
+$ chanjo init --setup
+$ chanjo load /path/to/sambamba.output.bed
+$ chanjo calculate mean sample1
+#sampleId	mean-coverage
+sample10	176.513223249
 ```
 
 ## Documentation
@@ -53,9 +47,7 @@ If you are looking to learn more about handling sequence coverage data in clinic
 ## Features
 
 ### What Chanjo does
-Chanjo works on BAM alignment files and extracts interesting coverage related statistics. You use a BED-file to define which regions of the genome that you particularly care about. The output takes the shape of an extended BED-file.
-
-An optional final step is to load data into a SQL database. This will aggregate data from exons to transcripts and genes. The database will later work as an API to downstream tools like the Chanjo Coverage Report generator.
+Chanjo leverages Sambamba to annotate coverage and completeness for a general BED-file. The output can then easily to loaded into a SQL database that enables investigation of coverage across regions and samples. The database also works as an API to downstream tools like the Chanjo Coverage Report generator.
 
 ### What Chanjo doesn't
 Chanjo is not the right choice if you care about coverage for every base across the entire genome. Detailed histograms is something [BEDTools][bedtools] already handles with confidence.
