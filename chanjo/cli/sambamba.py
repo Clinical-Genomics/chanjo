@@ -51,6 +51,6 @@ def sambamba(context, bam_file, exon_bed, gene_bed, cov_treshold, outfile):
     try:
         run_sambamba(bam_file, region_file, outfile, cov_treshold)
     except Exception as e:
-        click.echo(e)
+        logger.debug(e)
         click.Abort()
 

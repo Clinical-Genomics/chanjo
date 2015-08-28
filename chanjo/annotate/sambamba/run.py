@@ -29,7 +29,7 @@ def run_sambamba(bam_file, region_file, outfile=None, cov_treshold=()):
     for coverage_treshold in cov_treshold:
         sambamba_call += ['-T', str(coverage_treshold)]
     
-    logger.info("Running sambamba with call:\n{0}".format(' '.join(sambamba_call)))
+    logger.info("Running sambamba with call: {0}".format(' '.join(sambamba_call)))
     
     try:
         subprocess.check_call(
