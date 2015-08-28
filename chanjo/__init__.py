@@ -8,6 +8,10 @@ and embraces functional programming patterns.
 :copyright: (c) 2014 by Robin Andeer
 :licence: MIT, see LICENCE for more details
 """
+
+import logging
+logger = logging.getLogger()
+
 __banner__ = r"""
        ______               ________
  _________  /_______ _____________(_)_____
