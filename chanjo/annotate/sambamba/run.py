@@ -1,6 +1,8 @@
 import subprocess
 import logging
 
+from subprocess import CalledProcessError
+
 from chanjo.log import get_log_stream
 
 
@@ -36,7 +38,11 @@ def run_sambamba(bam_file, region_file, outfile=None, cov_treshold=()):
         )
     except OSError as e:
         logger.critical("sambamba seems to not exist on your system.")
-        sys.exit()
+        raise e
+    except CalledProcessError as e:
+        logger.critical("Something went wrong when running sambamba. "\
+        "Please see sambamba error output.")
+        raise e
     
     logger.debug("sambamba run successfull")
     
