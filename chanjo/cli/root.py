@@ -53,7 +53,6 @@ def root(context, config, database, verbose, log_file):
     # setup logging
     from chanjo import logger
     loglevel = LEVELS.get(verbose, "WARNING")
-
     init_log(logger, loglevel=loglevel, filename=log_file)
     logger.info("version {0}".format( __version__))
 
