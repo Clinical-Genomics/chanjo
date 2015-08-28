@@ -12,9 +12,10 @@ import sys
 import click
 
 import chanjo
+
 from chanjo._compat import text_type
 from chanjo.config import Config, CONFIG_FILE_NAME, markup
-from chanjo.log import logger, make_handler, LEVELS
+from chanjo.log import init_log, LEVELS
 from chanjo.utils import EntryPointsCLI
 
 
@@ -24,14 +25,16 @@ from chanjo.utils import EntryPointsCLI
 @click.option('-d', '--database', type=text_type,
               help='path/URI of the SQL database')
 @click.option('-v', '--verbose', count=True)
-@click.option('-l', '--log', type=click.File('a', encoding='utf-8'),
-              default=sys.stderr)
+@click.option('--log_file', type=click.Path())
 @click.version_option(chanjo.__version__)
 @click.pass_context
-def root(context, config, database, verbose, log):
+def root(context, config, database, verbose, log_file):
     """Clinical sequencing coverage analysis tool."""
     # setup logging
-    make_handler(log, level=LEVELS.get(min(verbose, 3)))
+    from chanjo import logger
+    loglevel = LEVELS.get(verbose, "WARNING")
+
+    init_log(logger, loglevel=loglevel, filename=log_file)
     logger.info("version %s", chanjo.__version__)
 
     # avoid setting global defaults in Click options, do it below when
