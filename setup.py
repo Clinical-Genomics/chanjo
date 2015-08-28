@@ -98,7 +98,8 @@ setup(
             'demo = chanjo.demo:demo',
             'init = chanjo.cli:init_command',
             'load = chanjo.cli:load_command',
-            'calculate = chanjo.cli:calculate_command'
+            'calculate = chanjo.cli:calculate_command',
+            'sambamba = chanjo.cli:sambamba_command'
         ]
     },
 

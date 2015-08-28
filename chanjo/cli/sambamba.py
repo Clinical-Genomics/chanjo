@@ -29,6 +29,7 @@ def sambamba(context, bam_file, exon_bed, gene_bed, cov_treshold):
     #For testing only:
     logger = logging.getLogger("chanjo.cli.sambamba")
     logger.info("bam_file:{0}".format(bam_file))
+    click.echo("bam_file:{0}".format(bam_file)) #For testing
 
 
 def run_sambamba():
@@ -37,5 +38,5 @@ def run_sambamba():
 
 
 if __name__ == '__main__':
-    # from chanjo.log import make_handler
+    # from chanjo.log impo
     sambamba()
