@@ -6,7 +6,14 @@ from chanjo._compat import iteritems
 
 
 def depth_output(handle):
-    """Parse the output."""
+    """Parse the output.
+
+    Args:
+        handle (iterable): Chanjo-formatted BED lines
+
+    Yields:
+        dict: parsed sambamba output row
+    """
     lines = (line.strip() for line in handle)
     rows = (line.split('\t') for line in lines)
     # expect only a single header row
@@ -18,7 +25,14 @@ def depth_output(handle):
 
 
 def expand_header(row):
-    """Parse the header information."""
+    """Parse the header information.
+
+    Args:
+        List[str]: sambamba BED header row
+
+    Returns:
+        dict: name/index combos for fields
+    """
     # figure out where the sambamba output begins
     sambamba_start = row.index('readCount')
     sambamba_end = row.index('sampleName')
@@ -36,7 +50,15 @@ def expand_header(row):
 
 
 def expand_row(header, row):
-    """Parse information in row to dict."""
+    """Parse information in row to dict.
+
+    Args:
+        header (dict): key/index header dict
+        row (List[str]): sambamba BED row
+
+    Returns:
+        dict: parsed sambamba output row
+    """
     thresholds = {threshold: float(row[key])
                   for threshold, key in iteritems(header['thresholds'])}
     data = {

@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+import logging
+
 import click
 
 from chanjo.load import sambamba
 from chanjo.parse import bed
 from chanjo.store import Store
 from chanjo.utils import validate_stdin
+
+logger = logging.getLogger(__name__)
 
 
 @click.command()
@@ -26,5 +30,6 @@ def load_sambamba(chanjo_db, bed_iterable, group_id=None):
         chanjo_db.add(stat)
         if index % 10000 == 0:
             chanjo_db.save()
+            logger.debug('processed %s annotations', index)
 
     chanjo_db.save()
