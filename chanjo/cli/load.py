@@ -2,6 +2,7 @@
 import logging
 
 import click
+from sqlalchemy.exc import IntegrityError
 
 from chanjo.load import sambamba
 from chanjo.parse import bed
@@ -19,7 +20,12 @@ logger = logging.getLogger(__name__)
 def load(context, group, bed_stream):
     """Load Sambamba output into the database for a sample."""
     chanjo_db = Store(uri=context.obj['database'])
-    load_sambamba(chanjo_db, bed_stream, group_id=group)
+    try:
+        load_sambamba(chanjo_db, bed_stream, group_id=group)
+    except IntegrityError:
+        logger.error('sample already loaded, rolling back')
+        chanjo_db.session.rollback()
+        context.abort()
 
 
 def load_sambamba(chanjo_db, bed_iterable, group_id=None):
