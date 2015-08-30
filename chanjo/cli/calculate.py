@@ -11,14 +11,14 @@ from chanjo.store import Exon, ExonStatistic, Gene, Sample, Store, Transcript
 logger = logging.getLogger(__name__)
 
 
-def group_by_sample(results):
-    samples = {}
-    for sample_id, metric, value in results:
-        if sample_id not in samples:
-            samples[sample_id] = {'sample_id': sample_id}
-        samples[sample_id][metric] = value
+def group_by_field(results, name='field_id'):
+    groups = {}
+    for field_id, metric, value in results:
+        if field_id not in groups:
+            groups[field_id] = {name: field_id}
+        groups[field_id][metric] = value
 
-    return itervalues(samples)
+    return itervalues(groups)
 
 
 @click.group()
@@ -41,7 +41,7 @@ def mean(context, samples):
     if samples:
         results = results.filter(Sample.sample_id.in_(samples))
 
-    for data in group_by_sample(results):
+    for data in group_by_field(results, name='sample_id'):
         json_dump = json.dumps(data)
         click.echo(json_dump)
 
@@ -70,11 +70,47 @@ def gene(context, gene_ids):
                      .filter(Transcript.transcript_id.in_(tx_ids))
                      .group_by(Sample.sample_id, ExonStatistic.metric))
 
-        for data in group_by_sample(results):
+        for data in group_by_field(results, name='sample_id'):
             if data['sample_id'] not in samples:
                 samples[data['sample_id']] = {'sample_id': data['sample_id']}
             samples[data['sample_id']][gene_id] = data
 
     for sample_data in itervalues(samples):
         json_dump = json.dumps(sample_data)
+        click.echo(json_dump)
+
+
+@calculate.command()
+@click.option('-s', '--sample', help='sample id')
+@click.option('-p', '--per-exon', is_flag=True, help='report per exon stats')
+@click.argument('chromosome', type=str)
+@click.argument('start', type=int)
+@click.argument('end', type=int)
+@click.pass_context
+def region(context, sample, per_exon, chromosome, start, end):
+    """Report mean statistics for a region of exons."""
+    db = context.parent.db
+    results = (db.query(Exon.exon_id, ExonStatistic.metric,
+                        func.avg(ExonStatistic.value))
+                 .join(ExonStatistic.exon)
+                 .filter(Exon.chromosome == chromosome,
+                         Exon.start >= start,
+                         Exon.end <= end)
+                 .group_by(ExonStatistic.metric))
+
+    if per_exon:
+        results = results.group_by(Exon.exon_id)
+
+    if sample:
+        results = (results.join(ExonStatistic.sample)
+                          .filter(Sample.sample_id == sample))
+
+    if per_exon:
+        for data in group_by_field(results, name='exon_id'):
+            json_dump = json.dumps(data)
+            click.echo(json_dump)
+
+    else:
+        data = {metric: value for exon_id, metric, value in results}
+        json_dump = json.dumps(data)
         click.echo(json_dump)
