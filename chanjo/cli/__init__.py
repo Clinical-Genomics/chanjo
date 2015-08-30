@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from .calculate import calculate as calculate_command
+from .database import db as database_command
 from .init import init as init_command
 from .link import link as link_command
 from .load import load as load_command

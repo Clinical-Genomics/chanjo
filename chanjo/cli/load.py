@@ -39,3 +39,4 @@ def load_sambamba(chanjo_db, bed_iterable, group_id=None):
             logger.debug('processed %s annotations', index)
 
     chanjo_db.save()
+    logger.debug('processed %s annotations', index)
