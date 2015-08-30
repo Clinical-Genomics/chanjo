@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Parse BED files including Sambamba output files."""
-from chanjo._compat import zip
+from chanjo.compat import zip
 from chanjo.parse import sambamba
 from chanjo.utils import list_get
 

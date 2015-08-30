@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from toolz import cons
 
-from chanjo._compat import iteritems
+from chanjo.compat import iteritems
 from chanjo.store import ExonStatistic, Sample
 
 from .utils import get_or_build_exon

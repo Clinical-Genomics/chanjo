@@ -2,7 +2,7 @@
 """
 Parse the sambamba "depth region" output.
 """
-from chanjo._compat import iteritems
+from chanjo.compat import iteritems
 from chanjo.exc import BedFormattingError
 
 

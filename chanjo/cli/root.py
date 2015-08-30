@@ -7,13 +7,11 @@ Command line interface (console entry points). Based on Click_.
 
 .. _Click: http://click.pocoo.org/
 """
-import sys
-
 import click
 
 import chanjo
 
-from chanjo._compat import text_type
+from chanjo.compat import text_type
 from chanjo.config import Config, CONFIG_FILE_NAME, markup
 from chanjo.log import init_log, LEVELS
 from chanjo.utils import EntryPointsCLI

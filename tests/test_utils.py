@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from chanjo._compat import text_type
+from chanjo.compat import text_type
 from chanjo.utils import id_generator
 
 
