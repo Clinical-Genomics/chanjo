@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import json
+
 import click
 from sqlalchemy.sql import func
 
@@ -25,4 +27,6 @@ def mean(context, samples):
         results.filter(Sample.sample_id.in_(samples))
 
     for sample_id, mean_coverage in results:
-        click.echo("{}: {}".format(sample_id, mean_coverage))
+        json_dump = json.dumps(dict(sample_id=sample_id,
+                                    mean_coverage=mean_coverage))
+        click.echo(json_dump)
