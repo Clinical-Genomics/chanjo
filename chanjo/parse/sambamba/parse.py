@@ -3,6 +3,7 @@
 Parse the sambamba "depth region" output.
 """
 from chanjo._compat import iteritems
+from chanjo.exc import BedFormattingError
 
 
 def depth_output(handle):
@@ -13,11 +14,16 @@ def depth_output(handle):
 
     Yields:
         dict: parsed sambamba output row
+
+    Raises:
+        BedFormattingError: if the BED file doesn't contain enough columns
     """
     lines = (line.strip() for line in handle)
     rows = (line.split('\t') for line in lines)
     # expect only a single header row
     header_row = next(rows)
+    if len(header_row) < 6:
+        raise BedFormattingError('make sure fields are tab-separated')
     header_data = expand_header(header_row)
     # parse rows
     for row in rows:
