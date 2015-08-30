@@ -81,13 +81,14 @@ def gene(context, gene_ids):
 
 
 @calculate.command()
-@click.option('-s', '--sample', help='sample id')
-@click.option('-p', '--per-exon', is_flag=True, help='report per exon stats')
+@click.option('-s', '--sample', help='limit to a single sample')
+@click.option('-p', '--per', type=click.Choice(['exon', 'sample']),
+              help='report stats per sample/exon')
 @click.argument('chromosome', type=str)
 @click.argument('start', type=int)
 @click.argument('end', type=int)
 @click.pass_context
-def region(context, sample, per_exon, chromosome, start, end):
+def region(context, sample, per, chromosome, start, end):
     """Report mean statistics for a region of exons."""
     db = context.parent.db
     results = (db.query(Exon.exon_id, ExonStatistic.metric,
@@ -98,14 +99,12 @@ def region(context, sample, per_exon, chromosome, start, end):
                          Exon.end <= end)
                  .group_by(ExonStatistic.metric))
 
-    if per_exon:
-        results = results.group_by(Exon.exon_id)
-
     if sample:
         results = (results.join(ExonStatistic.sample)
                           .filter(Sample.sample_id == sample))
 
-    if per_exon:
+    if per == 'exon':
+        results = results.group_by(Exon.exon_id)
         for data in group_by_field(results, name='exon_id'):
             json_dump = json.dumps(data)
             click.echo(json_dump)
