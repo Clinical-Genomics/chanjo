@@ -82,7 +82,7 @@ class EntryPointsCLI(click.MultiCommand):
     def _iter_commands(self):
         """Iterate over all subcommands as defined by the entry point."""
         return {entry_point.name: entry_point for entry_point in
-                pkg_resources.iter_entry_points('chanjo.subcommands')}
+                pkg_resources.iter_entry_points('chanjo.subcommands.3')}
 
     def list_commands(self, ctx):
         """List the available commands."""
