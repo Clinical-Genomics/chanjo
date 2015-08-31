@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased][unreleased]
+### Added
+- Added functionality to run sambamba from chanjo
+
+## [Unreleased][unreleased]
+### Fixed
+- Changed way of logging
+- Added proper logstream handler
+
+
 ## [2.3.2] - 2015-03-21
 ### Fixed
 - Refactor ``EntryPointsCLI`` to allow for external subcommands
