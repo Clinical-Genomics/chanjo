@@ -6,17 +6,11 @@ Concise overview
 -----------------
 **Current release**: |codename| (|version|)
 
-Chanjo breaks down coverage to intuitive levels of abstraction; genes, transcripts, exons, and intervals. It also introduces a new coverage metric that reduces the bias from uneven coverage. Chanjo is built around the idea of multiple levels of pipelines and fully embraces bash conventions. It's easily incorporated into existing pipelines and provides a clear path for downstream analysis.
+The goals of Chanjo are quite simple:
 
-This guide is meant to give an overview of Chanjo, what you can and can't do with it. To start you off, take a look at this flow diagram. It illustrates how the different subcommands from the command line interface relate to each other. Don't worry, you'll learn more about it real soon.
-
-.. image:: _static/chanjo-overall-flow.png
-
-As indicated by the picture, Chanjo is built around streams of data that can be piped around. For example, it's perfectly possible to go from "CCDS" via *convert* and *build* to "SQL". In other commands:
-
-.. code-block:: console
-
-	$ cat CCDS.txt | chanjo convert | chanjo --db="coverage.sqlite3" build
+1. Integrate seamlessly with ``sambamba depth region`` output
+2. Break down coverage to intuitive levels of abstraction: exons, transcripts, and genes
+3. Enable explorative coverage investigations across samples and genomic regions
 
 
 Demo

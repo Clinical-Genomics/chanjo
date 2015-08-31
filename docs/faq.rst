@@ -25,17 +25,6 @@ You need to change a setting in the “my.cnf” file. More information here.
 - Troubleshooting
 
 
-Why is the build command failing?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-It's important to remember that both the "convert" and "build" commands expect the input to be sorted on both the first and second columns. Forgetting to do this can lead to failed grouping of intervals which in turn leads to the failed import.
-
-Therefore, solving the issue might be as simple as:
-
-.. code-block:: console
-
-  $ sort -k1,1 -k2,2n CCDS.txt | chanjo convert | chanjo build CCDS.sqlite3
-
-
 I can't overwrite exising files using Chanjo!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 As of the 2.0 release, Chanjo now completely relies on UNIX style output redirection for writing to files. You might, *wisely*, be using ``set -o noclobber`` in your .bashrc. This raises an error in UNIX if you try to overwrite existing files by output redirection.

@@ -8,34 +8,32 @@ The page provides an extended look into each of the six subcommands that make up
 
 1. chanjo_
 2. init_
-3. convert_
-4. build_
-5. export_
-6. annotate_
-7. import_
-8. `sex checker`_
+3. load_
+4. link_
+5. calculate_
+6. db_
 
 
 .. _chanjo:
 
 chanjo
 ------
-The base command which doesn't do anything on it's own. However, there are a few global options accessible at this level. For example, to log debug information (and anything more important) to a file called ``./chanjo.log`` use this command:
+The base command doesn't do anything on it's own. However, there are a few global options accessible at this level. For example, to log debug information to a file called ``./chanjo.log`` use this command:
 
 .. code-block:: console
 
-  $ chanjo -vvv --log ./chanjo.log [SUBCOMMAND HERE]
+  $ chanjo -v --log ./chanjo.log [SUBCOMMAND HERE]
 
-To learn more about the global Chanjo options, run ``chanjo --help``.
+This is also where you can define what database to connect to using the ``-d/--database`` option. Chanjo will otherwise use the database defined in the config. To learn more about the global Chanjo options, run ``chanjo --help``.
 
 
 .. _init:
 
 chanjo init
 -----------
-This command doesn't actually do any computations but rather walks you through the setup of a Chanjo config file. With this in place you won't have to worry about missing to specify default options on the command line. You could for example set which type of SQL database to use or which institute you belong to.
+Walks you through the setup of a Chanjo config file and optionally initialized a new database. With a config you won't have to worry about missing to specify default options on the command line.
 
-The format of the config is ``.toml``.
+The format of the config is ``.yaml``.
 
 .. code-block:: console
 
@@ -44,140 +42,109 @@ The format of the config is ``.toml``.
 The generated config file will be stored in the current working directory. This is also where Chanjo will automatically look for it. If you want to share a config file between projects it's possible to point to a global file with the ``--config`` option.
 
 
-.. _convert:
+.. _load:
 
-chanjo convert
----------------
-Convert between different input formats using adapters (exposed through setuptools entry points, installed via pip). The output is always a valid Chanjo BED stream. The default adapter is "ccds".
-
-With the default adapter, we can convert a CCDS database dump to Chanjo's extended BED definitions of exonic intervals. It's important to remember that the convert command expects a sorted file based on both contig/chromosome and start position.
-
-.. code-block:: console
-
-	$ sort -k1,1 -k2,2n CCDS.txt | chanjo convert > CCDS.intervals.bed
-
-The converted BED-file contains one exon interval per line plus some additional meta data in the columns 4-7. You can read more about the specific requirements at UCSC_.
-
-.. code-block:: console
-
-	$ cat CCDS.intervals.bed
-	#contig	start	end	interval_id	strand	block_ids	superblock_ids
-	22	32586758	32587338	22-32586758-32587338	-	CCDS54521.1,CCDS46694.1	RFPL2,RFPL2
-	22	32588888	32589173	22-32588888-32589173	-	CCDS54521.1	RFPL2
-	22	32588888	32589260	22-32588888-32589260	-	CCDS46694.1	RFPL2
-	X	54951423	54951500	X-54951423-54951500	+	X-CCDS59529.1	X-TRO
-	X	54952024	54952115	X-54952024-54952115	+	X-CCDS59529.1	X-TRO
-
-Beyond the first 5 columns, Chanjo recognizes an additional two custom and optional columns.
-
-Column 6 contains transcript Ids or more generally "block" Ids. This gives the user a way to group multiple intervals into blocks. These blocks are assumed to contain only **non-overlapping** intervals. It's OK for one interval to belong to multiple blocks.
-
-Column 7 contains gene Ids or more generally "superblock" Ids. They offer a way to group *blocks*. A single *block* should only belong to one single *superblock*.
-
-**Runtime**: seconds (50Mb input)
-
-
-.. _build:
-
-chanjo build
+chanjo load
 --------------
-Chanjo takes advantage of the power behind SQL databases by providing a way to store coverage annotations in SQL. It all starts with initializing a new database with the interval, block, and superblock definitions generated from ``chanjo convert``.
+Chanjo takes advantage of the power behind SQL databases by providing a way to store coverage annotations in SQL. You load coverage annotations from ``sambamba depth region`` output. It's possible to pipe directly to this command:
 
 .. code-block:: console
 
-	$ chanjo --db="CCDS.coverage.sqlite3" build CCDS.intervals.bed
+	$ sambamba depth region -L exons.bed alignment.bam | chanjo load
 
-As shown below, it's very important to sort the BED-formatted input file before running ``chanjo build``. The input stream should be sorted on:
+Each line is added independently so it doesn't really matter if the file is sorted.
 
-1. chromosome/contid id - whatever orders works as long as all intervals from on each contig is grouped together.
-2. start position - the order should be **decending**
+Most of the information is already stored in the BED output file from Sambamba but to link multiple samples into logical related groups you can future specify a group identifier when calling the load command:
 
-It's worth noting that setting up a database with the *build* subcommand only needs to be done once. After the basic structure is in place, you can add how ever many samples you want to the database.
+.. code-block:: console
 
-**Runtime**: ~5 min (<200Mb)
+    $ chanjo load --group group1 exons.coverage.bed
 
 
-.. _export:
+.. _link:
 
-chanjo export
+chanjo link
 --------------
-This is a convenience command to export a BED stream of all intervals as defined in an existing SQL database. The resulting stream can be directly piped to ``chanjo annotate``.
+Another main benefit of Chanjo is the ability to get coverage for related genomic elements: exons, transcripts, and genes. The "link" only need to be run ones (at any time) and accepts a similar BED file to "load_".
 
 .. code-block:: console
 
-	$ chanjo --db="CCDS.coverage.sqlite3" export > CCDS.intervals.min.bed
+    $ chanjo link exons.coverage.bed
 
-Exporting intervals from a database can be handy since you only need to store the definitions in *one* place (the database). Otherwise it can be easy to forget which original BED-file was initially used.
-
-**Runtime**: seconds (~200 Mb)
-
-.. note::
-	The *export* subcommand only generates the minimum BED-file to use with ``chanjo annotate``. Piping it to ``chanjo build`` would **not** setup an identical "twin" database.
+Each line is added independently so it doesn't really matter if the file is sorted.
 
 
-.. _annotate:
+.. _calculate:
 
-chanjo annotate
+chanjo calculate
 -----------------
-The "annotate" subcommand takes a *regular* (or extended) BED-file with interval definitions and annotates it with coverage and completeness metrics.
+This is where the exiting exploration happens! Chanjo exposes a few powerful ways to investigate coverage ones it's been loaded into the databse.
+
+mean
+~~~~~
+Extract basic coverage stats across all exons for samples.
 
 .. code-block:: console
 
-	$ chanjo annotate alignment.bam CCDS.intervals.min.bed > CCDS.intervals.coverage.bed
+    $ chanjo calculate mean
+    {"complateness_10": 78.93, "mean_coverage": 114.21, "sample_id": "sample1"}
+    {"complateness_10": 45.92, "mean_coverage": 78.42, "sample_id": "sample2"}
 
-The output is again in the BED-format but with the added coverage and completeness columns for each interval to the end of each line.
-
-.. note::
-	Out of ideas for good sample ids? Chanjo can automatically generate random yet memorable strings like "bolitimo", "tetesolu", "mivetote", "bidigugi", or perhaps "dobopeto".
-
-There are a lot of options to customize this command.
-
-.. csv-table::
-   :header: "Option", "Description"
-   :widths: 10, 50
-   :file: annotate-options.csv
-   :delim: ;
-
-You now have the choice to roll your own downstream data analysis or import the annotations into a SQL database.
-
-**Runtime**: <10 min (~40 Mb)
-
-
-.. _import:
-
-chanjo import
---------------
-If you decide to move on from the text-based output from ``chanjo annotate`` and have a SQL database set up, the *import* subcommand is the endpoint for the overall Chanjo pipeline.
-
-Simply speaking, "import" will take the output from ``chanjo annotate`` and import the annotations to a SQL database. It will then take the coverage metrics on the interval level and extend them to both block and superblock levels.
+gene
+~~~~~
+Extract metrics for particular genes. This requries that the exons have been linked using the "link_" command to the related transcripts and genes. It should be noted that this information is only an approximation since we don't take overlapping exons into consideration.
 
 .. code-block:: console
 
-	$ chanjo annotate alignment.bam CCDS.intervals.min.bed [...] \
-	> | chanjo --db="CCDS.coverage.sqlite3" import
+    $ chanjo calculate gene ADK
+    {"ADK": {"complateness_10": 78.93, "mean_coverage": 114.21}, "sample_id": "sample1"}
 
-**Runtime**: ~1 min (<800 Mb)
+The calculation is based on simple averages across all exons related to the gene.
 
-.. note::
-	If you have old coverage annotation files in the legacy JSON format, you can still import them into the new SQL structure by adding the ``--json`` flag.
-
-
-.. _sex checker:
-
-sex-check [bonus]
--------------------
-Along with chanjo, a bonus command line utility is installed that can predict the sex of a sample given a BAM alignment file. The very basic script uses the "depth reader" from Chanjo to read and compare coverage across regions of the X and Y chromosomes. The "algorithm" is very naive but should still be very robust in determining the gender of a properly aligned BAM-file.
+region
+~~~~~~~
+Metrics can also be extracted for a continous interval of exons. This enables some interesting opportunities for exploration. The base command reports average metrics for all included exons across all samples:
 
 .. code-block:: console
 
-  $ sex-check alignment.bam
-  #X_coverage Y_coverage  sex
-  0.898022446555  0.322524716855  male
+    $ chanjo calculate region 1 122544 185545
+    {"complateness_10": 50.45, "mean_coverage": 56.12}
 
-**Runtime**: seconds (any size)
+We can split this up into each individual exon as well for more detail:
 
-.. note::
-  ``sex-check`` works for human samples only!
+.. code-block:: console
+
+    $ chanjo calculate region 1 122544 185545 --per exon
+    {"complateness_10": 10.12, "mean_coverage": 12.00, "exon_id": "exon1"}
+    {"complateness_10": 90.76, "mean_coverage": 114.98, "exon_id": "exon2"}
+
+We can of course also filter the results down to individual samples as well:
+
+.. code-block:: console
+
+    $ chanjo calculate region 1 122544 185545 --per exon --sample sample1
+    {"complateness_10": 23.56, "mean_coverage": 34.05, "exon_id": "exon1"}
+    {"complateness_10": 91.86, "mean_coverage": 157.02, "exon_id": "exon2"}
+
+
+.. _db:
+
+chanjo db
+-----------
+Enables you to quickly perform housekeeping tasks on the database.
+
+setup
+~~~~~~~~~~~~~~~~
+Set up and tear down a Chanjo database.
+
+remove
+~~~~~~~~~~~~~~~~~
+Remove all traces of a sample from the database.
+
+.. code-block:: console
+
+    $ chanjo db remove sample1
+
 
 
 Closing words
@@ -186,5 +153,4 @@ The command line interface is really just a bunch of shortcuts that simplifies t
 
 
 
-.. _UCSC: http://genome.ucsc.edu/FAQ/FAQformat.html#format1
 .. _API Reference: api.html
