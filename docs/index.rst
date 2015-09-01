@@ -23,19 +23,16 @@ Home
 	</div>
 
 
-Simple & intuitive analysis pipeline
---------------------------------------
+Simple Sambamba integration
+-----------------------------
+There's a new kid on the BAM processing block: Sambamba_! You can easily load output into a Chanjo database for further coverage exploration:
 
 .. code-block:: console
 
-	$ cat intervals.bed | chanjo annotate alignment.bam
-	#{"sample_id": "bavewira", ...}
-	1	10	15	interval-1	9.922	0.97231
-	2	45	55	interval-2	14.231	1.0
-
-Chanjo adds two columns to each row describing **average coverage** and
-how many percent of bases that are covered at 10x reads;
-**completeness**.
+    $ sambamba depth region -L exons.bed -t 10 -t 20 alignment.bam > exons.coverage.bed
+    $ chanjo load exons.coverage.bed
+    $ chanjo calculate region 1 861321 871275 --sample ADM980A2
+    {"completeness_10": 100, "completeness_20": 87.123, "mean_coverage": 47.24234}
 
 To learn more about Chanjo and how you can use it to gain a better
 understanding of sequencing coverage you can do no better than to:
@@ -56,7 +53,6 @@ Contents
 	installation
 	introduction
 	interface
-	code
 	api
 	developer
 	release-notes
@@ -73,3 +69,6 @@ made by
 			<img class="robinandeer-logo" src="_static/robinandeer-logo.png" />
 		</div>
 	</a>
+
+
+.. _Sambamba: http://lomereiter.github.io/sambamba/

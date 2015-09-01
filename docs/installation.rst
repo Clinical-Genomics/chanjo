@@ -1,40 +1,40 @@
 =============
 Installation
 =============
-**tl;dr** ``$ pip install chanjo``
 
-
-Bulletproof install
---------------------
-Chanjo targets **Unix** and **Python 2.7+/3.2+**. It depends on a few C extentions that significantly reduces runtime and simplifes the interface. To avoid hassle when installing them I definitivly recommend `Miniconda`_.
-
-Miniconda is a slim distribution of Python that can be installed without root access. There's versions for Linux, Mac OSX, and Windows. It also includes an alternative package manager (conda) that will install binary (precompiled) versions of Python C extentions such as Numpy, Pysam, and SQLAlchemy. It makes the whole installation process quick *and* painless.
-
-To install Miniconda, run:
+Guide
+---------
+Chanjo targets **Unix** and **Python 2.7+/3.2+**. Since chanjo relies on Sambamba for BAM processing, it's now very simple to install. I do still recommend `Miniconda`_, it's a slim distribution of Python with a very nice package manager.
 
 .. code-block:: console
 
-  $ wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
-  $ bash Miniconda-latest-Linux-x86_64.sh -b
-  $ export PATH="$HOME/miniconda/bin:$PATH"  # remember to add this to your path!
+    $ pip install chanjo
 
-Now with Miniconda installed we setup a new conda environment.
 
-.. code-block:: console
-
-  $ conda create -n chanjo2 python=2 cython numpy sqlalchemy pip
-  $ source activate chanjo2
-  $ conda install -c https://conda.binstar.org/robinandeer pysam
-
-And now we simply install Chanjo into the new environment without having to worry about tricky C dependencies.
+Vagrant dev/testing environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can also set up a local development environment in a virtual machine through Vagrant_. This will handle the install for you automatically through Ansible provisioning! After downloading/cloning the repo:
 
 .. code-block:: console
 
-	$ pip install chanjo
+    $ vagrant up
+    $ vagrant ssh
 
-.. note::
-	If you are a Python purist and prefer the tried and true pip+virtualenv combo it will of course do the trick as well. For more detailed instructions head over to Kenneth Reitz's `Python Guide`_.
 
+Sambamba
+----------
+You will also need a copy of Sambamba which you can simply grab from their `GitHub repo`_ where they serve up static binaries - just drop the latest in your path and you are good to go!
+
+.. code-block:: console
+
+    $ wget -P /tmp/ https://github.com/lomereiter/sambamba/releases/download/v0.5.8/sambamba_v0.5.8_linux.tar.bz2
+    $ tar xjfv /tmp/sambamba_v0.5.8_linux.tar.bz2 -C /tmp/
+    $ mv /tmp/sambamba_v0.5.8 ~/bin/sambamba
+    $ chmod +x ~/bin/sambamba
+
+
+Optional dependecies
+---------------------
 If you plan on using MySQL for your SQL database you also need a SQL adapter. My recommendation is 'pymysql'. It's written in pure Python and works on both version 2.x and 3.x.
 
 .. code-block:: console
@@ -53,5 +53,6 @@ Would you like to take part in the development or tweak the code for any other r
 	$ pip install --editable .
 
 
+.. _GitHub repo: https://github.com/lomereiter/sambamba/releases
 .. _Miniconda: http://conda.pydata.org/miniconda.html
-.. _Python Guide: http://docs.python-guide.org/en/latest/
+.. _Vagrant: https://www.vagrantup.com/

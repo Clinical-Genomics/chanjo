@@ -94,7 +94,7 @@ setup(
         'console_scripts': [
             'chanjo = chanjo.__main__:root_command',
         ],
-        'chanjo.subcommands': [
+        'chanjo.subcommands.3': [
             'demo = chanjo.demo:demo',
             'init = chanjo.cli:init_command',
             'load = chanjo.cli:load_command',
