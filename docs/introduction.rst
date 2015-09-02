@@ -24,7 +24,7 @@ First we need some files to work with. Chanjo comes with some pre-installed demo
 
 .. code-block:: console
 
-    $ chanjo demo chanjo-demo && cd chanjo-demo
+    $ chanjo demo && cd chanjo-demo
 
 This will create a new folder (``chanjo-demo``) in your current directory and fill it with the example files you need.
 
@@ -72,12 +72,67 @@ After running ``sambamba depth region`` you can take the output and load it into
 
 .. code-block:: console
 
-    $ chanjo load sample1.coverage.bed --group group1
+    $ for file in *.coverage.bed; do echo "${file}"; chanjo load "${file}"; done
 
 
 Extracting informtion
 ~~~~~~~~~~~~~~~~~~~~~~
-We now have some information loaded for a few samples and we can now start exploring what coverage looks like!
+We now have some information loaded for a few samples and we can now start exploring what coverage looks like! The output will be in the handy `JSON lines`_ format.
+
+.. code-block:: console
+
+    $ chanjo calculate mean sample1
+    {
+        "completeness_20": 96.02074970588237,
+        "completeness_10": 96.80992352941175,
+        "completeness_100": 66.78868541470588,
+        "mean_coverage": 171.9479456635295,
+        "sample_id": "sample1"
+    }
+
+    $ chanjo calculate gene FAP MUSK
+    {
+        "MUSK": {
+            "completeness_20": 100.0,
+            "completeness_10": 100.0,
+            "completeness_100": 92.58771999999999,
+            "mean_coverage": 324.4876066666667,
+            "sample_id": "sample5"
+        },
+        "FAP": {
+            "completeness_20": 97.08153846153847,
+            "completeness_10": 100.0,
+            "completeness_100": 45.32870461538461,
+            "mean_coverage": 137.20929999999998,
+            "sample_id": "sample5"
+        },
+        "sample_id": "sample5"
+    }
+    ...
+
+    $ chanjo calculate region 11 619304 619586
+    {
+        "completeness_20": 100.0,
+        "completeness_10": 100.0,
+        "completeness_100": 100.0,
+        "mean_coverage": 253.81090000000003
+    }
+    $ chanjo calculate region 11 619304 619586 --per exon
+    {
+        "completeness_20": 100.0,
+        "completeness_10": 100.0,
+        "completeness_100": 100.0,
+        "mean_coverage": 223.3904,
+        "exon_id": "11-619305-619389"
+    }
+    {
+        "completeness_20": 100.0,
+        "completeness_10": 100.0,
+        "completeness_100": 100.0,
+        "mean_coverage": 284.2314,
+        "exon_id": "11-619473-619586"
+    }
+
 
 .. note::
     So what is this "completeness"? Well, it's pretty simple; the percentage of bases with at least "sufficient" (say; 10x) coverage.
@@ -100,3 +155,4 @@ One example of such a tool is `Chanjo-Report`_, a coverage report generator for 
 .. _Cosmid: http://cosmid.co/
 .. _Chanjo-Report: https://github.com/robinandeer/Chanjo-Report
 .. _dialect syntax: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html
+.. _JSON lines: http://jsonlines.org/
