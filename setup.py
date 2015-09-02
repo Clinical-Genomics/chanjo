@@ -100,7 +100,7 @@ setup(
             'load = chanjo.cli:load_command',
             'link = chanjo.cli:link_command',
             'calculate = chanjo.cli:calculate_command',
-            'sambamba = chanjo.cli:sambamba_command'
+            'sambamba = chanjo.cli:sambamba_command',
             'db = chanjo.cli:database_command'
         ]
     },

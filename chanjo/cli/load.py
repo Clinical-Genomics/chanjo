@@ -36,7 +36,7 @@ def load_sambamba(chanjo_db, bed_iterable, group_id=None):
         chanjo_db.add(stat)
         if index % 10000 == 0:
             chanjo_db.save()
-            logger.debug('processed %s annotations', index)
+            logger.debug("processed %s annotations", index)
 
     chanjo_db.save()
-    logger.debug('processed %s annotations', index)
+    logger.debug("processed %s annotations", index)
