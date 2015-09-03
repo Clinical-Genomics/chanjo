@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from chanjo._compat import itervalues
+from chanjo.compat import itervalues
 
 
 def group_by_field(results, name='field_id'):

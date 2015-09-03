@@ -4,7 +4,7 @@ import logging
 
 from sqlalchemy.sql import func
 
-from chanjo._compat import itervalues
+from chanjo.compat import itervalues
 from .core import Store
 from .models import Exon, ExonStatistic, Gene, Sample, Transcript
 from .utils import group_by_field, predict_gender
@@ -106,6 +106,23 @@ class ChanjoAPI(Store):
 
         sample_groups = group_by_field(results, name='sample_id')
         return sample_groups
+
+    def region_alt(self, region_id, sample_id=None, per=None):
+        """Parse region id as input for `region` method.
+
+        Args:
+            region_id (str): for example 1:1242314-1243419
+            sample_id (Optional[str]): filter to only a single sample
+            per (Optional[str]): report on a per exon basis ("exon")
+
+        Returns:
+            dict: weighted metrics (across samples)
+        """
+        chromosome, pos_str = region_id.split(':')
+        start, end = [int(pos) for pos in pos_str.split('-')]
+        data = self.region(chromosome, start, end, sample_id=sample_id,
+                           per=per)
+        return data
 
     def region(self, chromosome, start, end, sample_id=None, per=None):
         """Report coverage across a genomics region (of exons).
@@ -262,7 +279,7 @@ class ChanjoAPI(Store):
         return query
 
     def gene_panel(self, gene_ids, group_id=None, sample_ids=None):
-        """Report metrics for a panel of genes.
+        """Report mean coverage (+ completeness) for a panel of genes.
 
         Args:
             gene_ids (List[str]): gene ids for the panel

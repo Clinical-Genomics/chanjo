@@ -39,13 +39,17 @@ def gene(context, gene_ids):
 @click.option('-p', '--per', type=click.Choice(['exon', 'sample']),
               help='report stats per sample/exon')
 @click.argument('chromosome', type=str)
-@click.argument('start', type=int)
-@click.argument('end', type=int)
+@click.argument('start', type=int, required=False)
+@click.argument('end', type=int, required=False)
 @click.pass_context
 def region(context, sample, per, chromosome, start, end):
     """Report mean statistics for a region of exons."""
-    results = context.parent.api.region(chromosome, start, end,
-                                        sample_id=sample, per=per)
+    api = context.parent.api
+    if start is None:
+        logger.debug('region id detected, parse string')
+        results = api.region_alt(chromosome, sample_id=sample, per=per)
+    else:
+        results = api.region(chromosome, start, end, sample_id=sample, per=per)
     if per == 'exon':
         dump_json(*results)
     else:
