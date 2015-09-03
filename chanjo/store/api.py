@@ -4,7 +4,7 @@ import logging
 
 from sqlalchemy.sql import func
 
-from chanjo.compat import itervalues
+from chanjo._compat import itervalues
 from .core import Store
 from .models import Exon, ExonStatistic, Gene, Sample, Transcript
 from .utils import group_by_field, predict_gender
