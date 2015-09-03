@@ -31,15 +31,23 @@ class ChanjoAPI(Store):
         """Configure API (Flask style) after lazy initialization.
 
         Args:
-            app (Flask app): Flask app instance
-            base_key (str): namespace to look for under ``app.config``
+            app (Flask): Flask app instance
+            key_base (str): namespace to look for under ``app.config``
 
         Returns:
             ChanjoAPI: ``self``
         """
-        uri = app.config.get("{}URI".format(key_base)) or 'coverage.sqlite3'
+        uri = app.config["{}URI".format(key_base)]
         self.connect(db_uri=uri)
         return self
+
+    @property
+    def weighted_average(self):
+        weight = Exon.end - Exon.start
+        total_weight = func.sum(weight)
+        total_value = func.sum(ExonStatistic.value * weight)
+        weighted_mean = total_value / total_weight
+        return weighted_mean
 
     def samples(self, group_id=None, sample_ids=None):
         """Get samples from the database."""
@@ -50,8 +58,8 @@ class ChanjoAPI(Store):
     def mean(self, *samples):
         """Calculate mean values for various metrics on a per sample basis."""
         results = (self.query(Sample.sample_id, ExonStatistic.metric,
-                              func.avg(ExonStatistic.value))
-                       .join(ExonStatistic.sample)
+                              self.weighted_average)
+                       .join(ExonStatistic.sample, ExonStatistic.exon)
                        .group_by(Sample.sample_id, ExonStatistic.metric))
         if samples:
             results = results.filter(Sample.sample_id.in_(samples))
@@ -62,7 +70,7 @@ class ChanjoAPI(Store):
     def region(self, chromosome, start, end, sample=None, per=None):
         """Report coverage across a genomics region (of exons)."""
         results = (self.query(Exon.exon_id, ExonStatistic.metric,
-                              func.avg(ExonStatistic.value))
+                              self.weighted_average)
                        .join(ExonStatistic.exon)
                        .filter(Exon.chromosome == chromosome,
                                Exon.start >= start,
@@ -105,7 +113,7 @@ class ChanjoAPI(Store):
         results = (self.query(Sample.sample_id,
                               Transcript.transcript_id,
                               ExonStatistic.metric,
-                              func.avg(ExonStatistic.value))
+                              self.weighted_average)
                        .join(ExonStatistic.sample, ExonStatistic.exon,
                              Exon.transcripts)
                        .filter(Transcript.transcript_id.in_(transcript_ids))
@@ -164,7 +172,7 @@ class ChanjoAPI(Store):
     def transcript_to_exons(self, *transcript_ids):
         """Fetch a unique list of exons related to some transcripts."""
         results = (self.query(Sample.sample_id, ExonStatistic.metric,
-                              func.avg(ExonStatistic.value))
+                              self.weighted_average)
                        .join(ExonStatistic.sample, ExonStatistic.exon,
                              Exon.transcripts)
                        .filter(Transcript.transcript_id.in_(transcript_ids))
@@ -182,7 +190,7 @@ class ChanjoAPI(Store):
         """Query for average on X/Y chromsomes."""
         query = (self.query(Sample.sample_id,
                             Exon.chromosome,
-                            func.avg(ExonStatistic.value))
+                            self.weighted_average)
                      .join(ExonStatistic.exon, ExonStatistic.sample)
                      .filter(Exon.chromosome.in_(sex_chromosomes),
                              ExonStatistic.metric == 'mean_coverage')
