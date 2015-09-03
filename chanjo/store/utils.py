@@ -3,10 +3,22 @@ from chanjo.compat import itervalues
 
 
 def group_by_field(results, name='field_id'):
+    """Group items based on the initial field.
+
+    Args:
+        results (List[tuple]): list of fields to group
+        name (Optional[str]): what to call the first field
+
+    Returns:
+        List[dict]: grouped dicts
+    """
     groups = {}
+    # loop over results
     for field_id, metric, value in results:
         if field_id not in groups:
+            # init a new group
             groups[field_id] = {name: field_id}
+        # store the metric under the correct group
         groups[field_id][metric] = value
 
     return itervalues(groups)
