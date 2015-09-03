@@ -6,7 +6,8 @@ import click
 from sqlalchemy.sql import func
 
 from chanjo.compat import itervalues
-from chanjo.store import Exon, ExonStatistic, Gene, Sample, Store, Transcript
+from chanjo.store import (ChanjoAPI, Exon, ExonStatistic, Gene, Sample,
+                          Transcript)
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ def group_by_field(results, name='field_id'):
 @click.pass_context
 def calculate(context):
     """Calculate simple metrics from the database."""
-    context.db = Store(uri=context.obj['database'])
+    context.api = ChanjoAPI(uri=context.obj['database'])
 
 
 @calculate.command()
