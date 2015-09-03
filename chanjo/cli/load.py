@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
+import logging
+
 import click
+from sqlalchemy.exc import IntegrityError
 
 from chanjo.load import sambamba
 from chanjo.parse import bed
 from chanjo.store import Store
 from chanjo.utils import validate_stdin
+
+logger = logging.getLogger(__name__)
 
 
 @click.command()
@@ -15,7 +20,12 @@ from chanjo.utils import validate_stdin
 def load(context, group, bed_stream):
     """Load Sambamba output into the database for a sample."""
     chanjo_db = Store(uri=context.obj['database'])
-    load_sambamba(chanjo_db, bed_stream, group_id=group)
+    try:
+        load_sambamba(chanjo_db, bed_stream, group_id=group)
+    except IntegrityError:
+        logger.error('sample already loaded, rolling back')
+        chanjo_db.session.rollback()
+        context.abort()
 
 
 def load_sambamba(chanjo_db, bed_iterable, group_id=None):
@@ -26,5 +36,7 @@ def load_sambamba(chanjo_db, bed_iterable, group_id=None):
         chanjo_db.add(stat)
         if index % 10000 == 0:
             chanjo_db.save()
+            logger.debug("processed %s annotations", index)
 
     chanjo_db.save()
+    logger.debug("processed %s annotations", index)
