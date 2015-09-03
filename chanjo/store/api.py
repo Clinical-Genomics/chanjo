@@ -1,0 +1,207 @@
+# -*- coding: utf-8 -*-
+import itertools
+import logging
+
+from sqlalchemy.sql import func
+
+from chanjo.compat import itervalues
+from .core import Store
+from .models import Exon, ExonStatistic, Gene, Sample, Transcript
+from .utils import group_by_field, predict_gender
+
+logger = logging.getLogger(__name__)
+
+
+def filter_samples(query, group_id=None, sample_ids=None):
+    """Filter a query to a subset of samples."""
+    if group_id:
+        logger.debug('filter based on group')
+        return query.filter(Sample.group == group_id)
+    elif sample_ids:
+        logger.debug('filter based on list of samples')
+        return query.filter(Sample.sample_id.in_(sample_ids))
+    else:
+        return query
+
+
+class ChanjoAPI(Store):
+    """docstring for ChanjoAPI"""
+
+    def init_app(self, app, key_base='CHANJO_'):
+        """Configure API (Flask style) after lazy initialization.
+
+        Args:
+            app (Flask app): Flask app instance
+            base_key (str): namespace to look for under ``app.config``
+
+        Returns:
+            ChanjoAPI: ``self``
+        """
+        uri = app.config.get("{}URI".format(key_base)) or 'coverage.sqlite3'
+        self.connect(db_uri=uri)
+        return self
+
+    def samples(self, group_id=None, sample_ids=None):
+        """Get samples from the database."""
+        query = self.query(Sample).order_by(Sample.sample_id)
+        query = filter_samples(query, group_id=group_id, sample_ids=sample_ids)
+        return query
+
+    def mean(self, *samples):
+        """Calculate mean values for various metrics on a per sample basis."""
+        results = (self.query(Sample.sample_id, ExonStatistic.metric,
+                              func.avg(ExonStatistic.value))
+                       .join(ExonStatistic.sample)
+                       .group_by(Sample.sample_id, ExonStatistic.metric))
+        if samples:
+            results = results.filter(Sample.sample_id.in_(samples))
+
+        sample_groups = group_by_field(results, name='sample_id')
+        return sample_groups
+
+    def region(self, chromosome, start, end, sample=None, per=None):
+        """Report coverage across a genomics region (of exons)."""
+        results = (self.query(Exon.exon_id, ExonStatistic.metric,
+                              func.avg(ExonStatistic.value))
+                       .join(ExonStatistic.exon)
+                       .filter(Exon.chromosome == chromosome,
+                               Exon.start >= start,
+                               Exon.end <= end)
+                       .group_by(ExonStatistic.metric))
+
+        if sample:
+            results = (results.join(ExonStatistic.sample)
+                              .filter(Sample.sample_id == sample))
+
+        if per == 'exon':
+            results = results.group_by(Exon.exon_id)
+            exon_groups = group_by_field(results, name='exon_id')
+            return exon_groups
+
+        else:
+            data = {metric: value for exon_id, metric, value in results}
+            return data
+
+    def gene(self, *gene_ids):
+        """Report aggregate statistics for particular genes."""
+        samples = {}
+        for gene_id in gene_ids:
+            logger.debug('figure out which transcripts the gene belongs to')
+            tx_ids = list(self.gene_to_transcripts(gene_id))
+            if len(tx_ids) == 0:
+                raise AttributeError("gene id not in database: {}"
+                                     .format(gene_id))
+
+            results = self.transcript_to_exons(*tx_ids)
+            for data in group_by_field(results, name='sample_id'):
+                if data['sample_id'] not in samples:
+                    samples[data['sample_id']] = {'sample_id': data['sample_id']}
+                samples[data['sample_id']][gene_id] = data
+
+        return itervalues(samples)
+
+    def transcripts(self, *transcript_ids):
+        """Report metrics on specific transcripts."""
+        results = (self.query(Sample.sample_id,
+                              Transcript.transcript_id,
+                              ExonStatistic.metric,
+                              func.avg(ExonStatistic.value))
+                       .join(ExonStatistic.sample, ExonStatistic.exon,
+                             Exon.transcripts)
+                       .filter(Transcript.transcript_id.in_(transcript_ids))
+                       .group_by(Sample.sample_id, ExonStatistic.metric,
+                                 Transcript.transcript_id))
+        return results
+
+    def all_transcripts(self, sample_id, *gene_ids):
+        """Fetch all transcripts from the database."""
+        query = (self.query(Transcript)
+                     .join(Transcript.exons, Exon.stats, ExonStatistic.sample)
+                     .filter(Sample.sample_id == sample_id))
+        if gene_ids:
+            tx_ids = self.gene_to_transcripts(*gene_ids)
+            query = query.filter(Transcript.transcript_id.in_(tx_ids))
+        return query
+
+    def transcripts_to_genes(self, transcript_ids, db_ids=False):
+        """Fetch a list of genes related to some exons"""
+        results = self.query(Gene).join(Gene.transcripts)
+        if db_ids:
+            results = results.filter(Transcript.id.in_(transcript_ids))
+        else:
+            condition = Transcript.transcript_id.in_(transcript_ids)
+            results = results.filter(condition)
+        return results
+
+    def exons_to_transcripts(self, exons_ids, db_ids=False):
+        """Fetch a list of transcripts related to some exons."""
+        results = self.query(Transcript).join(Transcript.exons)
+        if db_ids:
+            results = results.filter(Exon.id.in_(exons_ids))
+        else:
+            results = results.filter(Exon.exon_id.in_(exons_ids))
+        return results
+
+    def incomplete_exons(self, level=10, threshold=100, group_id=None,
+                         sample_ids=None):
+        completeness = "completeness_{}".format(level)
+        query = (self.query(Sample.sample_id,
+                            Exon.exon_id,
+                            ExonStatistic.value)
+                     .join(ExonStatistic.exon, ExonStatistic.sample)
+                     .filter(ExonStatistic.metric == completeness,
+                             ExonStatistic.value < threshold))
+        query = filter_samples(query, group_id=group_id, sample_ids=sample_ids)
+        return query
+
+    def gene_panel(self, gene_ids, group_id=None, sample_ids=None):
+        """Report metrics for a panel of genes."""
+        tx_ids = list(self.gene_to_transcripts(*gene_ids))
+        query = self.transcript_to_exons(*tx_ids)
+        query = filter_samples(query, group_id=group_id, sample_ids=sample_ids)
+        return query
+
+    def transcript_to_exons(self, *transcript_ids):
+        """Fetch a unique list of exons related to some transcripts."""
+        results = (self.query(Sample.sample_id, ExonStatistic.metric,
+                              func.avg(ExonStatistic.value))
+                       .join(ExonStatistic.sample, ExonStatistic.exon,
+                             Exon.transcripts)
+                       .filter(Transcript.transcript_id.in_(transcript_ids))
+                       .group_by(Sample.sample_id, ExonStatistic.metric))
+        return results
+
+    def gene_to_transcripts(self, *gene_ids):
+        """Fetch a unique list of transcripts related to some genes."""
+        results = (self.query(Transcript.transcript_id)
+                       .join(Transcript.gene)
+                       .filter(Gene.gene_id.in_(gene_ids)))
+        return (result[0] for result in results)
+
+    def sex_coverage(self, sex_chromosomes=('X', 'Y')):
+        """Query for average on X/Y chromsomes."""
+        query = (self.query(Sample.sample_id,
+                            Exon.chromosome,
+                            func.avg(ExonStatistic.value))
+                     .join(ExonStatistic.exon, ExonStatistic.sample)
+                     .filter(Exon.chromosome.in_(sex_chromosomes),
+                             ExonStatistic.metric == 'mean_coverage')
+                     .group_by(Sample.sample_id, Exon.chromosome))
+        return query
+
+    def sex_check(self, group_id=None, sample_ids=None, inc_coverage=False):
+        """Predict gender based on coverage of sex chromosomes."""
+        query = self.sex_coverage()
+        query = filter_samples(query, group_id=group_id, sample_ids=sample_ids)
+        logger.debug('group rows based on sample')
+        samples = itertools.groupby(query, lambda row: row[0])
+        for sample_id, chromosomes in samples:
+            sex_coverage = [coverage for _, _, coverage in chromosomes]
+            logger.debug('predict gender')
+            # run the predictor
+            gender = predict_gender(*sex_coverage)
+            if inc_coverage:
+                # return also raw coverage numbers
+                yield sample_id, gender, sex_coverage[0], sex_coverage[1]
+            else:
+                yield sample_id, gender
