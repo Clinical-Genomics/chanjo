@@ -33,8 +33,7 @@ Chanjo exposes a composable command line interface with a nifty config file impl
 $ chanjo init --setup
 $ chanjo load /path/to/sambamba.output.bed
 $ chanjo calculate mean sample1
-#sampleId	mean-coverage
-sample10	176.513223249
+{"completeness_10": 96.09, "mean_coverage": 240.96, "sample_id": "ADM980A4"}
 ```
 
 ## Documentation
@@ -56,6 +55,7 @@ Chanjo is not the right choice if you care about coverage for every base across 
 - Robin Andeer
 - Luca Beltrame ([lbeltrame](https://github.com/lbeltrame))
 - John Kern ([kern3020](https://github.com/kern3020))
+- Måns Magnusson ([moonso](https://github.com/moonso))
 
 ## License
 MIT. See the [LICENSE](LICENSE) file for more details.
