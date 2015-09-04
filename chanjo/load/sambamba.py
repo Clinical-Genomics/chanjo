@@ -7,7 +7,7 @@ from chanjo.store import ExonStatistic, Sample
 from .utils import get_or_build_exon
 
 
-def rows(session, row_data, group_id=None):
+def rows(session, row_data, sample_id=None, group_id=None):
     """Handle rows of sambamba output.
 
     N.B. only handles single sample annotations.
@@ -15,16 +15,20 @@ def rows(session, row_data, group_id=None):
     Args:
         session (Session): database session object
         row_data (dict): parsed sambamba output rows
+        sample_id (Optional[str]): id to reference sample
         group_id (Optional[str]): id to group samples together
 
     Yields:
         ExonStatistic: stats model linked to exon and sample
     """
-    # use first row to get information on sample
-    first_row = next(iter(row_data))
-    sample_obj = sample(first_row, group_id=group_id)
-    # place the first row back in the stream
-    all_data = cons(first_row, row_data)
+    if sample_id is None:
+        # use first row to get information on sample
+        first_row = next(iter(row_data))
+        sample_id = first_row['sampleName']
+        # place the first row back in the stream
+        all_data = cons(first_row, row_data)
+
+    sample_obj = Sample(sample_id=sample_id, group_id=group_id)
     nested_stats = (row(session, data, sample_obj) for data in all_data)
     # flatten 2D nested list
     return (stat for stats in nested_stats for stat in stats)
@@ -44,20 +48,6 @@ def row(session, data, sample_obj):
     exon_obj = get_or_build_exon(session, data)
     stats = statistics(data, sample_obj, exon_obj)
     return stats
-
-
-def sample(data, group_id=None):
-    """Create sample model.
-
-    Args:
-        data (dict): parsed sambamba output row
-        group_id (Optional[str]): id to group samples together
-
-    Returns:
-        Sample: sample database model
-    """
-    sample_obj = Sample(sample_id=data['sampleName'], group=group_id)
-    return sample_obj
 
 
 def statistics(data, sample_obj, exon_obj):
