@@ -28,7 +28,7 @@ def filter_samples(query, group_id=None, sample_ids=None):
     """
     if group_id:
         logger.debug('filter based on group')
-        return query.filter(Sample.group == group_id)
+        return query.filter(Sample.group_id == group_id)
     elif sample_ids:
         logger.debug('filter based on list of samples')
         return query.filter(Sample.sample_id.in_(sample_ids))
