@@ -4,6 +4,7 @@ import logging
 import click
 
 from chanjo.store import ChanjoAPI
+from chanjo.store.utils import filter_samples
 from .utils import dump_json
 
 logger = logging.getLogger(__name__)
@@ -21,7 +22,10 @@ def calculate(context):
 @click.pass_context
 def mean(context, samples):
     """Report mean coverage for a list of samples."""
-    results = context.parent.api.mean(*samples)
+    api = context.parent.api
+    query = filter_samples(api.query(), sample_ids=samples)
+    results = ({'sample_id': sample_id, 'metrics': data}
+               for sample_id, data in api.means(query))
     dump_json(*results)
 
 

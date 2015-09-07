@@ -5,38 +5,16 @@ import logging
 from sqlalchemy.sql import func
 
 from chanjo.compat import itervalues
+from chanjo.utils import list_get
 from .core import Store
-from .models import Exon, ExonStatistic, Gene, Sample, Transcript
-from .utils import group_by_field, predict_gender
+from .converter import ChanjoConverterMixin
+from .models import Exon, ExonStatistic, Sample, Transcript
+from .utils import filter_samples, group_by_field, predict_gender
 
 logger = logging.getLogger(__name__)
 
 
-def filter_samples(query, group_id=None, sample_ids=None):
-    """Filter a query to a subset of samples.
-
-    Will return an unaltered query if none of the optional parameters
-    are set. `group_id` takes precedence over `sample_ids`.
-
-    Args:
-        query (Query): SQLAlchemy query object
-        group_id (Optional[str]): sample group identifier
-        sample_ids (Optional[List[str]]): sample ids
-
-    Returns:
-        Query: filtered query object
-    """
-    if group_id:
-        logger.debug('filter based on group')
-        return query.filter(Sample.group_id == group_id)
-    elif sample_ids:
-        logger.debug('filter based on list of samples')
-        return query.filter(Sample.sample_id.in_(sample_ids))
-    else:
-        return query
-
-
-class ChanjoAPI(Store):
+class ChanjoAPI(Store, ChanjoConverterMixin):
 
     """Interface to chanjo database for asking interesting questions.
 
@@ -71,7 +49,7 @@ class ChanjoAPI(Store):
         weight = Exon.end - Exon.start
         total_weight = func.sum(weight)
         total_value = func.sum(ExonStatistic.value * weight)
-        weighted_mean = total_value / total_weight
+        weighted_mean = (total_value / total_weight).label('weighted_mean')
         return weighted_mean
 
     def samples(self, group_id=None, sample_ids=None):
@@ -88,24 +66,24 @@ class ChanjoAPI(Store):
         query = filter_samples(query, group_id=group_id, sample_ids=sample_ids)
         return query
 
-    def mean(self, *samples):
-        r"""Calculate mean values for all metrics on a per sample basis.
+    def means(self, query=None):
+        """Calculate means on a per sample basis.
 
         Args:
-            \*samples (Optional[List[str]]): filter by sample id
+            query (Optional[Query]): initialized and filtered query
 
         Returns:
-            dict: weighted averages grouped by sample
+            List[tuple]: sample id and grouped mean metrics
         """
-        results = (self.query(Sample.sample_id, ExonStatistic.metric,
-                              self.weighted_average)
-                       .join(ExonStatistic.sample, ExonStatistic.exon)
-                       .group_by(Sample.sample_id, ExonStatistic.metric))
-        if samples:
-            results = results.filter(Sample.sample_id.in_(samples))
-
-        sample_groups = group_by_field(results, name='sample_id')
-        return sample_groups
+        query = query or self.query()
+        ready_query = (query.add_columns(Sample.sample_id,
+                                         ExonStatistic.metric,
+                                         self.weighted_average)
+                            .join(ExonStatistic.sample, ExonStatistic.exon)
+                            .group_by(Sample.sample_id, ExonStatistic.metric)
+                            .order_by(Sample.sample_id))
+        results = group_by_field(ready_query)
+        return results
 
     def region_alt(self, region_id, sample_id=None, per=None):
         """Parse region id as input for `region` method.
@@ -169,16 +147,16 @@ class ChanjoAPI(Store):
         samples = {}
         for gene_id in gene_ids:
             logger.debug('figure out which transcripts the gene belongs to')
-            tx_ids = list(self.gene_to_transcripts(gene_id))
-            if len(tx_ids) == 0:
+            exon_objs = self.gene_exons(gene_id).all()
+            if len(exon_objs) == 0:
                 raise AttributeError("gene id not in database: {}"
                                      .format(gene_id))
-
-            results = self.transcript_to_exons(*tx_ids)
-            for data in group_by_field(results, name='sample_id'):
-                if data['sample_id'] not in samples:
-                    samples[data['sample_id']] = {'sample_id': data['sample_id']}
-                samples[data['sample_id']][gene_id] = data
+            exon_ids = [exon_obj.exon_id for exon_obj in exon_objs]
+            query = (self.query().filter(Exon.exon_id.in_(exon_ids)))
+            for sample_id, data in self.means(query):
+                if sample_id not in samples:
+                    samples[sample_id] = {'sample_id': sample_id, 'genes': {}}
+                samples[sample_id]['genes'][gene_id] = data
 
         return itervalues(samples)
 
@@ -202,61 +180,7 @@ class ChanjoAPI(Store):
                                  Transcript.transcript_id))
         return results
 
-    def all_transcripts(self, sample_id, *gene_ids):
-        r"""Fetch all transcripts from the database.
-
-        Args:
-            sample_id (str): restrict query to a sample id
-            \*gene_ids (List[str]): genes to convert to transcripts
-
-        Returns:
-            List[Transcript]: transcript models related to the genes
-        """
-        query = (self.query(Transcript)
-                     .join(Transcript.exons, Exon.stats, ExonStatistic.sample)
-                     .filter(Sample.sample_id == sample_id))
-        if gene_ids:
-            tx_ids = self.gene_to_transcripts(*gene_ids)
-            query = query.filter(Transcript.transcript_id.in_(tx_ids))
-        return query
-
-    def transcripts_to_genes(self, transcript_ids, db_ids=False):
-        """Fetch a list of genes related to some exons.
-
-        Args:
-            transcript_ids (List[str]): transcript ids to convert to genes
-            db_ids (Optional[bool]): if sending in primary key ids
-
-        Returns:
-            List[Gene]: gene models related to the transcripts
-        """
-        results = self.query(Gene).join(Gene.transcripts)
-        if db_ids:
-            results = results.filter(Transcript.id.in_(transcript_ids))
-        else:
-            condition = Transcript.transcript_id.in_(transcript_ids)
-            results = results.filter(condition)
-        return results
-
-    def exons_to_transcripts(self, exons_ids, db_ids=False):
-        """Fetch a list of transcripts related to some exons.
-
-        Args:
-            exon_ids (List[str]): list of exon ids
-            db_ids (Optional[bool]): if sending in primary key ids
-
-        Returns:
-            List[Transcript]: transcripts related to the exons
-        """
-        results = self.query(Transcript).join(Transcript.exons)
-        if db_ids:
-            results = results.filter(Exon.id.in_(exons_ids))
-        else:
-            results = results.filter(Exon.exon_id.in_(exons_ids))
-        return results
-
-    def incomplete_exons(self, level=10, threshold=100, group_id=None,
-                         sample_ids=None):
+    def incomplete_exons(self, query=None, level=10, threshold=100):
         """Fetch exons with incomplete coverage at a specifc level.
 
         Args:
@@ -266,64 +190,19 @@ class ChanjoAPI(Store):
             sample_ids (Optional[List[str]]): sample ids
 
         Returns:
-            List[tuple]: sample, exon, completeness value
+            List[tuple]: sample_id, dict with exons and completeness
         """
         completeness = "completeness_{}".format(level)
-        query = (self.query(Sample.sample_id,
-                            Exon.exon_id,
-                            ExonStatistic.value)
-                     .join(ExonStatistic.exon, ExonStatistic.sample)
-                     .filter(ExonStatistic.metric == completeness,
-                             ExonStatistic.value < threshold))
-        query = filter_samples(query, group_id=group_id, sample_ids=sample_ids)
-        return query
-
-    def gene_panel(self, gene_ids, group_id=None, sample_ids=None):
-        """Report mean coverage (+ completeness) for a panel of genes.
-
-        Args:
-            gene_ids (List[str]): gene ids for the panel
-            group_id (Optional[str]): sample group identifier
-            sample_ids (Optional[List[str]]): sample ids
-
-        Returns:
-            List[tuple]: sample, metric, weighted average value
-        """
-        tx_ids = list(self.gene_to_transcripts(*gene_ids))
-        query = self.transcript_to_exons(*tx_ids)
-        query = filter_samples(query, group_id=group_id, sample_ids=sample_ids)
-        return query
-
-    def transcript_to_exons(self, *transcript_ids):
-        """Fetch a unique list of exons related to some transcripts.
-
-        Args:
-            transcript_ids (List[str]): transcript ids to look up
-
-        Returns:
-            List[tuple]: sample, metric, weighted average value
-        """
-        results = (self.query(Sample.sample_id, ExonStatistic.metric,
-                              self.weighted_average)
-                       .join(ExonStatistic.sample, ExonStatistic.exon,
-                             Exon.transcripts)
-                       .filter(Transcript.transcript_id.in_(transcript_ids))
-                       .group_by(Sample.sample_id, ExonStatistic.metric))
-        return results
-
-    def gene_to_transcripts(self, *gene_ids):
-        r"""Fetch a unique list of transcripts related to some genes.
-
-        Args:
-            \*gene_ids (List[str]): gene ids
-
-        Returns:
-            List[str]: transcript ids
-        """
-        results = (self.query(Transcript.transcript_id)
-                       .join(Transcript.gene)
-                       .filter(Gene.gene_id.in_(gene_ids)))
-        return (result[0] for result in results)
+        query = query or self.query()
+        ready_query = (self.query(Sample.sample_id,
+                                  Exon.exon_id,
+                                  ExonStatistic.value)
+                           .join(ExonStatistic.exon, ExonStatistic.sample)
+                           .filter(ExonStatistic.metric == completeness,
+                                   ExonStatistic.value < threshold)
+                           .order_by(Sample.sample_id))
+        exon_samples = group_by_field(ready_query)
+        return exon_samples
 
     def sex_coverage(self, sex_chromosomes=('X', 'Y')):
         """Query for average on X/Y chromsomes.
@@ -363,3 +242,33 @@ class ChanjoAPI(Store):
             # run the predictor
             gender = predict_gender(*sex_coverage)
             yield sample_id, gender, sex_coverage[0], sex_coverage[1]
+
+    def diagnostic_yield(self, query, level=10, threshold=100):
+        """Calculate transcripts that aren't completely covered."""
+        base_query = (query.add_columns(Transcript)
+                           .join(ExonStatistic.exon, Exon.transcripts))
+        level = "completeness_{}".format(level)
+        yield_query = (base_query.group_by(Transcript.id, ExonStatistic.metric)
+                                 .filter(func.avg(ExonStatistic.value) < threshold,
+                                         ExonStatistic.metric == level))
+        all_tx_count = base_query.count()
+        tx_count = yield_query.count()
+        diagnostic_yield = 100 - (tx_count/all_tx_count * 100)
+        return {
+            "diagnostic_yield": diagnostic_yield,
+            "count": tx_count,
+            "total_count": all_tx_count,
+            "transcripts": yield_query
+        }
+
+    def completeness_levels(self):
+        """Return a list of included completeness levels."""
+        metrics = (self.query(ExonStatistic.metric)
+                       .distinct(ExonStatistic.metric))
+        # for all completeness levels, extract the level as int and full name
+        levels = ((int(field[0].split('_')[-1]), field[0])
+                  for field in metrics
+                  if field[0].startswith('completeness'))
+        # sort them based on the level int
+        sorted_levels = sorted(levels, key=lambda level: list_get(level, 0))
+        return sorted_levels
