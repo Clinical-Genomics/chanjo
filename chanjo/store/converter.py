@@ -4,7 +4,7 @@ from .models import Exon, ExonStatistic, Gene, Sample, Transcript
 
 class ChanjoConverterMixin(object):
 
-    """docstring for ChanjoConverterMixin"""
+    """Mixin to provide conversions between genomic elements."""
 
     def gene_transcripts(self, *gene_ids):
         """Fetch transcripts related to a list of genes.

@@ -6,7 +6,6 @@ chanjo.utils
 A few general utility functions that might also be useful outside
 Chanjo.
 """
-from __future__ import division
 import pkg_resources
 import random
 import sys

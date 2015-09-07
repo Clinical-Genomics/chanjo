@@ -4,8 +4,8 @@ import logging
 import click
 from sqlalchemy.exc import IntegrityError
 
-from chanjo.load import sambamba
-from chanjo.parse import bed
+from chanjo.load.sambamba import rows as sambamba_rows
+from chanjo.parse import sambamba
 from chanjo.store import Store
 from chanjo.utils import validate_stdin
 
@@ -31,8 +31,8 @@ def load(context, sample, group, bed_stream):
 
 def load_sambamba(chanjo_db, bed_iterable, sample_id=None, group_id=None):
     """Load Sambamba BED output from a stream."""
-    rows = bed.chanjo(bed_iterable)
-    stats = sambamba.rows(chanjo_db.session, rows, sample_id=sample_id,
+    rows = sambamba.depth_output(bed_iterable)
+    stats = sambamba_rows(chanjo_db.session, rows, sample_id=sample_id,
                           group_id=group_id)
     for index, stat in enumerate(stats):
         chanjo_db.add(stat)
