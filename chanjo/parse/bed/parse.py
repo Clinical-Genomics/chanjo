@@ -43,8 +43,12 @@ def expand_row(row):
     except ValueError:
         raise BedFormattingError("positions malformatted: {}".format(row))
 
+    try:
+        data['score'] = int(list_get(row, 4))
+    except ValueError:
+        raise BedFormattingError('invalid BED syntax, score column is int')
+
     data['name'] = list_get(row, 3)
-    data['score'] = list_get(row, 4)
     data['strand'] = list_get(row, 5)
     element_combos = extra_fields(row[6:8])
     data['elements'] = element_combos
