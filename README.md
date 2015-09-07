@@ -10,8 +10,13 @@
 
 Chanjo is coverage analysis for clinical sequencing. It's implemented in Python with a command line interface that adheres to [UNIX pipeline philisophy][unix].
 
+## Whats new in Chanjo 3.0?
+Hey - exiting things are coming to the new version of Chanjo :smile:
+
+The primary change is [Sambamba][sambamba] integration. Just run `sambamba depth region` and load the output into Chanjo for further data exploration. Chanjo is now more flexible, accurate, and much easier to install. We have also built in some basic commands to quickly extract statistics from the database right from the command line.
+
 ## Installation
-Chanjo is distruibuted through "pip". Install the latest release by running:
+Chanjo is distruibuted through "pip". Install the latest stable release by running:
 
 ```bash
 $ pip install chanjo
@@ -33,7 +38,7 @@ Chanjo exposes a composable command line interface with a nifty config file impl
 $ chanjo init --setup
 $ chanjo load /path/to/sambamba.output.bed
 $ chanjo calculate mean sample1
-{"completeness_10": 96.09, "mean_coverage": 240.96, "sample_id": "ADM980A4"}
+{"metrics": {"completeness_10": 90.92, "mean_coverage": 193.85}, "sample_id": "sample1"}
 ```
 
 ## Documentation
@@ -69,6 +74,7 @@ Anyone can help make this project better - read [CONTRIBUTION](CONTRIBUTION.md) 
 [bedtools]: http://bedtools.readthedocs.org/en/latest/
 [thesis]: https://s3.amazonaws.com/tudo/chanjo/RobinAndeerMastersThesisFinal_2013.pdf
 [report]: https://github.com/robinandeer/chanjo-report
+[sambamba]: http://lomereiter.github.io/sambamba/
 
 [coveralls-url]: https://coveralls.io/r/robinandeer/chanjo
 [coveralls-image]: https://img.shields.io/coveralls/robinandeer/chanjo.svg?style=flat
