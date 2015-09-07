@@ -122,7 +122,8 @@ class ChanjoAPI(Store, ChanjoConverterMixin):
                        .filter(Exon.chromosome == chromosome,
                                Exon.start >= start,
                                Exon.end <= end)
-                       .group_by(ExonStatistic.metric))
+                       .group_by(ExonStatistic.metric)
+                       .order_by(Exon.exon_id))
 
         if sample_id:
             results = (results.join(ExonStatistic.sample)
@@ -130,7 +131,7 @@ class ChanjoAPI(Store, ChanjoConverterMixin):
 
         if per == 'exon':
             results = results.group_by(Exon.exon_id)
-            exon_groups = group_by_field(results, name='exon_id')
+            exon_groups = group_by_field(results)
             return exon_groups
         else:
             data = {metric: value for exon_id, metric, value in results}

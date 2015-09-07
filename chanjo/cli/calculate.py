@@ -53,7 +53,9 @@ def region(context, sample, per, chromosome, start, end):
         logger.debug('region id detected, parse string')
         results = api.region_alt(chromosome, sample_id=sample, per=per)
     else:
-        results = api.region(chromosome, start, end, sample_id=sample, per=per)
+        query = api.region(chromosome, start, end, sample_id=sample, per=per)
+        results = ({'exon_id': exon_id, 'metrics': data}
+                   for exon_id, data in query)
     if per == 'exon':
         dump_json(*results)
     else:
