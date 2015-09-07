@@ -250,13 +250,13 @@ class ChanjoAPI(Store, ChanjoConverterMixin):
         level = "completeness_{}".format(level)
 
         all_query = (query.add_columns(Transcript.transcript_id)
+                          .distinct(Transcript.transcript_id)
                           .join(Exon.transcripts))
         all_count = all_query.count()
 
         logger.debug('find out which exons failed')
         yield_query = (query.add_columns(Exon.exon_id)
                             .join(ExonStatistic.exon)
-                            .group_by(ExonStatistic.metric)
                             .filter(ExonStatistic.metric == level,
                                     ExonStatistic.value < threshold))
         exon_ids = [row[0] for row in yield_query]
