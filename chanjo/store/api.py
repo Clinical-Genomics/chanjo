@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import division
 import itertools
 import logging
 
@@ -243,22 +244,31 @@ class ChanjoAPI(Store, ChanjoConverterMixin):
             gender = predict_gender(*sex_coverage)
             yield sample_id, gender, sex_coverage[0], sex_coverage[1]
 
-    def diagnostic_yield(self, query, level=10, threshold=100):
+    def diagnostic_yield(self, sample_id, query=None, level=10, threshold=100):
         """Calculate transcripts that aren't completely covered."""
-        base_query = (query.add_columns(Transcript)
-                           .join(ExonStatistic.exon, Exon.transcripts))
+        query = query or self.query()
         level = "completeness_{}".format(level)
-        yield_query = (base_query.group_by(Transcript.id, ExonStatistic.metric)
-                                 .filter(func.avg(ExonStatistic.value) < threshold,
-                                         ExonStatistic.metric == level))
-        all_tx_count = base_query.count()
-        tx_count = yield_query.count()
-        diagnostic_yield = 100 - (tx_count/all_tx_count * 100)
+
+        all_query = (query.add_columns(Transcript.transcript_id)
+                          .join(Exon.transcripts))
+        all_count = all_query.count()
+
+        logger.debug('find out which exons failed')
+        yield_query = (query.add_columns(Exon.exon_id)
+                            .join(ExonStatistic.exon)
+                            .group_by(ExonStatistic.metric)
+                            .filter(ExonStatistic.metric == level,
+                                    ExonStatistic.value < threshold))
+        exon_ids = [row[0] for row in yield_query]
+        transcripts = self.exon_transcripts(exon_ids)
+
+        tx_count = transcripts.count()
+        diagnostic_yield = 100 - (tx_count/all_count * 100)
         return {
             "diagnostic_yield": diagnostic_yield,
             "count": tx_count,
-            "total_count": all_tx_count,
-            "transcripts": yield_query
+            "total_count": all_count,
+            "transcripts": transcripts
         }
 
     def completeness_levels(self):
