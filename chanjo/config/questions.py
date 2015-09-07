@@ -96,6 +96,9 @@ def ask(prompt, default=None, color='cyan'):
     # write default option in parentheses, use it as response if nothing
     # was submitted by user.
     response = input(build_prompt(prompt, default_string)) or default
+    if isinstance(default, list) and isinstance(response, str):
+        sep = ',' if ',' in response else None
+        response = [int(item) for item in response.split(sep)]
 
     # print the updated confirmation line by replacing the previous
     echo(MOVE_CURSOR_UP + ERASE_LINE
