@@ -25,7 +25,7 @@ __title__ = 'chanjo'
 __summary__ = 'coverage analysis tool for clinical sequencing'
 __uri__ = 'http://www.chanjo.co/'
 
-__version__ = '3.0.0-beta'
+__version__ = '3.0.0-beta2'
 __codename__ = 'Radical Red Panda'
 
 __author__ = 'Robin Andeer'
