@@ -83,53 +83,59 @@ We now have some information loaded for a few samples and we can now start explo
 
     $ chanjo calculate mean sample1
     {
-        "completeness_20": 96.02074970588237,
-        "completeness_10": 96.80992352941175,
-        "completeness_100": 66.78868541470588,
-        "mean_coverage": 171.9479456635295,
+        "metrics": {
+            "completeness_20": 90.38,
+            "completeness_10": 90.92,
+            "completeness_100": 70.62,
+            "mean_coverage": 193.85
+        },
         "sample_id": "sample1"
     }
 
     $ chanjo calculate gene FAP MUSK
     {
-        "MUSK": {
-            "completeness_20": 100.0,
-            "completeness_10": 100.0,
-            "completeness_100": 92.58771999999999,
-            "mean_coverage": 324.4876066666667,
-            "sample_id": "sample5"
-        },
-        "FAP": {
-            "completeness_20": 97.08153846153847,
-            "completeness_10": 100.0,
-            "completeness_100": 45.32870461538461,
-            "mean_coverage": 137.20929999999998,
-            "sample_id": "sample5"
+        "genes": {
+            "MUSK": {
+                "completeness_20": 100.0,
+                "completeness_10": 100.0,
+                "completeness_100": 99.08,
+                "mean_coverage": 370.36
+            },
+            "FAP": {
+                "completeness_20": 97.24,
+                "completeness_10": 100.0,
+                "completeness_100": 50.19,
+                "mean_coverage": 151.63
+            }
         },
         "sample_id": "sample5"
     }
-    ...
+    [...]
 
     $ chanjo calculate region 11 619304 619586
     {
         "completeness_20": 100.0,
         "completeness_10": 100.0,
         "completeness_100": 100.0,
-        "mean_coverage": 253.81090000000003
+        "mean_coverage": 258.24
     }
     $ chanjo calculate region 11 619304 619586 --per exon
     {
-        "completeness_20": 100.0,
-        "completeness_10": 100.0,
-        "completeness_100": 100.0,
-        "mean_coverage": 223.3904,
+        "metrics": {
+            "completeness_20": 100.0,
+            "completeness_10": 100.0,
+            "completeness_100": 100.0,
+            "mean_coverage": 223.3904
+        },
         "exon_id": "11-619305-619389"
     }
     {
-        "completeness_20": 100.0,
-        "completeness_10": 100.0,
-        "completeness_100": 100.0,
-        "mean_coverage": 284.2314,
+        "metrics": {
+            "completeness_20": 100.0,
+            "completeness_10": 100.0,
+            "completeness_100": 100.0,
+            "mean_coverage": 284.23
+        },
         "exon_id": "11-619473-619586"
     }
 

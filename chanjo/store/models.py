@@ -135,7 +135,7 @@ class Sample(BASE):
 
     id = Column(Integer, primary_key=True)
     sample_id = Column(String(32), unique=True)
-    group = Column(String(32), index=True)
+    group_id = Column(String(32), index=True)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
@@ -148,37 +148,24 @@ class Statistic(object):
     """Coverage metrics for a single element and a given sample.
 
     Args:
-        sample_id (int): unique sample identifier
-        group_id (str): group identifier
+        metric (str): identifier for the metric
+        value (float): value for the metric
     """
-    id = Column(Integer, primary_key=True)
 
+    id = Column(Integer, primary_key=True)
     metric = Column(String(32))
     value = Column(Float)
 
 
-class GeneStatistic(Statistic, BASE):
-
-    """
-
-    Args:
-        parent_id (int): parent record Gene id
-    """
-
-    __tablename__ = 'gene_stat'
-
-    sample_id = Column(Integer, ForeignKey('sample.id'))
-    sample = relationship(Sample, backref=backref('gene_stats'))
-    gene_id = Column(Integer, ForeignKey('gene.id'))
-    gene = relationship(Gene, backref=backref('stats'))
-
-
 class ExonStatistic(Statistic, BASE):
 
-    """
+    """Statistics on the exon level, related to sample and exon.
 
     Args:
-        parent_id (int): parent record Exon id
+        sample (Sample): parent record Sample
+        exon (Exon): parent record Exon
+        sample_id (int): parent record Sample id
+        exon_id (int): parent record Exon id
     """
 
     __tablename__ = 'exon_stat'

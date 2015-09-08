@@ -32,4 +32,4 @@ __author__ = 'Robin Andeer'
 __email__ = 'robin.andeer@gmail.com'
 
 __license__ = 'MIT'
-__copyright__ = 'Copyright 2014 Robin Andeer'
+__copyright__ = 'Copyright 2015 Robin Andeer'

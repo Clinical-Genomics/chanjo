@@ -11,7 +11,8 @@ def _exon_kwargs(data):
     Returns:
         dict: kwargs prepared for Exon model
     """
-    return {'exon_id': data['name'], 'chromosome': data['chrom'],
+    exon_id = data.get('name') or data['extraFields'][0]
+    return {'exon_id': exon_id, 'chromosome': data['chrom'],
             'start': data['chromStart'], 'end': data['chromEnd']}
 
 

@@ -1,27 +1,58 @@
 # -*- coding: utf-8 -*-
-from chanjo.compat import itervalues
+import logging
+
+from .models import Sample
+
+logger = logging.getLogger(__name__)
 
 
-def group_by_field(results, name='field_id'):
+def filter_samples(query, group_id=None, sample_ids=None):
+    """Filter a query to a subset of samples.
+
+    Will return an unaltered query if none of the optional parameters
+    are set. `group_id` takes precedence over `sample_ids`.
+
+    Args:
+        query (Query): SQLAlchemy query object
+        group_id (Optional[str]): sample group identifier
+        sample_ids (Optional[List[str]]): sample ids
+
+    Returns:
+        Query: filtered query object
+    """
+    if group_id:
+        logger.debug('filter based on group')
+        return query.filter(Sample.group_id == group_id)
+    elif sample_ids:
+        logger.debug('filter based on list of samples')
+        return query.filter(Sample.sample_id.in_(sample_ids))
+    else:
+        return query
+
+
+def group_by_field(results):
     """Group items based on the initial field.
+
+    Assumes a sorted list of results.
 
     Args:
         results (List[tuple]): list of fields to group
-        name (Optional[str]): what to call the first field
 
-    Returns:
-        List[dict]: grouped dicts
+    Yields:
+        str, dict: next group of results along with the group id
     """
-    groups = {}
-    # loop over results
-    for field_id, metric, value in results:
-        if field_id not in groups:
-            # init a new group
-            groups[field_id] = {name: field_id}
+    results = iter(results)
+    current_group_id, metric, value = next(results)
+    group = {metric: value}
+    for group_id, metric, value in results:
+        if current_group_id != group_id:
+            yield current_group_id, group
+            # reset the group
+            current_group_id = group_id
+            group = {}
         # store the metric under the correct group
-        groups[field_id][metric] = value
-
-    return itervalues(groups)
+        group[metric] = value
+    yield current_group_id, group
 
 
 def predict_gender(x_coverage, y_coverage):

@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import pytest
+
+from chanjo.exc import BedFormattingError
 from chanjo.parse import bed
 
 TEST_OUTPUT = 'tests/fixtures/test.sambamba.bed'
@@ -23,16 +26,10 @@ def test_chanjo():
     assert list(data['elements']) == [('CCDS30547.1', 'OR4F5')]
 
 
-def test_chanjo_without_elements():
+def test_chanj_with_sambamba():
     bed_lines = ["# chrom\tchromStart\tchromEnd\treadCount\tmeanCoverage"
                     "\tsampleName",
                  "1\t69089\t70007\t232\t25.4946\tADM992A10\t"]
 
-    data_rows = list(bed.chanjo(bed_lines))
-    data = data_rows[0]
-
-    assert len(data_rows) == 1
-    assert data['name'] is None
-    assert data['score'] == 0
-    assert data['strand'] is None
-    assert list(data['elements']) == []
+    with pytest.raises(BedFormattingError):
+        list(bed.chanjo(bed_lines))

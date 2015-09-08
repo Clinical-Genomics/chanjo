@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 from chanjo.store import Store
 from chanjo.load import sambamba as load_sambamba
-from chanjo.parse import bed as parse_bed
+from chanjo.parse import sambamba as parse_sambamba
 from get_bedrows import get_bedlines
 
 bed_lines = get_bedlines()
@@ -14,7 +14,7 @@ class TestSambamba:
     def setup(self):
         self.store = Store('sqlite://')
         self.store.set_up()
-        self.row_data = parse_bed.chanjo(bed_lines)
+        self.row_data = parse_sambamba.depth_output(bed_lines)
 
     def teardown(self):
         self.store.tear_down()

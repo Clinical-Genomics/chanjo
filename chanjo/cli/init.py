@@ -18,8 +18,9 @@ def init(context, setup, reset, automate):
     click.echo(chanjo.__banner__)
 
     if not automate:
-        questions = [('annotate.cutoff', 'sufficient coverage',
-                      context.obj.get('annotate', {}).get('cutoff', 10)),
+        questions = [('sambamba.cov_treshold', 'sufficient coverage',
+                      context.obj.get('sambamba', {}).get('cov_treshold',
+                                                          [10, 20])),
                      ('database', 'central database path/URI',
                       context.obj['database'])]
         # launch init pipeline
@@ -47,5 +48,5 @@ def init_pipeline(program, config, questions):
     for dot_key, value in user_defaults.items():
         config.set(dot_key, value, scope=config.user_data)
 
-    # Write to the config file
+    # write to the config file
     config.save(default_flow_style=False)

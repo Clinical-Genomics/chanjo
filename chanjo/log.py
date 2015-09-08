@@ -1,23 +1,21 @@
-import sys
 import logging
 
 LEVELS = {
-    0 : 'WARNING',
-    1 : 'INFO',
-    2 : 'DEBUG',
+    0: 'WARNING',
+    1: 'INFO',
+    2: 'DEBUG',
 }
 
+
 def init_log(logger, filename=None, loglevel=None):
-    """
-    Initializes the log file in the proper format.
+    """Initializes the log file in the proper format.
 
     Arguments:
-
         filename (str): Path to a file. Or None if logging is to
                          be disabled.
         loglevel (str): Determines the level of the log output.
     """
-    template = '[%(asctime)s] %(levelname)-8s: %(name)-25s: %(message)s'
+    template = "[%(asctime)s] %(levelname)-8s: %(name)-25s: %(message)s"
     formatter = logging.Formatter(template)
 
     if loglevel:
@@ -42,15 +40,15 @@ def init_log(logger, filename=None, loglevel=None):
 
     logger.addHandler(console)
 
+
 def get_log_stream(logger):
-    """
-    Returns a stream to the root log file.
+    """Returns a stream to the root log file.
+
     If there is no logfile return the stderr log stream
-    
+
     Returns:
         A stream to the root log file or stderr stream.
     """
-    
     file_stream = None
     log_stream = None
     for handler in logger.handlers:
@@ -58,8 +56,8 @@ def get_log_stream(logger):
             file_stream = handler.stream
         else:
             log_stream = handler.stream
-    
+
     if file_stream:
         return file_stream
-    
+
     return log_stream
