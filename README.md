@@ -27,8 +27,8 @@ $ pip install chanjo
 ... or locally for development:
 
 ```bash
-$ ansible-galaxy install robinandeer.miniconda
 $ git clone https://github.com/robinandeer/chanjo.git && cd chanjo
+$ ansible-galaxy install -r provision/requirements.yml
 $ vagrant up
 $ vagrant ssh
 ```
