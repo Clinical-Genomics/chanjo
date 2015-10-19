@@ -2,11 +2,20 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased][unreleased]
-### Added
-- Added functionality to run sambamba from chanjo
+## [3.0.0] - 2015-10-19
+Code name: "Radical Red Panda"
 
-## [Unreleased][unreleased]
+This is a major new release. Please refer to the documentation for more details on what has been updated.
+
+### Added
+- Add functionality to run sambamba from chanjo
+- Add calulate command to get basic statistics from database
+- Add link command to specifically link genomic elements
+- Add db command to interface and perform maintainance on database
+
+### Removed
+- Support for older versions of Chanjo
+
 ### Fixed
 - Changed way of logging
 - Added proper logstream handler
