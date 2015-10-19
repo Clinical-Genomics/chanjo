@@ -7,11 +7,16 @@ python:
   - "3.4"
 
 install:
-  # install (the rest of the) dependencies
-  - pip install -r requirements/development.txt
+  # install sambamba binary
+  - mkdir -p ./bin
+  - wget https://github.com/lomereiter/sambamba/releases/download/v0.5.8/sambamba_v0.5.8_linux.tar.bz2
+  - tar xvjf sambamba_v0.5.8_linux.tar.bz2
+  - mv sambamba_v0.5.8 ./bin/sambamba
+  - chmod +x ./bin/sambamba
+  - export PATH="${PATH}:${PWD}/bin"
 
-  # install your own package + executables
-  - pip install .
+  # install package and dependencies
+  - pip install -q -r requirements/dev.txt .
 
 script:
   # command to run tests and collect test coverage
