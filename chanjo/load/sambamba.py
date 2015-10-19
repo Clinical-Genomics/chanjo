@@ -27,6 +27,8 @@ def rows(session, row_data, sample_id=None, group_id=None):
         sample_id = first_row['sampleName']
         # place the first row back in the stream
         all_data = cons(first_row, row_data)
+    else:
+        all_data = row_data
 
     sample_obj = Sample(sample_id=sample_id, group_id=group_id)
     nested_stats = (row(session, data, sample_obj) for data in all_data)

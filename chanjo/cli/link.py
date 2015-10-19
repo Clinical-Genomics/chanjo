@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
                 type=click.File(encoding='utf-8'), default='-', required=False)
 @click.pass_context
 def link(context, bed_stream):
-    """Load Sambamba output into the database for a sample."""
+    """Link related genomic elements."""
     chanjo_db = Store(uri=context.obj['database'])
     link_elements(chanjo_db, bed_stream)
 
