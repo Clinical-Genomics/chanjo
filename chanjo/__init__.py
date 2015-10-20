@@ -8,9 +8,8 @@ and embraces functional programming patterns.
 :copyright: (c) 2014 by Robin Andeer
 :licence: MIT, see LICENCE for more details
 """
-
 import logging
-logger = logging.getLogger()
+from pkg_resources import get_distribution
 
 __banner__ = r"""
        ______               ________
@@ -25,7 +24,7 @@ __title__ = 'chanjo'
 __summary__ = 'coverage analysis tool for clinical sequencing'
 __uri__ = 'http://www.chanjo.co/'
 
-__version__ = '3.0.0-beta2'
+__version__ = get_distribution(__title__).version
 __codename__ = 'Radical Red Panda'
 
 __author__ = 'Robin Andeer'
@@ -33,3 +32,6 @@ __email__ = 'robin.andeer@gmail.com'
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2015 Robin Andeer'
+
+# the user should dictate what happens when a logging event occurs
+logging.getLogger(__name__).addHandler(logging.NullHandler())

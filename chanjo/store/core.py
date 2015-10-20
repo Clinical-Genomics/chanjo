@@ -68,7 +68,7 @@ class Store(object):
         # connect to the SQL database
         if 'mysql' in db_uri:
             kwargs['pool_recycle'] = 3600
-        elif ':' not in db_uri:
+        elif '://' not in db_uri:
             # expect only a path to a sqlite database
             db_path = os.path.abspath(os.path.expanduser(db_uri))
             db_uri = "sqlite:///{}".format(db_path)
