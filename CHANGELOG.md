@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.0.1] - 2015-10-26
+### Fixed
+- import from root init, use root logger
+
 ## [3.0.0] - 2015-10-19
 Code name: "Radical Red Panda"
 

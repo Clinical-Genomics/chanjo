@@ -7,6 +7,7 @@ Command line interface (console entry points). Based on Click_.
 
 .. _Click: http://click.pocoo.org/
 """
+import logging
 import click
 
 from chanjo.compat import text_type
@@ -14,7 +15,9 @@ from chanjo.config import Config, CONFIG_FILE_NAME, markup
 from chanjo.log import init_log, LEVELS
 from chanjo.utils import EntryPointsCLI
 
-from chanjo import __version__, logger
+from chanjo import __version__
+
+logger = logging.getLogger(__name__)
 
 
 def print_version(ctx, param, value):
@@ -61,7 +64,7 @@ def root(context, config, database, verbose, log_file):
     # setup logging
 
     loglevel = LEVELS.get(min(verbose, 2), "WARNING")
-    init_log(logger, loglevel=loglevel, filename=log_file)
+    init_log(logging.getLogger(), loglevel=loglevel, filename=log_file)
     logger.info("version {0}".format(__version__))
 
     # avoid setting global defaults in Click options, do it below when
