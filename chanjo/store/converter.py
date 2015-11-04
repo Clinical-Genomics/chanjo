@@ -16,6 +16,7 @@ class ChanjoConverterMixin(object):
             List[Transcript]: transcript objects related to the genes
         """
         query = (self.query(Transcript)
+                     .distinct(Transcript.transcript_id)
                      .join(Exon.transcripts)
                      .filter(Gene.gene_id.in_(gene_ids)))
         return query
@@ -30,6 +31,7 @@ class ChanjoConverterMixin(object):
             List[Exon]: exon objects related to the genes
         """
         query = (self.query(Exon)
+                     .distinct(Exon.exon_id)
                      .join(Exon.transcripts, Transcript.gene)
                      .filter(Gene.gene_id.in_(gene_ids)))
         return query
@@ -70,7 +72,7 @@ class ChanjoConverterMixin(object):
         return results
 
     def exon_transcripts(self, exons_ids, db_ids=False):
-        """Fetch a list of transcripts related to some exons.
+        """Fetch a unique list of transcripts related to some exons.
 
         Args:
             exon_ids (List[str]): list of exon ids
@@ -79,7 +81,9 @@ class ChanjoConverterMixin(object):
         Returns:
             List[Transcript]: transcripts related to the exons
         """
-        results = self.query(Transcript).join(Transcript.exons)
+        results = (self.query(Transcript)
+                       .distinct(Transcript.transcript_id)
+                       .join(Transcript.exons))
         if db_ids:
             results = results.filter(Exon.id.in_(exons_ids))
         else:
@@ -87,7 +91,7 @@ class ChanjoConverterMixin(object):
         return results
 
     def exon_genes(self, *exon_ids):
-        """Fetch genes related to a list of exons.
+        """Fetch unique genes related to a list of exons.
 
         Args:
             *exon_ids (List[str]): exon ids
@@ -96,6 +100,7 @@ class ChanjoConverterMixin(object):
             List[Gene]: gene objects related to the exons
         """
         query = (self.query(Gene)
+                     .distinct(Gene.gene_id)
                      .join(Gene.transcripts, Transcript.exons)
                      .filter(Exon.exon_id.in_(exon_ids)))
         return query
