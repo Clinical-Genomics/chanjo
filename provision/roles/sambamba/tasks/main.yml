@@ -3,12 +3,9 @@
     sambamba_url: "https://github.com/lomereiter/sambamba/releases/download/v{{ sambamba_version }}/sambamba_v{{ sambamba_version }}_linux.tar.bz2"
     sambamba_exe: "{{ bin_dir }}/sambamba_v{{ sambamba_version }}"
 
-- name: download sambamba archive
-  get_url: url={{ sambamba_url }} dest=/tmp/sambamba.tar.bz2
-
-- name: extract static binary
-  unarchive: src=/tmp/sambamba.tar.bz2 dest="{{ bin_dir }}"
-             creates="{{ sambamba_exe }}" copy=no mode=+x
+- name: download and extract binary
+  unarchive: src={{ sambamba_url }} dest="{{ bin_dir }}"
+             creates="{{ sambamba_exe }}" copy=no mode="u+x"
   sudo: yes
 
 - name: create unified alias
