@@ -46,7 +46,7 @@ def print_version(ctx, param, value):
 )
 @click.option('-v', '--verbose',
                 count=True,
-                default=0,
+                default=1,
                 help="Increase output verbosity. Can be used multiple times, eg. -vv"
 )
 @click.option('--log_file',
@@ -62,8 +62,7 @@ def print_version(ctx, param, value):
 def root(context, config, database, verbose, log_file):
     """Clinical sequencing coverage analysis tool."""
     # setup logging
-
-    loglevel = LEVELS.get(min(verbose, 2), "WARNING")
+    loglevel = LEVELS.get(min(verbose, 2), 'WARNING')
     init_log(logging.getLogger(), loglevel=loglevel, filename=log_file)
     logger.info("version {0}".format(__version__))
 
