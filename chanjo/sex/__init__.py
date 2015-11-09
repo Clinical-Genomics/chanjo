@@ -5,4 +5,4 @@ The component reads coverage for subsections of each sex chromosome.
 Based on the ratio between the average coverage across chromosomes it
 makes a simple sex prediction.
 """
-from .core import sex_from_bam
+from .core import predict_sex, sex_from_bam, SexGuess
