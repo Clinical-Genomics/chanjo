@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
+import logging
+
 import click
 from click.termui import echo, style
 
 import chanjo
+from chanjo.compat import iteritems
 from chanjo.config import questionnaire
 from chanjo.store import Store
+
+logger = logging.getLogger(__name__)
 
 
 @click.command()
@@ -17,14 +22,25 @@ def init(context, setup, reset, automate):
     # print a nice welcome message
     click.echo(chanjo.__banner__)
 
+    cov_tresholds = (context.obj.get('sambamba', {})
+                                .get('cov_treshold', [10, 20]))
+    defaults = {'sambamba.cov_treshold': {'value': cov_tresholds,
+                                          'prompt': 'sufficient coverage'},
+                'database': {'value': context.obj['database'],
+                             'prompt': 'central database path/URI'}}
+
     if not automate:
-        questions = [('sambamba.cov_treshold', 'sufficient coverage',
-                      context.obj.get('sambamba', {}).get('cov_treshold',
-                                                          [10, 20])),
-                     ('database', 'central database path/URI',
-                      context.obj['database'])]
+        questions = [(key, value['prompt'], value['value'])
+                     for key, value in iteritems(defaults)]
         # launch init pipeline
         init_pipeline('chanjo', context.obj, questions)
+    else:
+        logger.info('setting default config values')
+        for key, value in iteritems(defaults):
+            context.obj.set(key, value['value'], scope=context.obj.user_data)
+
+    # write to the config file
+    context.obj.save(default_flow_style=False)
 
     if setup:
         chanjo_db = Store(uri=context.obj.user_data['database'])
@@ -47,6 +63,3 @@ def init_pipeline(program, config, questions):
     # Set the selected user defaults
     for dot_key, value in user_defaults.items():
         config.set(dot_key, value, scope=config.user_data)
-
-    # write to the config file
-    config.save(default_flow_style=False)
