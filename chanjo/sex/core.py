@@ -55,7 +55,7 @@ def sex_from_bam(bam_path, prefix=''):
     for region in regions:
         command = ["sambamba depth region -L {} {}".format(region, bam_path)]
         logger.debug("calling: %s", command)
-        bed_out = subprocess.check_output(command, shell=True)
+        bed_out = subprocess.check_output(command, shell=True).decode('utf-8')
         bed_rows = [line.split() for line in bed_out.splitlines()
                     if not line.startswith('#')]
         if len(bed_rows) == 1:
