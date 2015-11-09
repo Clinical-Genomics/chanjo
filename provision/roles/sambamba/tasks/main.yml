@@ -5,9 +5,9 @@
 
 - name: download and extract binary
   unarchive: src={{ sambamba_url }} dest="{{ bin_dir }}"
-             creates="{{ sambamba_exe }}" copy=no mode="u+x"
+             creates="{{ sambamba_exe }}" copy=no mode="o+x"
   sudo: yes
 
 - name: create unified alias
-  file: src="{{ sambamba_exe }}" dest="{{ bin_dir }}/sambamba" state=link
+  file: src="{{ sambamba_exe }}" dest="{{ bin_dir }}/sambamba" state=link mode="u+x"
   sudo: yes
