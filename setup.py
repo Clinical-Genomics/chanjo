@@ -101,7 +101,8 @@ setup(
             'calculate = chanjo.cli:calculate_command',
             'sambamba = chanjo.cli:sambamba_command',
             'db = chanjo.cli:database_command',
-            'bootstrap = chanjo.cli:bootstrap_command'
+            'bootstrap = chanjo.cli:bootstrap_command',
+            'sex = chanjo.cli:sex_command',
         ]
     },
 

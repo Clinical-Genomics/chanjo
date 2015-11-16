@@ -8,4 +8,4 @@
 
 - name: install dev dependencies
   pip: executable="{{ pip_exe }}"
-       requirements={{ install_dir }}/requirements/development.txt
+       requirements={{ install_dir }}/requirements/dev.txt
