@@ -2,9 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [3.1.9] - 2015-11-XX
+## [3.1.0] - 2015-11-16
 ### Added
-- `sex` subcommand for guess sex from BAM alignment, see #158
+- `sex` subcommand for guessing sex from BAM alignment, see #158
 
 ## [3.0.2] - 2015-11-04
 ### Fixed
