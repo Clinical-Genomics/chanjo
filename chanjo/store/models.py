@@ -67,7 +67,7 @@ class Transcript(BASE):
     id = Column(Integer, primary_key=True)
     transcript_id = Column(String(32))
 
-    gene_id = Column(String(32), ForeignKey('gene.id'))
+    gene_id = Column(Integer, ForeignKey('gene.id'))
     gene = relationship(Gene, backref=backref('transcripts'))
 
 

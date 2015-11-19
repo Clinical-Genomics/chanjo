@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.1.1] - 2015-11-19
+### Fixed
+- fixed bug in SQL relationship between gene and transcript
+
 ## [3.1.0] - 2015-11-16
 ### Added
 - `sex` subcommand for guessing sex from BAM alignment, see #158
