@@ -6,7 +6,7 @@
   </a>
 </p>
 
-# Chanjo [![PyPI version][fury-image]][fury-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
+# Chanjo [![PyPI version][fury-image]][fury-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url] [![bioconda-badge][bioconda-img]][bioconda-url]
 
 Chanjo is coverage analysis for clinical sequencing. It's implemented in Python with a command line interface that adheres to [UNIX pipeline philisophy][unix].
 
@@ -78,11 +78,14 @@ Anyone can help make this project better - read [CONTRIBUTION](CONTRIBUTION.md) 
 [report]: https://github.com/robinandeer/chanjo-report
 [sambamba]: http://lomereiter.github.io/sambamba/
 
-[coveralls-url]: https://coveralls.io/r/robinandeer/chanjo
-[coveralls-image]: https://img.shields.io/coveralls/robinandeer/chanjo.svg?style=flat
-
 [fury-url]: http://badge.fury.io/py/chanjo
 [fury-image]: https://badge.fury.io/py/chanjo.png
 
 [travis-url]: https://travis-ci.org/robinandeer/chanjo
-[travis-image]: https://img.shields.io/travis/robinandeer/chanjo.svg?style=flat
+[travis-image]: https://img.shields.io/travis/robinandeer/chanjo.svg?style=flat-square
+
+[coveralls-url]: https://coveralls.io/r/robinandeer/chanjo
+[coveralls-image]: https://img.shields.io/coveralls/robinandeer/chanjo.svg?style=flat-square
+
+[bioconda-url]: http://bioconda.github.io
+[bioconda-img]: https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square
