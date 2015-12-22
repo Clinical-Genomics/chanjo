@@ -245,9 +245,22 @@ class ChanjoAPI(Store, ChanjoConverterMixin):
             gender = predict_gender(*sex_coverage)
             yield sample_id, gender, sex_coverage[0], sex_coverage[1]
 
-    def diagnostic_yield(self, sample_id, query=None, level=10, threshold=100):
-        """Calculate transcripts that aren't completely covered."""
-        query = query or self.query()
+    def diagnostic_yield(self, sample_id, exon_ids=None, query=None, level=10,
+                         threshold=100):
+        """Calculate transcripts that aren't completely covered.
+
+        This metric only applies to one sample in isolation. Otherwise
+        it's hard to know what to do with exons that are covered or
+        not covered across multiple samples.
+
+        Args:
+            sample_id (str): unique sample id
+        """
+        if exon_ids:
+            query = self.query().filter(Exon.exon_id.in_(exon_ids))
+        else:
+            query = self.query()
+
         level = "completeness_{}".format(level)
 
         all_query = (query.add_columns(Transcript.transcript_id)
@@ -257,11 +270,12 @@ class ChanjoAPI(Store, ChanjoConverterMixin):
 
         logger.debug('find out which exons failed')
         yield_query = (query.add_columns(Exon.exon_id)
-                            .join(ExonStatistic.exon)
+                            .join(ExonStatistic.sample, ExonStatistic.exon)
                             .filter(ExonStatistic.metric == level,
-                                    ExonStatistic.value < threshold))
-        exon_ids = [row[0] for row in yield_query]
-        transcripts = self.exon_transcripts(exon_ids)
+                                    ExonStatistic.value < threshold,
+                                    Sample.sample_id == sample_id))
+        exons = [row[0] for row in yield_query]
+        transcripts = self.exon_transcripts(exons)
 
         tx_count = transcripts.count()
         diagnostic_yield = 100 - (tx_count/all_count * 100)

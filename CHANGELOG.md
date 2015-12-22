@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.2.0] - 2015-12-22
+### Changed
+- diagnostic yield function now accepts "exon_ids" explicitly and requires "sample_id" to be given
+
 ## [3.1.1] - 2015-11-19
 ### Fixed
 - fixed bug in SQL relationship between gene and transcript
