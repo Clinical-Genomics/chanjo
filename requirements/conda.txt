@@ -1,4 +1,0 @@
-# Conda installables
-setuptools
-SQLAlchemy>=0.8.2
-PyYAML
