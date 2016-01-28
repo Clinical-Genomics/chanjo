@@ -4,6 +4,7 @@ chanjo.store.core
 ~~~~~~~~~~~~~~~~~~
 """
 from __future__ import division
+import logging
 import os
 
 from sqlalchemy import create_engine
@@ -12,6 +13,8 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.sql.expression import ClauseElement
 
 from .models import (BASE, Gene, Transcript, Exon, Sample)
+
+logger = logging.getLogger(__name__)
 
 
 class Store(object):
@@ -146,9 +149,14 @@ class Store(object):
         Returns:
             Store: ``self`` for chainability
         """
-        # commit/persist dirty changes to the database
-        self.session.flush()
-        self.session.commit()
+        try:
+            # commit/persist dirty changes to the database
+            self.session.flush()
+            self.session.commit()
+        except Exception as error:
+            logger.debug('rolling back failed transaction')
+            self.session.rollback()
+            raise error
         return self
 
     def get(self, typ, type_id):
