@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.2.1] - 2016-01-28
+### Changed
+- do a rollback of failed transactions on "save"
+
+### Added
+- show progress of load command on "info" level
+
 ## [3.2.0] - 2015-12-22
 ### Changed
 - diagnostic yield function now accepts "exon_ids" explicitly and requires "sample_id" to be given
