@@ -38,14 +38,9 @@ class Gene(BASE):
     """
 
     __tablename__ = 'gene'
-    __table_args__ = (UniqueConstraint('chromosome', 'start', 'end',
-                                       name='_coordinates'),)
 
     id = Column(Integer, primary_key=True)
-    gene_id = Column(String(32), unique=True)
-    chromosome = Column(String(32))
-    start = Column(Integer)
-    end = Column(Integer)
+    gene_id = Column(String(32), unique=True, index=True)
 
 
 # +--------------------------------------------------------------------+
@@ -65,7 +60,7 @@ class Transcript(BASE):
     __tablename__ = 'transcript'
 
     id = Column(Integer, primary_key=True)
-    transcript_id = Column(String(32))
+    transcript_id = Column(String(32), index=True)
 
     gene_id = Column(Integer, ForeignKey('gene.id'))
     gene = relationship(Gene, backref=backref('transcripts'))
@@ -93,7 +88,7 @@ class Exon(BASE):
                                        name='_coordinates'),)
 
     id = Column(Integer, primary_key=True)
-    exon_id = Column(String(32), unique=True)
+    exon_id = Column(String(32), unique=True, index=True)
     chromosome = Column(String(32))
     start = Column(Integer)
     end = Column(Integer)
@@ -134,7 +129,7 @@ class Sample(BASE):
     __tablename__ = 'sample'
 
     id = Column(Integer, primary_key=True)
-    sample_id = Column(String(32), unique=True)
+    sample_id = Column(String(32), unique=True, index=True)
     group_id = Column(String(32), index=True)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
@@ -153,7 +148,7 @@ class Statistic(object):
     """
 
     id = Column(Integer, primary_key=True)
-    metric = Column(String(32))
+    metric = Column(String(32), index=True)
     value = Column(Float)
 
 
