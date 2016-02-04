@@ -6,6 +6,7 @@ import click
 from path import path
 
 from chanjo import bootstrap as bootstrap_api
+from chanjo.bootstrap.constants import DB_NAME
 from .init import init
 
 logger = logging.getLogger(__name__)
@@ -21,4 +22,5 @@ def bootstrap(context, force, directory):
 
     config_path = os.path.join(directory, 'chanjo.yaml')
     context.obj.config_path = path(config_path)
+    context.obj['database'] = path(directory).abspath().joinpath(DB_NAME)
     context.invoke(init, automate=True)
