@@ -2,9 +2,9 @@
 from toolz import cons
 
 from chanjo.compat import iteritems
-from chanjo.store import ExonStatistic, Sample
+from chanjo.store import ExonStatistic, Sample, Exon
 
-from .utils import get_or_build_exon
+from .utils import get_or_build_exon, _exon_kwargs
 
 
 def rows(session, row_data, sample_id=None, group_id=None):
@@ -30,40 +30,48 @@ def rows(session, row_data, sample_id=None, group_id=None):
     else:
         all_data = row_data
 
+    exons = {exon.exon_id: exon.id for exon in session.query(Exon)}
     sample_obj = Sample(sample_id=sample_id, group_id=group_id)
-    nested_stats = (row(session, data, sample_obj) for data in all_data)
+    nested_stats = (row(session, data, sample_obj, exons) for data in all_data)
     # flatten 2D nested list
     return (stat for stats in nested_stats for stat in stats)
 
 
-def row(session, data, sample_obj):
+def row(session, data, sample_obj, exons):
     """Handle sambamba output row.
 
     Args:
         session (Session): database session object
         data (dict): parsed sambamba output row
         sample_obj (Sample): linked sample model
+        exons (dict): mapping between Exon.exon_id and Exon.id
 
     Returns:
         List[ExonStatistic]: stats models linked to exon and sample
     """
-    exon_obj = get_or_build_exon(session, data)
-    stats = statistics(data, sample_obj, exon_obj)
+    exon_filters = _exon_kwargs(data)
+    if exon_filters['exon_id'] in exons:
+        exon_obj = Exon(**exon_filters)
+        exon_id = exons[exon_filters['exon_id']]
+        stats = statistics(data, sample_obj, exon_id=exon_id)
+    else:
+        exon_obj = get_or_build_exon(session, exon_filters)
+        stats = statistics(data, sample_obj, exon_obj=exon_obj)
     return stats
 
 
-def statistics(data, sample_obj, exon_obj):
+def statistics(data, sample_obj, exon_obj=None, exon_id=None):
     """Create models from a sambamba output row.
 
     Args:
         data (dict): parsed sambamba output row
         sample_obj (Sample): linked sample model
-        exon_obj (Exon): linked exon model
+        exon_obj (int): primary key for related Exon
 
     Returns:
         List[ExonStatistic]: stats models linked to exon and sample
     """
-    relationships = dict(sample=sample_obj, exon=exon_obj)
+    relationships = dict(sample=sample_obj, exon=exon_obj, exon_id=exon_id)
     stats = [ExonStatistic(metric='mean_coverage', value=data['meanCoverage'],
                            **relationships)]
     for threshold, value in iteritems(data['thresholds']):
