@@ -40,7 +40,7 @@ class Gene(BASE):
     __tablename__ = 'gene'
 
     id = Column(Integer, primary_key=True)
-    gene_id = Column(String(32), unique=True, index=True)
+    gene_id = Column(String(32), unique=True)
 
 
 # +--------------------------------------------------------------------+
@@ -60,7 +60,7 @@ class Transcript(BASE):
     __tablename__ = 'transcript'
 
     id = Column(Integer, primary_key=True)
-    transcript_id = Column(String(32), index=True)
+    transcript_id = Column(String(32), unique=True)
 
     gene_id = Column(Integer, ForeignKey('gene.id'))
     gene = relationship(Gene, backref=backref('transcripts'))
@@ -88,7 +88,7 @@ class Exon(BASE):
                                        name='_coordinates'),)
 
     id = Column(Integer, primary_key=True)
-    exon_id = Column(String(32), unique=True, index=True)
+    exon_id = Column(String(32), unique=True)
     chromosome = Column(String(32))
     start = Column(Integer)
     end = Column(Integer)
@@ -129,7 +129,7 @@ class Sample(BASE):
     __tablename__ = 'sample'
 
     id = Column(Integer, primary_key=True)
-    sample_id = Column(String(32), unique=True, index=True)
+    sample_id = Column(String(32), unique=True)
     group_id = Column(String(32), index=True)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
