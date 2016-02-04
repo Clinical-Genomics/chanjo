@@ -16,7 +16,7 @@ install:
   - export PATH="${PATH}:${PWD}/bin"
 
   # install package and dependencies
-  - pip install -q -r requirements/dev.txt .
+  - pip install -q -r requirements-dev.txt .
 
 script:
   # command to run tests and collect test coverage
