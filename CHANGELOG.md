@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.2.2] - XXX
+### Changed
+- add indexes to models, especially to `exon_stat.metric` to speed up queries
+
 ## [3.2.1] - 2016-01-28
 ### Changed
 - do a rollback of failed transactions on "save"

@@ -38,14 +38,9 @@ class Gene(BASE):
     """
 
     __tablename__ = 'gene'
-    __table_args__ = (UniqueConstraint('chromosome', 'start', 'end',
-                                       name='_coordinates'),)
 
     id = Column(Integer, primary_key=True)
     gene_id = Column(String(32), unique=True)
-    chromosome = Column(String(32))
-    start = Column(Integer)
-    end = Column(Integer)
 
 
 # +--------------------------------------------------------------------+
@@ -65,7 +60,7 @@ class Transcript(BASE):
     __tablename__ = 'transcript'
 
     id = Column(Integer, primary_key=True)
-    transcript_id = Column(String(32))
+    transcript_id = Column(String(32), unique=True)
 
     gene_id = Column(Integer, ForeignKey('gene.id'))
     gene = relationship(Gene, backref=backref('transcripts'))
@@ -153,7 +148,7 @@ class Statistic(object):
     """
 
     id = Column(Integer, primary_key=True)
-    metric = Column(String(32))
+    metric = Column(String(32), index=True)
     value = Column(Float)
 
 
