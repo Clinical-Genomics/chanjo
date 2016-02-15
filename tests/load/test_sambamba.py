@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import absolute_import
 
 from chanjo.store import Store
@@ -21,7 +20,7 @@ class TestSambamba:
         self.store.session.close()
 
     def test_connection(self):
-        self.store.dialect == 'sqlite'
+        assert self.store.dialect == 'sqlite'
 
     def test_rows(self):
         stats = load_sambamba.rows(self.store.session, self.row_data)

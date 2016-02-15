@@ -16,17 +16,16 @@ def _exon_kwargs(data):
             'start': data['chromStart'], 'end': data['chromEnd']}
 
 
-def get_or_build_exon(session, data):
+def get_or_build_exon(session, exon_filters):
     """Fetch exon from database or build a new instance.
 
     Args:
         session (Session): database session object
-        data (dict): parsed sambamba output row
+        exon_filters (dict): uniquely identifying exon information
     """
-    ex_filters = _exon_kwargs(data)
-    exon_obj = session.query(Exon).filter_by(**ex_filters).first()
+    exon_obj = session.query(Exon).filter_by(**exon_filters).first()
     if exon_obj is None:
         # no existing exon object, create a new one
-        exon_obj = Exon(**ex_filters)
+        exon_obj = Exon(**exon_filters)
 
     return exon_obj

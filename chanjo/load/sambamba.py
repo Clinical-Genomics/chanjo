@@ -14,7 +14,7 @@ def rows(session, row_data, sample_id=None, group_id=None):
 
     Args:
         session (Session): database session object
-        row_data (dict): parsed sambamba output rows
+        row_data (List[dict]): parsed sambamba output rows
         sample_id (Optional[str]): id to reference sample
         group_id (Optional[str]): id to group samples together
 
