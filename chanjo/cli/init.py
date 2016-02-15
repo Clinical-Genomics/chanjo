@@ -26,7 +26,7 @@ def init(context, setup, reset, automate):
                                 .get('cov_treshold', [10, 20]))
     defaults = {'sambamba.cov_treshold': {'value': cov_tresholds,
                                           'prompt': 'sufficient coverage'},
-                'database': {'value': context.obj['database'],
+                'database': {'value': str(context.obj['database']),
                              'prompt': 'central database path/URI'}}
 
     if not automate:
