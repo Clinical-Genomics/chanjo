@@ -2,9 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [3.2.2] - XXX
+## [3.3.0] - 2016-02-15
 ### Changed
 - add indexes to models, especially to `exon_stat.metric` to speed up queries
+- speed up loading by front-loading existing exons (~7 min)
+- update resources bundled in the `bootstrap` command, now includes database with exons + slicing sites
+
+### Fixed
+- travis-ci setup for testing
 
 ## [3.2.1] - 2016-01-28
 ### Changed
