@@ -62,7 +62,7 @@ class Transcript(BASE):
     id = Column(Integer, primary_key=True)
     transcript_id = Column(String(32), unique=True)
 
-    gene_id = Column(Integer, ForeignKey('gene.id'))
+    gene_id = Column(Integer, ForeignKey('gene.id'), nullable=False)
     gene = relationship(Gene, backref=backref('transcripts'))
 
 
@@ -88,10 +88,10 @@ class Exon(BASE):
                                        name='_coordinates'),)
 
     id = Column(Integer, primary_key=True)
-    exon_id = Column(String(32), unique=True)
-    chromosome = Column(String(32))
-    start = Column(Integer)
-    end = Column(Integer)
+    exon_id = Column(String(32), unique=True, nullable=False)
+    chromosome = Column(String(32), nullable=False)
+    start = Column(Integer, nullable=False)
+    end = Column(Integer, nullable=False)
 
     transcripts = relationship(Transcript, secondary=Exon_Transcript,
                                backref=backref('exons', order_by=start))
@@ -129,7 +129,7 @@ class Sample(BASE):
     __tablename__ = 'sample'
 
     id = Column(Integer, primary_key=True)
-    sample_id = Column(String(32), unique=True)
+    sample_id = Column(String(32), unique=True, nullable=False)
     group_id = Column(String(32), index=True)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
@@ -138,25 +138,13 @@ class Sample(BASE):
 # +--------------------------------------------------------------------+
 # | Exon Data ORM
 # +--------------------------------------------------------------------+
-class Statistic(object):
-
-    """Coverage metrics for a single element and a given sample.
-
-    Args:
-        metric (str): identifier for the metric
-        value (float): value for the metric
-    """
-
-    id = Column(Integer, primary_key=True)
-    metric = Column(String(32), index=True)
-    value = Column(Float)
-
-
-class ExonStatistic(Statistic, BASE):
+class ExonStatistic(BASE):
 
     """Statistics on the exon level, related to sample and exon.
 
     Args:
+        metric (str): identifier for the metric
+        value (float): value for the metric
         sample (Sample): parent record Sample
         exon (Exon): parent record Exon
         sample_id (int): parent record Sample id
@@ -165,7 +153,11 @@ class ExonStatistic(Statistic, BASE):
 
     __tablename__ = 'exon_stat'
 
-    sample_id = Column(Integer, ForeignKey('sample.id'))
+    id = Column(Integer, primary_key=True)
+    metric = Column(String(32), index=True, nullable=False)
+    value = Column(Float, nullable=False)
+
+    sample_id = Column(Integer, ForeignKey('sample.id'), nullable=False)
     sample = relationship(Sample, backref=backref('exon_stats'))
-    exon_id = Column(Integer, ForeignKey('exon.id'))
+    exon_id = Column(Integer, ForeignKey('exon.id'), nullable=False)
     exon = relationship(Exon, backref=backref('stats'))

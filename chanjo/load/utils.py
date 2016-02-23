@@ -27,5 +27,4 @@ def get_or_build_exon(session, exon_filters):
     if exon_obj is None:
         # no existing exon object, create a new one
         exon_obj = Exon(**exon_filters)
-
     return exon_obj
