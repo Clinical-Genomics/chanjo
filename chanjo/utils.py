@@ -6,11 +6,14 @@ chanjo.utils
 A few general utility functions that might also be useful outside
 Chanjo.
 """
+import logging
 import pkg_resources
 import random
 import sys
 
 import click
+
+logger = logging.getLogger(__name__)
 
 
 def list_get(list_obj, index, default=None):
@@ -91,4 +94,7 @@ class EntryPointsCLI(click.MultiCommand):
     def get_command(self, ctx, name):
         """Load one of the available commands."""
         commands = self._iter_commands()
+        if name not in commands:
+            click.echo("no such command: {}".format(name))
+            ctx.abort()
         return commands[name].load()
