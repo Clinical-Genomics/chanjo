@@ -51,12 +51,16 @@ def region(context, sample, per, chromosome, start, end):
     api = context.parent.api
     if start is None:
         logger.debug('region id detected, parse string')
-        results = api.region_alt(chromosome, sample_id=sample, per=per)
+        try:
+            results = api.region_alt(chromosome, sample_id=sample, per=per)
+        except ValueError as error:
+            click.echo(error.message)
+            context.abort()
     else:
-        query = api.region(chromosome, start, end, sample_id=sample, per=per)
-        results = ({'exon_id': exon_id, 'metrics': data}
-                   for exon_id, data in query)
+        results = api.region(chromosome, start, end, sample_id=sample, per=per)
     if per == 'exon':
-        dump_json(*results)
+        processed_results = ({'exon_id': exon_id, 'metrics': data}
+                             for exon_id, data in results)
+        dump_json(*processed_results)
     else:
         dump_json(results)
