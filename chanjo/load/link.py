@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from chanjo.store import Gene, Transcript
 
-from .utils import get_or_build_exon
+from .utils import get_or_build_exon, _exon_kwargs
 
 
 def rows(session, row_data):
@@ -13,7 +13,8 @@ def rows(session, row_data):
 def row(session, data):
     """Link transcripts and genes."""
     # start with exons object
-    exon_obj = get_or_build_exon(session, data)
+    exon_filters = _exon_kwargs(data)
+    exon_obj = get_or_build_exon(session, exon_filters)
     # store created gene objects
     genes = {}
     for tx_id, gene_id in data['elements']:
