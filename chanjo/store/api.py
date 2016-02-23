@@ -97,7 +97,10 @@ class ChanjoAPI(Store, ChanjoConverterMixin):
         Returns:
             dict: weighted metrics (across samples)
         """
-        chromosome, pos_str = region_id.split(':')
+        try:
+            chromosome, pos_str = region_id.split(':')
+        except ValueError:
+            raise ValueError("unsupported region id: {}".format(region_id))
         start, end = [int(pos) for pos in pos_str.split('-')]
         data = self.region(chromosome, start, end, sample_id=sample_id,
                            per=per)
