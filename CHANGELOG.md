@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.3.1] - 2016-02-23
+### Fixed
+- properly report if a CLI subcommand is not found
+- properly output results from "calculate region"
+- show error message for unknown region ids
+- fix sqlite issue when adding both `exon_obj` and `exon_id`
+
+### Changed
+- make schema more strict about which columns need to exist
+
 ## [3.3.0] - 2016-02-15
 ### Changed
 - add indexes to models, especially to `exon_stat.metric` to speed up queries
