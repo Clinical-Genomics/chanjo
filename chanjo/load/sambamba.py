@@ -51,9 +51,9 @@ def row(session, data, sample_obj, exons):
     """
     exon_filters = _exon_kwargs(data)
     if exon_filters['exon_id'] in exons:
-        exon_obj = Exon(**exon_filters)
-        exon_id = exons[exon_filters['exon_id']]
-        stats = statistics(data, sample_obj, exon_id=exon_id)
+        # get primary key for existing exon
+        primary_exon_id = exons[exon_filters['exon_id']]
+        stats = statistics(data, sample_obj, exon_id=primary_exon_id)
     else:
         exon_obj = get_or_build_exon(session, exon_filters)
         stats = statistics(data, sample_obj, exon_obj=exon_obj)
@@ -71,7 +71,10 @@ def statistics(data, sample_obj, exon_obj=None, exon_id=None):
     Returns:
         List[ExonStatistic]: stats models linked to exon and sample
     """
-    relationships = dict(sample=sample_obj, exon=exon_obj, exon_id=exon_id)
+    if exon_obj:
+        relationships = dict(sample=sample_obj, exon=exon_obj)
+    else:
+        relationships = dict(sample=sample_obj, exon_id=exon_id)
     stats = [ExonStatistic(metric='mean_coverage', value=data['meanCoverage'],
                            **relationships)]
     for threshold, value in iteritems(data['thresholds']):
