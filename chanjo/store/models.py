@@ -155,7 +155,7 @@ class ExonStatistic(BASE):
 
     id = Column(Integer, primary_key=True)
     metric = Column(String(32), index=True, nullable=False)
-    value = Column(Float, nullable=False)
+    value = Column(Float, index=True, nullable=False)
 
     sample_id = Column(Integer, ForeignKey('sample.id'), nullable=False)
     sample = relationship(Sample, backref=backref('exon_stats'))
