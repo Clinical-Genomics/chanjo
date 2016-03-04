@@ -2,7 +2,7 @@
 from datetime import datetime
 
 from sqlalchemy import (Column, DateTime, Float, ForeignKey, Integer, String,
-                        Table, UniqueConstraint)
+                        UniqueConstraint)
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -16,11 +16,16 @@ BASE = declarative_base()
 # | Provides the many-to-many relationships between:
 # | - Exon<->Transcript
 # +--------------------------------------------------------------------+
-Exon_Transcript = Table(
-    'exon__transcript',
-    BASE.metadata,
-    Column('exon_id', Integer, ForeignKey('exon.id')),
-    Column('transcript_id', Integer, ForeignKey('transcript.id')))
+class ExonTranscriptLink(BASE):
+
+    """Link between exon and transcript."""
+
+    __tablename__ = 'exon__transcript'
+    __table_args__ = (UniqueConstraint('exon_id', 'transcript_id',
+                                       name='_exon_transcript_uc'),)
+
+    exon_id = Column(Integer, ForeignKey('exon.id'))
+    transcript_id = Column(Integer, ForeignKey('transcript.id'))
 
 
 # +--------------------------------------------------------------------+
@@ -93,7 +98,7 @@ class Exon(BASE):
     start = Column(Integer, nullable=False)
     end = Column(Integer, nullable=False)
 
-    transcripts = relationship(Transcript, secondary=Exon_Transcript,
+    transcripts = relationship(Transcript, secondary=ExonTranscriptLink,
                                backref=backref('exons', order_by=start))
 
     def __len__(self):
