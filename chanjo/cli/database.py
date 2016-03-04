@@ -6,15 +6,21 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from chanjo.store import Store
 from chanjo.store.models import ExonStatistic, Sample
+from chanjo.store.models import BASE
+from chanjo.store.txmodels import BASE as TXBASE
 
 logger = logging.getLogger(__name__)
 
 
 @click.group()
+@click.option('-t', '--transcripts', is_flag=True,
+              help='focus only on transcripts on the database level')
 @click.pass_context
-def db(context):
+def db(context, transcripts):
     """Interact with the database for maintainance tasks."""
-    context.db = Store(uri=context.obj['database'])
+    only_tx = transcripts or context.obj.get('transcripts') or False
+    base = TXBASE if only_tx else BASE
+    context.db = Store(uri=context.obj['database'], base=base)
 
 
 @db.command()

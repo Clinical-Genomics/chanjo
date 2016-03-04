@@ -48,9 +48,10 @@ class Store(object):
         classes (dict): bound ORM classes
     """
 
-    def __init__(self, uri=None, debug=False):
+    def __init__(self, uri=None, debug=False, base=BASE):
         super(Store, self).__init__()
         self.uri = uri
+        self.base = base
         if uri:
             self.connect(uri, debug=debug)
 
@@ -78,7 +79,7 @@ class Store(object):
 
         self.engine = create_engine(db_uri, **kwargs)
         # make sure the same engine is propagated to the BASE classes
-        BASE.metadata.bind = self.engine
+        self.base.metadata.bind = self.engine
         # start a session
         self.session = scoped_session(sessionmaker(bind=self.engine))
         # shortcut to query method
@@ -103,7 +104,9 @@ class Store(object):
             Store: self
         """
         # create the tables
-        BASE.metadata.create_all(self.engine)
+        self.base.metadata.create_all(self.engine)
+        tables = self.base.metadata.tables.keys()
+        logger.info("created tables: %s", ', '.join(tables))
         return self
 
     def tear_down(self):
@@ -113,7 +116,7 @@ class Store(object):
             Store: self
         """
         # drop/delete the tables
-        BASE.metadata.drop_all(self.engine)
+        self.base.metadata.drop_all(self.engine)
         return self
 
     def get_or_create(self, model, **kwargs):
@@ -229,7 +232,7 @@ class Store(object):
         Returns:
             Store: ``self`` for chainability
         """
-        if isinstance(elements, BASE):
+        if isinstance(elements, self.base):
             # Add the record to the session object
             self.session.add(elements)
         elif isinstance(elements, list):

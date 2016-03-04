@@ -1,0 +1,57 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
+from collections import namedtuple
+
+from chanjo.compat import iteritems, itervalues
+from chanjo.parse import sambamba
+from chanjo.store.txmodels import TranscriptStat, Sample
+from .utils import groupby_tx
+
+Result = namedtuple('Result', ['models', 'count', 'sample'])
+
+
+def process(sequence, sample_id=None, group_id=None, source=None):
+    """Process a sequence of exon lines."""
+    exons = sambamba.depth_output(sequence)
+    transcripts = groupby_tx(exons, sambamba=True)
+    raw_stats = ((tx_id, tx_stat(tx_id, exons)) for tx_id, exons in
+                 iteritems(transcripts))
+
+    if sample_id is None:
+        sample_id = next(itervalues(transcripts))[0]['sampleName']
+    sample_obj = Sample(id=sample_id, group_id=group_id, source=source)
+
+    models = (make_model(sample_obj, tx_id, raw_stat) for tx_id, raw_stat
+              in raw_stats)
+    return Result(models=models, count=len(transcripts), sample=sample_obj)
+
+
+# calculate transcript stats
+def tx_stat(transcript_id, exons):
+    """Generate a transcript stat model."""
+    sums = {'bases': 0, 'mean_coverage': 0}
+
+    # for each of the exons (linked to one transcript)
+    for exon in exons:
+        # go over each of the fields to sum up
+        exon_length = (exon['chromEnd'] - exon['chromStart'])
+        sums['bases'] += exon_length
+        sums['mean_coverage'] += (exon['meanCoverage'] * exon_length)
+
+        # add to the total sum for completeness levels
+        for comp_key in [10, 15, 20, 50, 100]:
+            if comp_key in exon['thresholds']:
+                sums_key = "completeness_{}".format(comp_key)
+                if sums_key not in sums:
+                    sums[sums_key] = 0
+                sums[sums_key] += (exon['thresholds'][comp_key] * exon_length)
+
+    fields = {key: (value / sums['bases']) for key, value in iteritems(sums)
+              if key != 'bases'}
+    return fields
+
+
+def make_model(sample_obj, transcript_id, fields):
+    tx_model = TranscriptStat(sample=sample_obj, transcript_id=transcript_id,
+                              **fields)
+    return tx_model
