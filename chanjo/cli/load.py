@@ -32,14 +32,8 @@ def load(context, sample, group, transcripts, bed_stream):
     try:
         if only_tx:
             source = os.path.abspath(bed_stream.name)
-            kwargs = dict(sample_id=sample, sequence=bed_stream,
-                          group_id=group, source=source)
-            result = load_mod.load_transcripts(**kwargs)
-            with click.progressbar(result.models, length=result.count,
-                                   label='loading transcripts') as bar:
-                for tx_model in bar:
-                    chanjo_db.session.add(tx_model)
-            chanjo_db.save()
+            load_transcripts(chanjo_db, bed_stream, sample=sample, group=group,
+                             source=source)
         else:
             load_sambamba(chanjo_db, bed_stream, sample_id=sample,
                           group_id=group)
@@ -48,6 +42,18 @@ def load(context, sample, group, transcripts, bed_stream):
         logger.debug(error.message)
         chanjo_db.session.rollback()
         context.abort()
+
+
+def load_transcripts(chanjo_db, bed_stream, sample=None, group=None,
+                     source=None):
+    kwargs = dict(sample_id=sample, sequence=bed_stream,
+                  group_id=group, source=source)
+    result = load_mod.load_transcripts(**kwargs)
+    with click.progressbar(result.models, length=result.count,
+                           label='loading transcripts') as bar:
+        for tx_model in bar:
+            chanjo_db.session.add(tx_model)
+    chanjo_db.save()
 
 
 def load_sambamba(chanjo_db, bed_iterable, sample_id=None, group_id=None):
