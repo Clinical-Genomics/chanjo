@@ -39,9 +39,11 @@ class Store(object):
     Args:
         uri (Optional[str]): path/URI to the database to connect to
         debug (Optional[bool]): whether to output logging information
+        base (Optional[sqlalchemy.ext.declarative.api.Base]): schema definition
 
     Attributes:
         uri (str): path/URI to the database to connect to
+        base (sqlalchemy.ext.declarative.api.Base): shcema definition
         engine (class): SQLAlchemy engine, defines what database to use
         session (class): SQLAlchemy ORM session, manages persistance
         query (method): SQLAlchemy ORM query builder method

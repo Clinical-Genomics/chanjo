@@ -9,9 +9,6 @@ from sqlalchemy.ext.declarative import declarative_base
 BASE = declarative_base()
 
 
-# +--------------------------------------------------------------------+
-# | Transcript ORM
-# +--------------------------------------------------------------------+
 class Transcript(BASE):
 
     """Set of non-overlapping exons.
@@ -19,8 +16,10 @@ class Transcript(BASE):
     A :class:`Transcript` can *only* be related to a single gene.
 
     Args:
-        transcript_id (str): unique block id (e.g. CCDS transcript id)
+        id (str): unique transcript id (e.g. CCDS)
         gene_id (str): related gene
+        chromosome (str): related contig id
+        lenght (int): number of exon bases in transcript
     """
 
     __tablename__ = 'transcript'
@@ -31,24 +30,15 @@ class Transcript(BASE):
     length = Column(types.Integer)
 
 
-# +--------------------------------------------------------------------+
-# | Sample ORM classes
-# +--------------------------------------------------------------------+
 class Sample(BASE):
 
-    """Metadata for a single (unique) sample.
-
-    :class:`Sample` helps out in consolidating important information in
-    one place.
-
-    .. versionadded:: 0.4.0
+    """Metadata for a single sample.
 
     Args:
-        sample_id (str): unique sample id
+        id (str): unique sample id
         group_id (str): unique group id
-        cutoff (int): cutoff used for completeness
-        extension (bool): number of bases added to each interval
-        coverage_source (str): path to the BAM file used
+        source (str): path to coverage source Sambamba output/BAM file
+        created_at (DateTime): date of addition to database
     """
 
     __tablename__ = 'sample'
@@ -59,20 +49,17 @@ class Sample(BASE):
     created_at = Column(types.DateTime, default=datetime.now)
 
 
-# +--------------------------------------------------------------------+
-# | Transcript Stat ORM
-# +--------------------------------------------------------------------+
 class TranscriptStat(BASE):
 
     """Statistics on transcript level, related to sample and transcript.
 
     Args:
-        metric (str): identifier for the metric
-        value (float): value for the metric
-        sample (Sample): parent record Sample
-        exon (Exon): parent record Exon
-        sample_id (int): parent record Sample id
-        exon_id (int): parent record Exon id
+        sample_id (str): link to sample record
+        sample (Sample): parent Sample record
+        transcript_id (str): link to transcript record
+        transcript (Transcript): parent transcript record
+        mean_coverage (Float): mean coverage across all exons
+        completeness_XX (Float): percentage of exon bases coverage at XX
     """
 
     __tablename__ = 'transcript_stat'
