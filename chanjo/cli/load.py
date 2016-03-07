@@ -21,10 +21,12 @@ logger = logging.getLogger(__name__)
 @click.option('-g', '--group', help='id to group related samples')
 @click.option('-t', '--transcripts', is_flag=True,
               help='focus only on transcripts on the database level')
+@click.option('-r', '--threshold', type=int,
+              help='completeness level to disqualify exons')
 @click.argument('bed_stream', callback=validate_stdin,
                 type=click.File(encoding='utf-8'), default='-', required=False)
 @click.pass_context
-def load(context, sample, group, transcripts, bed_stream):
+def load(context, sample, group, transcripts, threshold, bed_stream):
     """Load Sambamba output into the database for a sample."""
     only_tx = transcripts or context.obj.get('transcripts') or False
     base = TXBASE if only_tx else BASE
@@ -33,7 +35,7 @@ def load(context, sample, group, transcripts, bed_stream):
         if only_tx:
             source = os.path.abspath(bed_stream.name)
             load_transcripts(chanjo_db, bed_stream, sample=sample, group=group,
-                             source=source)
+                             source=source, threshold=threshold)
         else:
             load_sambamba(chanjo_db, bed_stream, sample_id=sample,
                           group_id=group)
@@ -45,9 +47,9 @@ def load(context, sample, group, transcripts, bed_stream):
 
 
 def load_transcripts(chanjo_db, bed_stream, sample=None, group=None,
-                     source=None):
+                     source=None, threshold=None):
     kwargs = dict(sample_id=sample, sequence=bed_stream,
-                  group_id=group, source=source)
+                  group_id=group, source=source, threshold=threshold)
     result = load_mod.load_transcripts(**kwargs)
     with click.progressbar(result.models, length=result.count,
                            label='loading transcripts') as bar:

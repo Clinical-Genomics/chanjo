@@ -60,6 +60,7 @@ class TranscriptStat(BASE):
         transcript (Transcript): parent transcript record
         mean_coverage (Float): mean coverage across all exons
         completeness_XX (Float): percentage of exon bases coverage at XX
+        _incomplete_exons (str): comma separated list of exon ids
     """
 
     __tablename__ = 'transcript_stat'
@@ -79,3 +80,13 @@ class TranscriptStat(BASE):
     completeness_20 = Column(types.Float)
     completeness_50 = Column(types.Float)
     completeness_100 = Column(types.Float)
+    _incomplete_exons = Column(types.Text)
+
+    @property
+    def incomplete_exons(self):
+        """Return a list of exons ids."""
+        return self._incomplete_exons.split(',') if self._incomplete_exons else []
+
+    @incomplete_exons.setter
+    def incomplete_exons(self, value):
+        self._incomplete_exons = ','.join(value)

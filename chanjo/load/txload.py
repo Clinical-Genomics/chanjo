@@ -10,7 +10,8 @@ from .utils import groupby_tx
 Result = namedtuple('Result', ['models', 'count', 'sample'])
 
 
-def process(sequence, sample_id=None, group_id=None, source=None):
+def process(sequence, sample_id=None, group_id=None, source=None,
+            threshold=None):
     """Process a sequence of exon lines.
 
     Args:
@@ -18,14 +19,15 @@ def process(sequence, sample_id=None, group_id=None, source=None):
         sample_id (Optional[str]): unique sample id, else auto-guessed
         grouip_id (Optional[str]): id to group samples
         source (Optional[str]): path to coverage source (BAM/Sambamba)
+        threshold (Optional[int]): completeness level to disqualify exons
 
     Returns:
         Result: iterators of `Transcript`, transcripts processed, sample model
     """
     exons = sambamba.depth_output(sequence)
     transcripts = groupby_tx(exons, sambamba=True)
-    raw_stats = ((tx_id, tx_stat(tx_id, exons)) for tx_id, exons in
-                 iteritems(transcripts))
+    raw_stats = ((tx_id, tx_stat(tx_id, exons, threshold=threshold))
+                 for tx_id, exons in iteritems(transcripts))
 
     if sample_id is None:
         sample_id = next(itervalues(transcripts))[0]['sampleName']
@@ -36,17 +38,19 @@ def process(sequence, sample_id=None, group_id=None, source=None):
     return Result(models=models, count=len(transcripts), sample=sample_obj)
 
 
-def tx_stat(transcript_id, exons):
+def tx_stat(transcript_id, exons, threshold=None):
     """Calculate metrics for transcript stats model.
 
     Args:
         transcript_id (str): unqiue transcript id
         exons (List[dict]): list of exon transcripts
+        threshold (Optional[int]): completeness level to disqualify exons
 
     Returns:
         dict: aggregated stats over all exons
     """
     sums = {'bases': 0, 'mean_coverage': 0}
+    incomplete_exons = []
 
     # for each of the exons (linked to one transcript)
     for exon in exons:
@@ -61,10 +65,18 @@ def tx_stat(transcript_id, exons):
                 sums_key = "completeness_{}".format(comp_key)
                 if sums_key not in sums:
                     sums[sums_key] = 0
-                sums[sums_key] += (exon['thresholds'][comp_key] * exon_length)
+                completeness = exon['thresholds'][comp_key]
+                sums[sums_key] += (completeness * exon_length)
+
+                if threshold == comp_key and completeness < 100:
+                    exon_id = "{}:{}-{}".format(exon['chrom'],
+                                                exon['chromStart'],
+                                                exon['chromEnd'])
+                    incomplete_exons.append(exon_id)
 
     fields = {key: (value / sums['bases']) for key, value in iteritems(sums)
               if key != 'bases'}
+    fields['incomplete_exons'] = incomplete_exons
     return fields
 
 
