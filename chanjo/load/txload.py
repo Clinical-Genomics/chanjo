@@ -77,6 +77,7 @@ def tx_stat(transcript_id, exons, threshold=None):
     fields = {key: (value / sums['bases']) for key, value in iteritems(sums)
               if key != 'bases'}
     fields['incomplete_exons'] = incomplete_exons
+    fields['threshold'] = threshold
     return fields
 
 
