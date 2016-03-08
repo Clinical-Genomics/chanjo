@@ -2,7 +2,7 @@
 from datetime import datetime
 
 from sqlalchemy import (Column, DateTime, Float, ForeignKey, Integer, String,
-                        Table, UniqueConstraint)
+                        UniqueConstraint, Table)
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 

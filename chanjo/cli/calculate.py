@@ -5,16 +5,22 @@ import click
 
 from chanjo.store import ChanjoAPI
 from chanjo.store.utils import filter_samples
+from chanjo.store.models import BASE
+from chanjo.store.txmodels import BASE as TXBASE
 from .utils import dump_json
 
 logger = logging.getLogger(__name__)
 
 
 @click.group()
+@click.option('-t', '--transcripts', is_flag=True,
+              help='focus only on transcripts on the database level')
 @click.pass_context
-def calculate(context):
+def calculate(context, transcripts):
     """Calculate simple metrics from the database."""
-    context.api = ChanjoAPI(uri=context.obj['database'])
+    only_tx = transcripts or context.obj.get('transcripts') or False
+    base = TXBASE if only_tx else BASE
+    context.api = ChanjoAPI(uri=context.obj['database'], base=base)
 
 
 @calculate.command()

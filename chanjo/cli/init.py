@@ -8,6 +8,8 @@ import chanjo
 from chanjo.compat import iteritems
 from chanjo.config import questionnaire
 from chanjo.store import Store
+from chanjo.store.models import BASE
+from chanjo.store.txmodels import BASE as TXBASE
 
 logger = logging.getLogger(__name__)
 
@@ -16,8 +18,10 @@ logger = logging.getLogger(__name__)
 @click.option('-s', '--setup', is_flag=True, help='setup database tables')
 @click.option('-r', '--reset', is_flag=True, help='reset an existing database')
 @click.option('-a', '--automate', is_flag=True, help='run non-interactively')
+@click.option('-t', '--transcripts', is_flag=True,
+              help='focus only on transcripts on the database level')
 @click.pass_context
-def init(context, setup, reset, automate):
+def init(context, setup, reset, automate, transcripts):
     """Walk user through setting up a new config file."""
     # print a nice welcome message
     click.echo(chanjo.__banner__)
@@ -43,7 +47,9 @@ def init(context, setup, reset, automate):
     context.obj.save(default_flow_style=False)
 
     if setup:
-        chanjo_db = Store(uri=context.obj.user_data['database'])
+        only_tx = transcripts or context.obj.get('transcripts') or False
+        base = TXBASE if only_tx else BASE
+        chanjo_db = Store(uri=context.obj['database'], base=base)
         if reset:
             chanjo_db.tear_down()
         chanjo_db.set_up()

@@ -28,3 +28,19 @@ def get_or_build_exon(session, exon_filters):
         # no existing exon object, create a new one
         exon_obj = Exon(**exon_filters)
     return exon_obj
+
+
+def groupby_tx(exons, sambamba=False):
+    """Group (unordered) exons per transcript."""
+    transcripts = {}
+    for exon in exons:
+        if sambamba:
+            exon['elements'] = dict(zip(exon['extraFields'][-2].split(','),
+                                        exon['extraFields'][-1].split(',')))
+        else:
+            exon['elements'] = dict(exon['elements'])
+        for transcript_id in exon['elements']:
+            if transcript_id not in transcripts:
+                transcripts[transcript_id] = []
+            transcripts[transcript_id].append(exon)
+    return transcripts
