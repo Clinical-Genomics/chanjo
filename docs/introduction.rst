@@ -75,7 +75,7 @@ After running ``sambamba depth region`` you can take the output and load it into
     $ for file in *.coverage.bed; do echo "${file}"; chanjo load "${file}"; done
 
 
-Extracting informtion
+Extracting information
 ~~~~~~~~~~~~~~~~~~~~~~
 We now have some information loaded for a few samples and we can now start exploring what coverage looks like! The output will be in the handy `JSON lines`_ format.
 
