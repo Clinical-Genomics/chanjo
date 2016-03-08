@@ -2,7 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [3.3.4] - 2016-03-08
+## [3.4.1] - 2016-03-08
+### Changed
+- setup and tear down session in Flask app usage
+
+## [3.4.0] - 2016-03-08
 ### Added
 - All new transcript focused schema, generally activated by `--transcript` flag in CLI, this significantly reduces the database footprint and speeds up loading to only a few seconds for a full exome
 
