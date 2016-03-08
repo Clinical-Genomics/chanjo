@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+from collections import namedtuple
 from datetime import datetime
 
 from sqlalchemy import Column, types, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
+
+Exon = namedtuple('Exon', ['chrom', 'start', 'end', 'completeness'])
 
 # base for declaring a mapping
 BASE = declarative_base()
@@ -87,8 +90,14 @@ class TranscriptStat(BASE):
     @property
     def incomplete_exons(self):
         """Return a list of exons ids."""
-        return self._incomplete_exons.split(',') if self._incomplete_exons else []
+        raw_exons = (self._incomplete_exons.split(',') if
+                     self._incomplete_exons else [])
+        for raw_exon in raw_exons:
+            data = raw_exon.split('|')
+            yield Exon(chrom=data[0], start=int(data[1]), end=int(data[2]),
+                       completeness=float(data[3]))
 
     @incomplete_exons.setter
-    def incomplete_exons(self, value):
-        self._incomplete_exons = ','.join(value)
+    def incomplete_exons(self, exon_list):
+        raw_exons = ['|'.join(map(str, exon)) for exon in exon_list]
+        self._incomplete_exons = ','.join(raw_exons) if raw_exons else None

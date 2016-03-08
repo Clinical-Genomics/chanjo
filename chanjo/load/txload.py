@@ -4,7 +4,7 @@ from collections import namedtuple
 
 from chanjo.compat import iteritems, itervalues
 from chanjo.parse import sambamba
-from chanjo.store.txmodels import TranscriptStat, Sample
+from chanjo.store.txmodels import TranscriptStat, Sample, Exon
 from .utils import groupby_tx
 
 Result = namedtuple('Result', ['models', 'count', 'sample'])
@@ -69,10 +69,9 @@ def tx_stat(transcript_id, exons, threshold=None):
                 sums[sums_key] += (completeness * exon_length)
 
                 if threshold == comp_key and completeness < 100:
-                    exon_id = "{}:{}-{}".format(exon['chrom'],
-                                                exon['chromStart'],
-                                                exon['chromEnd'])
-                    incomplete_exons.append(exon_id)
+                    exon_obj = Exon(exon['chrom'], exon['chromStart'],
+                                    exon['chromEnd'], completeness)
+                    incomplete_exons.append(exon_obj)
 
     fields = {key: (value / sums['bases']) for key, value in iteritems(sums)
               if key != 'bases'}
