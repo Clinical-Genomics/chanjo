@@ -72,9 +72,9 @@ def statistics(data, sample_obj, exon_obj=None, exon_id=None):
         List[ExonStatistic]: stats models linked to exon and sample
     """
     if exon_obj:
-        relationships = dict(sample=sample_obj, exon=exon_obj)
+        relationships = dict(sample_id=sample_obj.id, exon_id=exon_obj.id)
     else:
-        relationships = dict(sample=sample_obj, exon_id=exon_id)
+        relationships = dict(sample_id=sample_obj.id, exon_id=exon_id)
     stats = [ExonStatistic(metric='mean_coverage', value=data['meanCoverage'],
                            **relationships)]
     for threshold, value in iteritems(data['thresholds']):
