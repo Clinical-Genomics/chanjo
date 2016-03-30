@@ -8,12 +8,10 @@ import logging
 import os
 
 from alchy import Manager
-from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.sql.expression import ClauseElement
 
-from .models import (Model, Gene, Transcript, Exon, Sample)
+from .models import (BASE, Gene, Transcript, Exon, Sample)
 
 logger = logging.getLogger(__name__)
 
@@ -51,8 +49,8 @@ class Store(Manager):
         classes (dict): bound ORM classes
     """
 
-    def __init__(self, uri=None, debug=False, Model=Model):
-        self.Model = Model
+    def __init__(self, uri=None, debug=False, base=BASE):
+        self.Model = base
         self.uri = uri
         if uri:
             self.connect(uri, debug=debug)

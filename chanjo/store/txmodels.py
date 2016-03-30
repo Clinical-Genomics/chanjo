@@ -9,10 +9,10 @@ from sqlalchemy.orm import relationship, backref
 Exon = namedtuple('Exon', ['chrom', 'start', 'end', 'completeness'])
 
 # base for declaring a mapping
-Model = make_declarative_base(Base=ModelBase)
+BASE = make_declarative_base(Base=ModelBase)
 
 
-class Transcript(Model):
+class Transcript(BASE):
 
     """Set of non-overlapping exons.
 
@@ -33,7 +33,7 @@ class Transcript(Model):
     length = Column(types.Integer)
 
 
-class Sample(Model):
+class Sample(BASE):
 
     """Metadata for a single sample.
 
@@ -52,7 +52,7 @@ class Sample(Model):
     created_at = Column(types.DateTime, default=datetime.now)
 
 
-class TranscriptStat(Model):
+class TranscriptStat(BASE):
 
     """Statistics on transcript level, related to sample and transcript.
 

@@ -7,7 +7,7 @@ from sqlalchemy import (Column, DateTime, Float, ForeignKey, Integer, String,
 from sqlalchemy.orm import relationship, backref
 
 # base for declaring a mapping
-Model = make_declarative_base(Base=ModelBase)
+BASE = make_declarative_base(Base=ModelBase)
 
 
 # +--------------------------------------------------------------------+
@@ -18,7 +18,7 @@ Model = make_declarative_base(Base=ModelBase)
 # +--------------------------------------------------------------------+
 Exon_Transcript = Table(
     'exon__transcript',
-    Model.metadata,
+    BASE.metadata,
     Column('exon_id', Integer, ForeignKey('exon.id')),
     Column('transcript_id', Integer, ForeignKey('transcript.id')))
 
@@ -26,7 +26,7 @@ Exon_Transcript = Table(
 # +--------------------------------------------------------------------+
 # | Gene ORM
 # +--------------------------------------------------------------------+
-class Gene(Model):
+class Gene(BASE):
 
     """Collection of transcripts and potentially overlapping exons.
 
@@ -46,7 +46,7 @@ class Gene(Model):
 # +--------------------------------------------------------------------+
 # | Transcript ORM
 # +--------------------------------------------------------------------+
-class Transcript(Model):
+class Transcript(BASE):
 
     """Set of non-overlapping exons.
 
@@ -69,7 +69,7 @@ class Transcript(Model):
 # +--------------------------------------------------------------------+
 # | Exon ORM
 # +--------------------------------------------------------------------+
-class Exon(Model):
+class Exon(BASE):
 
     """A continous genetic interval on a given contig.
 
@@ -109,7 +109,7 @@ class Exon(Model):
 # +--------------------------------------------------------------------+
 # | Sample ORM classes
 # +--------------------------------------------------------------------+
-class Sample(Model):
+class Sample(BASE):
 
     """Metadata for a single (unique) sample.
 
@@ -138,7 +138,7 @@ class Sample(Model):
 # +--------------------------------------------------------------------+
 # | Exon Data ORM
 # +--------------------------------------------------------------------+
-class ExonStatistic(Model):
+class ExonStatistic(BASE):
 
     """Statistics on the exon level, related to sample and exon.
 
