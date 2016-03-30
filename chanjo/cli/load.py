@@ -51,6 +51,7 @@ def load_transcripts(chanjo_db, bed_stream, sample=None, group=None,
     kwargs = dict(sample_id=sample, sequence=bed_stream,
                   group_id=group, source=source, threshold=threshold)
     result = load_mod.load_transcripts(**kwargs)
+    chanjo_db.session.add(result.sample)
     with click.progressbar(result.models, length=result.count,
                            label='loading transcripts') as bar:
         for tx_model in bar:
