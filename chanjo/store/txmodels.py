@@ -2,17 +2,17 @@
 from collections import namedtuple
 from datetime import datetime
 
+from alchy import ModelBase, make_declarative_base
 from sqlalchemy import Column, types, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
 
 Exon = namedtuple('Exon', ['chrom', 'start', 'end', 'completeness'])
 
 # base for declaring a mapping
-BASE = declarative_base()
+Model = make_declarative_base(Base=ModelBase)
 
 
-class Transcript(BASE):
+class Transcript(Model):
 
     """Set of non-overlapping exons.
 
@@ -33,7 +33,7 @@ class Transcript(BASE):
     length = Column(types.Integer)
 
 
-class Sample(BASE):
+class Sample(Model):
 
     """Metadata for a single sample.
 
@@ -52,7 +52,7 @@ class Sample(BASE):
     created_at = Column(types.DateTime, default=datetime.now)
 
 
-class TranscriptStat(BASE):
+class TranscriptStat(Model):
 
     """Statistics on transcript level, related to sample and transcript.
 

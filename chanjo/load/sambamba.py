@@ -32,7 +32,7 @@ def rows(session, row_data, sample_id=None, group_id=None):
 
     exons = {exon.exon_id: exon.id for exon in session.query(Exon)}
     sample_obj = Sample(sample_id=sample_id, group_id=group_id)
-    nested_stats = (row(session, data, sample_obj, exons) for data in all_data)
+    nested_stats = [row(session, data, sample_obj, exons) for data in all_data]
     # flatten 2D nested list
     return (stat for stats in nested_stats for stat in stats)
 

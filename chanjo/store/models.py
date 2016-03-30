@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
+from alchy import ModelBase, make_declarative_base
 from sqlalchemy import (Column, DateTime, Float, ForeignKey, Integer, String,
                         UniqueConstraint, Table)
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
 
 # base for declaring a mapping
-BASE = declarative_base()
+Model = make_declarative_base(Base=ModelBase)
 
 
 # +--------------------------------------------------------------------+
@@ -18,7 +18,7 @@ BASE = declarative_base()
 # +--------------------------------------------------------------------+
 Exon_Transcript = Table(
     'exon__transcript',
-    BASE.metadata,
+    Model.metadata,
     Column('exon_id', Integer, ForeignKey('exon.id')),
     Column('transcript_id', Integer, ForeignKey('transcript.id')))
 
@@ -26,7 +26,7 @@ Exon_Transcript = Table(
 # +--------------------------------------------------------------------+
 # | Gene ORM
 # +--------------------------------------------------------------------+
-class Gene(BASE):
+class Gene(Model):
 
     """Collection of transcripts and potentially overlapping exons.
 
@@ -46,7 +46,7 @@ class Gene(BASE):
 # +--------------------------------------------------------------------+
 # | Transcript ORM
 # +--------------------------------------------------------------------+
-class Transcript(BASE):
+class Transcript(Model):
 
     """Set of non-overlapping exons.
 
@@ -69,7 +69,7 @@ class Transcript(BASE):
 # +--------------------------------------------------------------------+
 # | Exon ORM
 # +--------------------------------------------------------------------+
-class Exon(BASE):
+class Exon(Model):
 
     """A continous genetic interval on a given contig.
 
@@ -109,7 +109,7 @@ class Exon(BASE):
 # +--------------------------------------------------------------------+
 # | Sample ORM classes
 # +--------------------------------------------------------------------+
-class Sample(BASE):
+class Sample(Model):
 
     """Metadata for a single (unique) sample.
 
@@ -138,7 +138,7 @@ class Sample(BASE):
 # +--------------------------------------------------------------------+
 # | Exon Data ORM
 # +--------------------------------------------------------------------+
-class ExonStatistic(BASE):
+class ExonStatistic(Model):
 
     """Statistics on the exon level, related to sample and exon.
 
