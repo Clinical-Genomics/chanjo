@@ -82,7 +82,7 @@ class Store(Manager):
         super(Store, self).__init__(config=config, Model=self.Model)
 
         # shortcut to query method
-        self.query = self.session.query_property()
+        self.query = self.session.query
         return self
 
     @property
