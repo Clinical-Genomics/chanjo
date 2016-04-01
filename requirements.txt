@@ -1,4 +1,5 @@
 SQLAlchemy>=0.8.2
+alchy
 PyYAML
 click
 path.py

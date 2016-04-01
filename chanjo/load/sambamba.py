@@ -32,7 +32,7 @@ def rows(session, row_data, sample_id=None, group_id=None):
 
     exons = {exon.exon_id: exon.id for exon in session.query(Exon)}
     sample_obj = Sample(sample_id=sample_id, group_id=group_id)
-    nested_stats = (row(session, data, sample_obj, exons) for data in all_data)
+    nested_stats = [row(session, data, sample_obj, exons) for data in all_data]
     # flatten 2D nested list
     return (stat for stats in nested_stats for stat in stats)
 
@@ -72,9 +72,9 @@ def statistics(data, sample_obj, exon_obj=None, exon_id=None):
         List[ExonStatistic]: stats models linked to exon and sample
     """
     if exon_obj:
-        relationships = dict(sample=sample_obj, exon=exon_obj)
+        relationships = dict(sample_id=sample_obj.id, exon_id=exon_obj.id)
     else:
-        relationships = dict(sample=sample_obj, exon_id=exon_id)
+        relationships = dict(sample_id=sample_obj.id, exon_id=exon_id)
     stats = [ExonStatistic(metric='mean_coverage', value=data['meanCoverage'],
                            **relationships)]
     for threshold, value in iteritems(data['thresholds']):

@@ -91,6 +91,6 @@ def make_model(sample_obj, transcript_id, fields):
     Returns:
         Transcript: composed transcript model
     """
-    tx_model = TranscriptStat(sample=sample_obj, transcript_id=transcript_id,
-                              **fields)
+    tx_model = TranscriptStat(sample_id=sample_obj.id,
+                              transcript_id=transcript_id, **fields)
     return tx_model

@@ -4,7 +4,6 @@ import itertools
 import logging
 
 from sqlalchemy.sql import func
-from sqlalchemy.orm import scoped_session, sessionmaker
 
 from chanjo.compat import itervalues
 from chanjo.utils import list_get
@@ -23,31 +22,6 @@ class ChanjoAPI(Store, ChanjoConverterMixin):
     Attributes:
         weighten_average (BinaryExpression): weighter mean for metrics
     """
-
-    def init_app(self, app, key_base='CHANJO_'):
-        """Configure API (Flask style) after lazy initialization.
-
-        Args:
-            app (Flask): Flask app instance
-            key_base (str): namespace to look for under ``app.config``
-
-        Returns:
-            ChanjoAPI: ``self``
-        """
-        @app.teardown_appcontext
-        def shutdown_session(response_or_exc):
-            app.logger.debug("tear down session")
-            self.session.remove()
-            return response_or_exc
-
-        @app.before_request
-        def setup_session():
-            app.logger.debug("set up new session")
-            self.session = scoped_session(sessionmaker(bind=self.engine))
-
-        uri = app.config["{}URI".format(key_base)]
-        self.connect(db_uri=uri)
-        return self
 
     @property
     def weighted_average(self):

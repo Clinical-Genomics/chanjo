@@ -7,9 +7,8 @@ from __future__ import division
 import logging
 import os
 
-from sqlalchemy import create_engine
+from alchy import Manager
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.sql.expression import ClauseElement
 
 from .models import (BASE, Gene, Transcript, Exon, Sample)
@@ -17,7 +16,7 @@ from .models import (BASE, Gene, Transcript, Exon, Sample)
 logger = logging.getLogger(__name__)
 
 
-class Store(object):
+class Store(Manager):
 
     """SQLAlchemy-based database object.
 
@@ -51,9 +50,8 @@ class Store(object):
     """
 
     def __init__(self, uri=None, debug=False, base=BASE):
-        super(Store, self).__init__()
+        self.Model = base
         self.uri = uri
-        self.base = base
         if uri:
             self.connect(uri, debug=debug)
 
@@ -70,20 +68,19 @@ class Store(object):
             db_uri (str): path/URI to the database to connect to
             debug (Optional[bool]): whether to output logging information
         """
-        kwargs = {'echo': debug, 'convert_unicode': True}
-        # connect to the SQL database
+        config = {'SQLALCHEMY_ECHO': debug}
         if 'mysql' in db_uri:
-            kwargs['pool_recycle'] = 3600
+            config['SQLALCHEMY_POOL_RECYCLE'] = 3600
         elif '://' not in db_uri:
             # expect only a path to a sqlite database
             db_path = os.path.abspath(os.path.expanduser(db_uri))
             db_uri = "sqlite:///{}".format(db_path)
 
-        self.engine = create_engine(db_uri, **kwargs)
-        # make sure the same engine is propagated to the BASE classes
-        self.base.metadata.bind = self.engine
-        # start a session
-        self.session = scoped_session(sessionmaker(bind=self.engine))
+        config['SQLALCHEMY_DATABASE_URI'] = db_uri
+
+        # connect to the SQL database
+        super(Store, self).__init__(config=config, Model=self.Model)
+
         # shortcut to query method
         self.query = self.session.query
         return self
@@ -106,8 +103,8 @@ class Store(object):
             Store: self
         """
         # create the tables
-        self.base.metadata.create_all(self.engine)
-        tables = self.base.metadata.tables.keys()
+        self.create_all()
+        tables = self.Model.metadata.tables.keys()
         logger.info("created tables: %s", ', '.join(tables))
         return self
 
@@ -118,7 +115,7 @@ class Store(object):
             Store: self
         """
         # drop/delete the tables
-        self.base.metadata.drop_all(self.engine)
+        self.drop_all()
         return self
 
     def get_or_create(self, model, **kwargs):

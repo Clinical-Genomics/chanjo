@@ -2,14 +2,14 @@
 from collections import namedtuple
 from datetime import datetime
 
+from alchy import ModelBase, make_declarative_base
 from sqlalchemy import Column, types, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
 
 Exon = namedtuple('Exon', ['chrom', 'start', 'end', 'completeness'])
 
 # base for declaring a mapping
-BASE = declarative_base()
+BASE = make_declarative_base(Base=ModelBase)
 
 
 class Transcript(BASE):

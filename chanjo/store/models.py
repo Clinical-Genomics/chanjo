@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
+from alchy import ModelBase, make_declarative_base
 from sqlalchemy import (Column, DateTime, Float, ForeignKey, Integer, String,
                         UniqueConstraint, Table)
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
 
 # base for declaring a mapping
-BASE = declarative_base()
+BASE = make_declarative_base(Base=ModelBase)
 
 
 # +--------------------------------------------------------------------+
