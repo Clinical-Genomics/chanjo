@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """Based on https://github.com/pypa/sampleproject/blob/master/setup.py."""
 # To use a consistent encoding
+import codecs
 import io
 import os
 # Always prefer setuptools over distutils
@@ -9,16 +10,28 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 import sys
 
-# if you are not using vagrant, just delete os.link directly,
-# the hard link only saves a little disk space, so you should not care
-# http://stackoverflow.com/a/22147112/2310187
-if os.environ.get('USER', '') == 'vagrant':
-    del os.link
-
 # Shortcut for building/publishing to Pypi
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist bdist_wheel upload')
     sys.exit()
+
+
+def parse_reqs(req_path='./requirements.txt'):
+    """Recursively parse requirements from nested pip files."""
+    install_requires = []
+    with codecs.open(req_path, 'r') as handle:
+        # remove comments and empty lines
+        lines = (line.strip() for line in handle
+                 if line.strip() and not line.startswith('#'))
+        for line in lines:
+            # check for nested requirements files
+            if line.startswith('-r'):
+                # recursively call this function
+                install_requires += parse_reqs(req_path=line[3:])
+            else:
+                # add the line as a new requirement
+                install_requires.append(line)
+    return install_requires
 
 
 # This is a plug-in for setuptools that will invoke py.test
@@ -72,14 +85,8 @@ setup(
     package_data=dict(chanjo=['demo/files/*']),
     zip_safe=False,
 
-    install_requires=[
-        'Click',
-        'setuptools',
-        'toolz',
-        'path.py',
-        'pyyaml',
-        'sqlalchemy>=0.8.2'
-    ],
+    # Install requirements loaded from ``requirements.txt``
+    install_requires=parse_reqs(),
     tests_require=[
         'pytest',
     ],
