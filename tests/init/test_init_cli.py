@@ -20,7 +20,7 @@ def test_init_demo(tmpdir, invoke_cli):
     assert len(target_dir.listdir()) == 7
 
 
-@patch('urllib.urlretrieve', fake_urlretrieve)
+@patch('chanjo.compat.urlretrieve', fake_urlretrieve)
 @patch('zipfile.ZipFile', FakeZipFile)
 @patch('click.confirm', lambda param: True)
 def test_init_bootstrap(tmpdir, invoke_cli):

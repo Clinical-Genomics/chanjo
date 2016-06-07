@@ -10,3 +10,4 @@ pytest
 sphinx
 sphinxcontrib-napoleon
 wheel>=0.23
+mock

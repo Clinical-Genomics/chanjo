@@ -30,7 +30,7 @@ def load_transcripts(sequence, sample_id=None, group_id=None, source=None,
                  for tx_id, exons in iteritems(transcripts))
 
     if sample_id is None:
-        sample_id = next(itervalues(transcripts))[0]['sampleName']
+        sample_id = next(iter(itervalues(transcripts)))[0]['sampleName']
     sample_obj = Sample(id=sample_id, group_id=group_id, source=source)
 
     models = (make_model(sample_obj, tx_id, raw_stat) for tx_id, raw_stat

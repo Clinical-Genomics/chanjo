@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import logging
-import urllib
 import zipfile
 
 from path import path
+
+from chanjo.compat import urlretrieve
 
 DB_NAME = 'coverage.ccds15.grch37p13.extended.sqlite3'
 DATABASE_URL = ("https://s3.eu-central-1.amazonaws.com/chanjo/{}"
@@ -32,13 +33,13 @@ def pull(target_dir, force=False):  # pragma: no cover
 
     if not path(db_path).exists() or force:
         logger.info('downloading... [%s]', BED_URL)
-        urllib.urlretrieve(DATABASE_URL, db_path)
+        urlretrieve(DATABASE_URL, db_path)
     else:
         logger.warn('file already exists, skipping: %s', db_path)
 
     if not final_bed.exists() or force:
         logger.info('downloading... [%s]', BED_URL)
-        urllib.urlretrieve(BED_URL, bed_zip_path)
+        urlretrieve(BED_URL, bed_zip_path)
 
         logger.info('extracting BED file...')
         zip_ref = zipfile.ZipFile(bed_zip_path, 'r')
