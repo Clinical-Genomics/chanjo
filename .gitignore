@@ -44,8 +44,9 @@ htmlcov
 .env
 *.tar.gz
 TRASH*
-.vagrant
-_DEVELOP
+.vagrant/
+_DEVELOP/
+TODO.md
 
 # Sphinx docs
 docs/_build

@@ -11,7 +11,7 @@ import sys
 is_py2 = sys.version_info[0] == 2
 
 
-if not is_py2:
+if not is_py2:  # pragma: no cover
     # Python 3
     # strings and ints
     text_type = str

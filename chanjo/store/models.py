@@ -1,51 +1,17 @@
 # -*- coding: utf-8 -*-
+from collections import namedtuple
 from datetime import datetime
 
 from alchy import ModelBase, make_declarative_base
-from sqlalchemy import (Column, DateTime, Float, ForeignKey, Integer, String,
-                        UniqueConstraint, Table)
+from sqlalchemy import Column, types, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship, backref
+
+Exon = namedtuple('Exon', ['chrom', 'start', 'end', 'completeness'])
 
 # base for declaring a mapping
 BASE = make_declarative_base(Base=ModelBase)
 
 
-# +--------------------------------------------------------------------+
-# | Association tables
-# | ~~~~~~~~~~~~~~~~~~~
-# | Provides the many-to-many relationships between:
-# | - Exon<->Transcript
-# +--------------------------------------------------------------------+
-Exon_Transcript = Table(
-    'exon__transcript',
-    BASE.metadata,
-    Column('exon_id', Integer, ForeignKey('exon.id')),
-    Column('transcript_id', Integer, ForeignKey('transcript.id')))
-
-
-# +--------------------------------------------------------------------+
-# | Gene ORM
-# +--------------------------------------------------------------------+
-class Gene(BASE):
-
-    """Collection of transcripts and potentially overlapping exons.
-
-    A :class:`Gene` can be related to multiple transcripts and multiple
-    exons.
-
-    Args:
-        gene_id (str): unique gene id e.g. HGNC gene symbol
-    """
-
-    __tablename__ = 'gene'
-
-    id = Column(Integer, primary_key=True)
-    gene_id = Column(String(32), unique=True)
-
-
-# +--------------------------------------------------------------------+
-# | Transcript ORM
-# +--------------------------------------------------------------------+
 class Transcript(BASE):
 
     """Set of non-overlapping exons.
@@ -53,111 +19,85 @@ class Transcript(BASE):
     A :class:`Transcript` can *only* be related to a single gene.
 
     Args:
-        transcript_id (str): unique block id (e.g. CCDS transcript id)
+        id (str): unique transcript id (e.g. CCDS)
         gene_id (str): related gene
+        chromosome (str): related contig id
+        lenght (int): number of exon bases in transcript
     """
 
     __tablename__ = 'transcript'
 
-    id = Column(Integer, primary_key=True)
-    transcript_id = Column(String(32), unique=True)
-
-    gene_id = Column(Integer, ForeignKey('gene.id'), nullable=False)
-    gene = relationship(Gene, backref=backref('transcripts'))
-
-
-# +--------------------------------------------------------------------+
-# | Exon ORM
-# +--------------------------------------------------------------------+
-class Exon(BASE):
-
-    """A continous genetic interval on a given contig.
-
-    A :class:`Exon` can be related to a multiple :class:`Transcript`.
-    Start and end coordinates are 1-based.
-
-    Args:
-        exon_id (str): unique exon id
-        contig (str): contig/chromosome id
-        start (int): 1-based start of the exon
-        end (int): 1-based end of the exon
-    """
-
-    __tablename__ = 'exon'
-    __table_args__ = (UniqueConstraint('chromosome', 'start', 'end',
-                                       name='_coordinates'),)
-
-    id = Column(Integer, primary_key=True)
-    exon_id = Column(String(32), unique=True, nullable=False)
-    chromosome = Column(String(32), nullable=False)
-    start = Column(Integer, nullable=False)
-    end = Column(Integer, nullable=False)
-
-    transcripts = relationship(Transcript, secondary=Exon_Transcript,
-                               backref=backref('exons', order_by=start))
-
-    def __len__(self):
-        """Return the number of bases.
-
-        Returns:
-            int: length of interval in number of bases
-        """
-        # add +1 because both coordinates are 1-based (number of *bases*)
-        return (self.end - self.start) + 1
+    id = Column(types.String(32), primary_key=True)
+    gene_id = Column(types.String(32), index=True, nullable=False)
+    chromosome = Column(types.String(10))
+    length = Column(types.Integer)
 
 
-# +--------------------------------------------------------------------+
-# | Sample ORM classes
-# +--------------------------------------------------------------------+
 class Sample(BASE):
 
-    """Metadata for a single (unique) sample.
-
-    :class:`Sample` helps out in consolidating important information in
-    one place.
-
-    .. versionadded:: 0.4.0
+    """Metadata for a single sample.
 
     Args:
-        sample_id (str): unique sample id
+        id (str): unique sample id
         group_id (str): unique group id
-        cutoff (int): cutoff used for completeness
-        extension (bool): number of bases added to each interval
-        coverage_source (str): path to the BAM file used
+        source (str): path to coverage source Sambamba output/BAM file
+        created_at (DateTime): date of addition to database
     """
 
     __tablename__ = 'sample'
 
-    id = Column(Integer, primary_key=True)
-    sample_id = Column(String(32), unique=True, nullable=False)
-    group_id = Column(String(32), index=True)
-    created_at = Column(DateTime, default=datetime.now)
-    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    id = Column(types.String(32), primary_key=True)
+    group_id = Column(types.String(32), index=True)
+    source = Column(types.String(256))
+    created_at = Column(types.DateTime, default=datetime.now)
 
 
-# +--------------------------------------------------------------------+
-# | Exon Data ORM
-# +--------------------------------------------------------------------+
-class ExonStatistic(BASE):
+class TranscriptStat(BASE):
 
-    """Statistics on the exon level, related to sample and exon.
+    """Statistics on transcript level, related to sample and transcript.
 
     Args:
-        metric (str): identifier for the metric
-        value (float): value for the metric
-        sample (Sample): parent record Sample
-        exon (Exon): parent record Exon
-        sample_id (int): parent record Sample id
-        exon_id (int): parent record Exon id
+        sample_id (str): link to sample record
+        sample (Sample): parent Sample record
+        transcript_id (str): link to transcript record
+        transcript (Transcript): parent transcript record
+        mean_coverage (Float): mean coverage across all exons
+        completeness_XX (Float): percentage of exon bases coverage at XX
+        _incomplete_exons (str): comma separated list of exon ids
     """
 
-    __tablename__ = 'exon_stat'
+    __tablename__ = 'transcript_stat'
+    __table_args__ = (UniqueConstraint('sample_id', 'transcript_id',
+                                       name='_sample_transcript_uc'),)
 
-    id = Column(Integer, primary_key=True)
-    metric = Column(String(32), index=True, nullable=False)
-    value = Column(Float, index=True, nullable=False)
+    id = Column(types.Integer, primary_key=True)
+    sample_id = Column(types.String(32), ForeignKey('sample.id'),
+                       nullable=False)
+    sample = relationship(Sample, backref=backref('stats'))
+    transcript_id = Column(types.String(32), ForeignKey('transcript.id'),
+                           nullable=False)
+    transcript = relationship(Transcript, backref=backref('stats'))
+    mean_coverage = Column(types.Float, nullable=False)
+    completeness_10 = Column(types.Float)
+    completeness_15 = Column(types.Float)
+    completeness_20 = Column(types.Float)
+    completeness_50 = Column(types.Float)
+    completeness_100 = Column(types.Float)
 
-    sample_id = Column(Integer, ForeignKey('sample.id'), nullable=False)
-    sample = relationship(Sample, backref=backref('exon_stats'))
-    exon_id = Column(Integer, ForeignKey('exon.id'), nullable=False)
-    exon = relationship(Exon, backref=backref('stats'))
+    threshold = Column(types.Integer)
+    _incomplete_exons = Column(types.Text)
+
+    @property
+    def incomplete_exons(self):
+        """Return a list of exons ids."""
+        raw_exons = (self._incomplete_exons.split(',') if
+                     self._incomplete_exons else [])
+        for raw_exon in raw_exons:
+            data = raw_exon.split('|')
+            yield Exon(chrom=data[0], start=int(data[1]), end=int(data[2]),
+                       completeness=float(data[3]))
+
+    @incomplete_exons.setter
+    def incomplete_exons(self, exon_list):
+        raw_exons = ['|'.join(map(str, exon)) for exon in exon_list]
+        self._incomplete_exons = ','.join(raw_exons) if raw_exons else None

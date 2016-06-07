@@ -1,38 +1,46 @@
 # -*- coding: utf-8 -*-
-from chanjo.store import Gene, Transcript
+import logging
+from collections import namedtuple
 
-from .utils import get_or_build_exon, _exon_kwargs
+from chanjo.compat import iteritems
+from chanjo.store.models import Transcript
+from .parse import bed as parse_bed
+from .utils import groupby_tx
+
+Result = namedtuple('Result', ['models', 'count'])
+log = logging.getLogger(__name__)
 
 
-def rows(session, row_data):
-    """Handle rows of sambamba output."""
-    exons = (row(session, data) for data in row_data)
-    return exons
+def link_elements(sequence):
+    """Process a sequence of exon lines.
+
+    Args:
+        sequence (sequence): list of chanjo bed lines
+
+    Returns:
+        Result: iterators of transcript models, number of transcripts processed
+    """
+    exons = parse_bed.chanjo(sequence)
+    transcripts = groupby_tx(exons)
+    models = (make_model(tx_id, exons) for tx_id, exons in
+              iteritems(transcripts))
+    return Result(models=models, count=len(transcripts))
 
 
-def row(session, data):
-    """Link transcripts and genes."""
-    # start with exons object
-    exon_filters = _exon_kwargs(data)
-    exon_obj = get_or_build_exon(session, exon_filters)
-    # store created gene objects
-    genes = {}
-    for tx_id, gene_id in data['elements']:
-        gene_obj = session.query(Gene).filter_by(gene_id=gene_id).first()
-        if gene_obj is None:
-            # create new gene and store to avoid conflicts
-            genes[gene_id] = gene_obj = (genes.get(gene_id) or
-                                         Gene(gene_id=gene_id))
+def make_model(transcript_id, exons):
+    """Generate transcript model from a list of exons.
 
-        tx_filters = {'transcript_id': tx_id}
-        tx_obj = session.query(Transcript).filter_by(**tx_filters).first()
-        if tx_obj is None:
-            # create new transcript and link with gene
-            tx_obj = Transcript(**tx_filters)
-            tx_obj.gene = gene_obj
+    Args:
+        transcript_id (str): unique transcript id
+        exons (List[dict]): list of exon dictionaries
 
-        if tx_obj not in exon_obj.transcripts:
-            # link exon to the transcript
-            exon_obj.transcripts.append(tx_obj)
-
-    return exon_obj
+    Returns:
+        Transcript: uncommitted transcript model
+    """
+    # assume the same chromosome and gene for all exons
+    chromosome = exons[0]['chrom']
+    gene_id = exons[0]['elements'][transcript_id]
+    tot_length = sum((exon['chromEnd'] - exon['chromStart']) for exon in exons)
+    tx_model = Transcript(id=transcript_id, chromosome=chromosome,
+                          length=tot_length, gene_id=gene_id)
+    return tx_model

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 
 LEVELS = {
@@ -39,25 +40,3 @@ def init_log(logger, filename=None, loglevel=None):
             console.setLevel(getattr(logging, loglevel))
 
     logger.addHandler(console)
-
-
-def get_log_stream(logger):
-    """Returns a stream to the root log file.
-
-    If there is no logfile return the stderr log stream
-
-    Returns:
-        A stream to the root log file or stderr stream.
-    """
-    file_stream = None
-    log_stream = None
-    for handler in logger.handlers:
-        if isinstance(handler, logging.FileHandler):
-            file_stream = handler.stream
-        else:
-            log_stream = handler.stream
-
-    if file_stream:
-        return file_stream
-
-    return log_stream

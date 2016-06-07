@@ -2,8 +2,7 @@
 """
 chanjo
 ~~~~~~~
-Coverage analysis for clinical sequencing. It's intuatively documented
-and embraces functional programming patterns.
+Coverage analysis for clinical sequencing.
 
 :copyright: (c) 2014 by Robin Andeer
 :licence: MIT, see LICENCE for more details

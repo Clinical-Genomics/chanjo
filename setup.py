@@ -98,18 +98,16 @@ setup(
     # target platform.
     entry_points={
         'console_scripts': [
-            'chanjo = chanjo.__main__:root_command',
+            'chanjo = chanjo.cli:root',
         ],
-        'chanjo.subcommands.3': [
-            'demo = chanjo.demo:demo',
-            'init = chanjo.cli:init_command',
-            'load = chanjo.cli:load_command',
-            'link = chanjo.cli:link_command',
-            'calculate = chanjo.cli:calculate_command',
-            'sambamba = chanjo.cli:sambamba_command',
-            'db = chanjo.cli:database_command',
-            'bootstrap = chanjo.cli:bootstrap_command',
-            'sex = chanjo.cli:sex_command',
+        'chanjo.subcommands.4': [
+            'init = chanjo.init.cli:init',
+            'sex = chanjo.sex.cli:sex',
+            'sambamba = chanjo.sambamba.cli:sambamba',
+            'db = chanjo.store.cli:db',
+            'load = chanjo.load.cli:load',
+            'link = chanjo.load.cli:link',
+            'calculate = chanjo.calculate.cli:calculate',
         ]
     },
 
