@@ -69,8 +69,7 @@ def exon_lines(sambamba_path):
 
 
 @pytest.fixture
-def bed_lines():
-    bed_path = 'tests/fixtures/ccds.mini.bed'
+def bed_lines(bed_path):
     with codecs.open(bed_path, 'r', encoding='utf-8') as stream:
         _bed_lines = [line for line in stream]
     return _bed_lines
@@ -108,13 +107,13 @@ def invoke_cli(cli_runner):
 
 @pytest.fixture
 def bam_path():
-    _bam_path = 'tests/fixtures/ccds.mini.sorted.bam'
+    _bam_path = 'tests/fixtures/ccds-mini.sorted.bam'
     return _bam_path
 
 
 @pytest.fixture
 def bed_path():
-    _bed_path = 'tests/fixtures/ccds.mini.bed'
+    _bed_path = 'tests/fixtures/ccds-mini.bed'
     return _bed_path
 
 

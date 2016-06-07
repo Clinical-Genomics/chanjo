@@ -20,8 +20,8 @@ def test_predict_sex():
     assert predict_sex(x_coverage=0, y_coverage=10) == 'unknown'
 
 
-def test_sex_from_bam():
+def test_sex_from_bam(bam_path):
     # use fixtures bam - doesn't have coverage on Y chromosome
-    result = sex_from_bam('tests/fixtures/ccds.mini.sorted.bam')
+    result = sex_from_bam(bam_path)
     assert result.x_coverage > result.y_coverage
     assert result.sex == 'female'
