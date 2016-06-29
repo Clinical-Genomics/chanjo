@@ -1,0 +1,240 @@
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <title>Installation · Chanjo</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="Chanjo targets Unix and Python 2.7+/3.2+. It relies on Sambamba for BAM processing, making it very simple to install. Miniconda is still recommended, it’s ">
+        <meta name="generator" content="GitBook 3.0.0-pre.5">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="demo.html" />
+    
+    
+    <link rel="prev" href="../" />
+    
+
+    </head>
+    <body>
+        
+<div class="book"
+    data-level="1"
+    data-chapter-title="Installation"
+    data-filepath="topics/installation.md"
+    data-basepath=".."
+    data-revision="Wed Jun 29 2016 10:51:13 GMT+0200 (CEST)"
+    data-innerlanguage="">
+    
+
+<div class="book-summary">
+    
+    <nav role="navigation">
+        <ul class="summary">
+            
+            
+
+            
+
+
+            
+            
+    
+        <li class="chapter " data-level="0" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1" data-path="installation.html">
+            
+                <a href="installation.html">
+            
+                    
+                        <b>1.</b>
+                    
+                    Installation
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2" data-path="demo.html">
+            
+                <a href="demo.html">
+            
+                    
+                        <b>2.</b>
+                    
+                    Demo
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            <li class="divider"></li>
+            
+
+            <li>
+                <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+                    Published with GitBook
+                </a>
+            </li>
+        </ul>
+    </nav>
+    
+</div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href=".." >Installation</a>
+    </h1>
+</div>
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            <section class="normal markdown-section">
+                            
+                            <h1 id="installation">Installation</h1>
+<h2 id="guide">Guide</h2>
+<p>Chanjo targets <strong>Unix</strong> and <strong>Python 2.7+/3.2+</strong>. It relies on Sambamba for BAM processing, making it very simple to install. <a href="http://conda.pydata.org/miniconda.html" target="_blank">Miniconda</a> is still recommended, it&#x2019;s a slim distribution of Python with a very nice package manager.</p>
+<p>With <a href="http://conda.pydata.org/miniconda.html" target="_blank">Miniconda</a> and <code>conda</code> set up you can do:</p>
+<pre><code class="lang-bash">$ <span class="hljs-built_in">source</span> activate [myEnvironment]
+$ conda install -c bioconda sambamba
+$ pip install chanjo
+</code></pre>
+<h2 id="optional-dependencies">Optional dependencies</h2>
+<p>If you plan on using MySQL for your SQL database you also need another SQL-adapter. My recommendation is <code>pymysql</code>. It&#x2019;s written in pure Python and works on both version 2.x and 3.x.</p>
+<pre><code class="lang-bash">$ pip install pymysql
+</code></pre>
+<h2 id="getting-the-code">Getting the code</h2>
+<p>Would you like to take part in the development or tweak the code for any other reason? In that case, you should follow these simple steps and download the code from the <a href="https://github.com/robinandeer/chanjo/releases" target="_blank">GitHub repo</a>.</p>
+<pre><code class="lang-bash">$ git <span class="hljs-built_in">clone</span> https://github.com/robinandeer/chanjo.git
+$ <span class="hljs-built_in">cd</span> chanjo
+$ pip install --editable .
+</code></pre>
+
+                            
+                            </section>
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="../" class="navigation navigation-prev " aria-label="Previous page: Introduction">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="demo.html" class="navigation navigation-next " aria-label="Next page: Demo">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+</div>
+
+        
+    <script src="../gitbook/app.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/lunr.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fontsettings/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-livereload/plugin.js"></script>
+        
+    
+    <script>
+    require(["gitbook"], function(gitbook) {
+        gitbook.start({"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"livereload":{}});
+    });
+    </script>
+
+    </body>
+</html>

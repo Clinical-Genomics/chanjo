@@ -1,0 +1,234 @@
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <title>Introduction · Chanjo</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="Coverage analysis for clinical sequencing">
+        <meta name="generator" content="GitBook 3.0.0-pre.5">
+        
+        
+        
+    
+    <link rel="stylesheet" href="gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="topics/installation.html" />
+    
+    
+
+    </head>
+    <body>
+        
+<div class="book"
+    data-level="0"
+    data-chapter-title="Introduction"
+    data-filepath="README.md"
+    data-basepath="."
+    data-revision="Wed Jun 29 2016 10:51:13 GMT+0200 (CEST)"
+    data-innerlanguage="">
+    
+
+<div class="book-summary">
+    
+    <nav role="navigation">
+        <ul class="summary">
+            
+            
+
+            
+
+
+            
+            
+    
+        <li class="chapter active" data-level="0" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1" data-path="topics/installation.html">
+            
+                <a href="topics/installation.html">
+            
+                    
+                        <b>1.</b>
+                    
+                    Installation
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2" data-path="topics/demo.html">
+            
+                <a href="topics/demo.html">
+            
+                    
+                        <b>2.</b>
+                    
+                    Demo
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            <li class="divider"></li>
+            
+
+            <li>
+                <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+                    Published with GitBook
+                </a>
+            </li>
+        </ul>
+    </nav>
+    
+</div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="." >Introduction</a>
+    </h1>
+</div>
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            <section class="normal markdown-section">
+                            
+                            <h1 id="chanjo">Chanjo</h1>
+<p><em>Coverage analysis for clinical sequencing</em></p>
+<p><strong>Current release</strong>: Radical Red Panda (3.2.0)</p>
+<p>The goals of Chanjo are quite simple:</p>
+<ol>
+<li>Integrate seamlessly with <code>sambamba depth region</code> output</li>
+<li>Break down coverage to intuitive levels of abstraction: exons, transcripts, and genes</li>
+<li>Enable explorative coverage investigations across samples and genomic regions</li>
+</ol>
+<h2 id="simple-sambamba-integration">Simple <a href="http://lomereiter.github.io/sambamba/index.html" target="_blank">Sambamba</a> integration</h2>
+<p>There&#x2019;s a new kid on the BAM processing block: <a href="http://lomereiter.github.io/sambamba/index.html" target="_blank">Sambamba</a>! You can easily load output into a Chanjo database for further coverage exploration:</p>
+<pre><code class="lang-bash">$ sambamba depth region -L exons.bed -t 10 -t 20 alignment.bam &gt; exons.coverage.bed
+$ chanjo load exons.coverage.bed
+$ chanjo calculate region 1 861321 871275 --sample ADM980A2
+{<span class="hljs-string">&quot;completeness_10&quot;</span>: 100, <span class="hljs-string">&quot;completeness_20&quot;</span>: 87.123, <span class="hljs-string">&quot;mean_coverage&quot;</span>: 47.24234}
+</code></pre>
+<p>To learn more about Chanjo and how you can use it to gain a better understanding of sequencing coverage you can do no better than to:</p>
+<p><a href="topics/demo.html"><strong>Check out the demo!</strong></a></p>
+
+                            
+                            </section>
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                
+                <a href="topics/installation.html" class="navigation navigation-next navigation-unique" aria-label="Next page: Installation">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+</div>
+
+        
+    <script src="gitbook/app.js"></script>
+    
+        
+        <script src="gitbook/gitbook-plugin-search/lunr.min.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fontsettings/buttons.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-livereload/plugin.js"></script>
+        
+    
+    <script>
+    require(["gitbook"], function(gitbook) {
+        gitbook.start({"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"livereload":{}});
+    });
+    </script>
+
+    </body>
+</html>
