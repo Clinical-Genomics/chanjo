@@ -50,6 +50,7 @@ TODO.md
 
 # Sphinx docs
 docs/_build
+docs/_book
 
 ### SublimeText ###
 # workspace files are user-specific
