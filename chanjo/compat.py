@@ -11,8 +11,10 @@ import sys
 is_py2 = sys.version_info[0] == 2
 
 
-if not is_py2:
+if not is_py2:  # pragma: no cover
     # Python 3
+    from urllib.request import urlretrieve
+
     # strings and ints
     text_type = str
     string_types = (str,)
@@ -27,6 +29,8 @@ if not is_py2:
 
 else:
     # Python 2
+    from urllib import urlretrieve
+
     # strings and ints
     text_type = unicode
     string_types = (str, unicode)
