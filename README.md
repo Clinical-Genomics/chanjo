@@ -11,7 +11,7 @@
 Chanjo is coverage analysis for clinical sequencing. It's implemented in Python with a command line interface that adheres to [UNIX pipeline philosophy][unix].
 
 ## Installation
-Chanjo is distruibuted through "pip". Install the latest stable release by running:
+Chanjo is distributed through "pip". Install the latest stable release by running:
 
 ```bash
 $ pip install chanjo
@@ -27,7 +27,7 @@ $ vagrant ssh
 ```
 
 ## Usage
-Chanjo exposes a composable command line interface with a nifty config file implementation.
+Chanjo exposes a decomposable command line interface with a nifty config file implementation.
 
 ```bash
 $ chanjo init --setup
