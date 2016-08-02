@@ -24,7 +24,7 @@ def init_log(logger, filename=None, loglevel=None):
 
     # We will always print warnings and higher to stderr
     console = logging.StreamHandler()
-    console.setLevel('WARNING')
+    console.setLevel('INFO')
     console.setFormatter(formatter)
 
     if filename:

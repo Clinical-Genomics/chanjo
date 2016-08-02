@@ -7,6 +7,7 @@ Command line interface (console entry points). Based on Click_.
 
 .. _Click: http://click.pocoo.org/
 """
+from datetime import date
 import logging
 import os
 import pkg_resources
@@ -19,6 +20,7 @@ from chanjo.compat import text_type
 from chanjo.log import init_log
 
 logger = logging.getLogger(__name__)
+TODAY = str(date.today())
 
 
 class EntryPointsCLI(click.MultiCommand):
@@ -50,7 +52,8 @@ class EntryPointsCLI(click.MultiCommand):
 @click.option('-d', '--database', type=text_type,
               help='path/URI of the SQL database')
 @click.option('-l', '--log-level', default='INFO')
-@click.option('--log-file', type=click.Path())
+@click.option('--log-file', type=click.Path(),
+              default='./chanjo.{}.log'.format(TODAY))
 @click.version_option(__version__, prog_name=__title__)
 @click.pass_context
 def root(context, config, database, log_level, log_file):
