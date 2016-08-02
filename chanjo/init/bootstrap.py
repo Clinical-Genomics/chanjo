@@ -6,7 +6,7 @@ from path import path
 
 from chanjo.compat import urlretrieve
 
-DB_NAME = 'coverage.sqlite3'
+DB_NAME = 'chanjo.coverage.sqlite3'
 BED_NAME = 'ccds.15.grch37p13.extended.bed'
 BED_URL = ("https://s3.eu-central-1.amazonaws.com/"
            "chanjo/ccds15.grch37p13.extended.bed.zip")

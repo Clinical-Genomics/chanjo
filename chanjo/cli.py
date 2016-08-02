@@ -52,8 +52,7 @@ class EntryPointsCLI(click.MultiCommand):
 @click.option('-d', '--database', type=text_type,
               help='path/URI of the SQL database')
 @click.option('-l', '--log-level', default='INFO')
-@click.option('--log-file', type=click.Path(),
-              default='./chanjo.{}.log'.format(TODAY))
+@click.option('--log-file', type=click.Path())
 @click.version_option(__version__, prog_name=__title__)
 @click.pass_context
 def root(context, config, database, log_level, log_file):
