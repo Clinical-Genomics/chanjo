@@ -2,7 +2,7 @@
 
 ## Guide
 
-Chanjo targets **Unix** and **Python 2.7+/3.2+**. It relies on Sambamba for BAM processing, making it very simple to install. [Miniconda][miniconda] is still recommended, it’s a slim distribution of Python with a very nice package manager.
+Chanjo targets **Unix** and **Python 2.7+/3.2+**. It relies on [Sambamba][sambamba] for BAM processing, making it very simple to install. [Miniconda][miniconda] is still recommended, it’s a slim distribution of Python with a very nice package manager.
 
 With [Miniconda][miniconda] and `conda` set up you can do:
 
@@ -33,3 +33,4 @@ $ pip install --editable .
 
 [miniconda]: http://conda.pydata.org/miniconda.html
 [repo]: https://github.com/robinandeer/chanjo/releases
+[sambamba]: http://lomereiter.github.io/sambamba/index.html
