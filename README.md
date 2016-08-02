@@ -2,20 +2,13 @@
   <a href="http://chanjo.co">
     <img height="235"
          width="244"
-         src="artwork/logo.png"/>
+         src="docs/assets/logo.png"/>
   </a>
 </p>
 
 # Chanjo [![PyPI version][fury-image]][fury-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url] [![bioconda-badge][bioconda-img]][bioconda-url]
 
-Chanjo is coverage analysis for clinical sequencing. It's implemented in Python with a command line interface that adheres to [UNIX pipeline philisophy][unix].
-
-## Whats new in Chanjo 3.0? _Radical Red Panda_
-Hey - exiting things are coming to the new version of Chanjo :smile:
-
-Chanjo 3 is a significant improvement of the previous versions. You can now extract various metrics directly from Chanjo databases directly from the cli. Try it out!
-
-However, the primary change is [Sambamba][sambamba] integration. Just run `sambamba depth region` and load the output into Chanjo for further data exploration. Chanjo is now more flexible, accurate, and much easier to install. We have also built in some basic commands to quickly extract statistics from the database right from the command line.
+Chanjo is coverage analysis for clinical sequencing. It's implemented in Python with a command line interface that adheres to [UNIX pipeline philosophy][unix].
 
 ## Installation
 Chanjo is distruibuted through "pip". Install the latest stable release by running:
@@ -39,14 +32,12 @@ Chanjo exposes a composable command line interface with a nifty config file impl
 ```bash
 $ chanjo init --setup
 $ chanjo load /path/to/sambamba.output.bed
-$ chanjo calculate mean sample1
+$ chanjo calculate mean
 {"metrics": {"completeness_10": 90.92, "mean_coverage": 193.85}, "sample_id": "sample1"}
 ```
 
 ## Documentation
 Read the Docs is hosting the [official documentation][docs].
-
-I can specifically recommend the fully [interactive demo](http://www.chanjo.co/en/latest/introduction.html#demo), complete with sample data to get you started right away.
 
 If you are looking to learn more about handling sequence coverage data in clinical sequencing, feel free to download and skim through my own [Master's thesis][thesis] and article references.
 
