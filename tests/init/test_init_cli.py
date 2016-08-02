@@ -28,7 +28,7 @@ def test_init_bootstrap(tmpdir, invoke_cli):
     assert tmpdir.listdir() == []
     # WHEN boostrapping chanjo
     result = invoke_cli(['init', str(tmpdir)])
-    # THEN it should place 2 + 1 (config) file in the target dir
+    # THEN it should place 2 + 1 (BED, DB, config) files in the target dir
     assert result.exit_code == 0
     assert len(tmpdir.listdir()) == 3
 
@@ -44,4 +44,4 @@ def test_init_no_bootstrap(tmpdir, invoke_cli):
     conf_path = tmpdir.join('chanjo.yaml')
     with open(str(conf_path), 'r') as handle:
         data = yaml.load(handle)
-    assert 'cov.sqlite3' in data['database']
+    assert 'coverage.sqlite3' in data['database']

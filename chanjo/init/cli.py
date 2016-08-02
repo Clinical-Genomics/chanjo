@@ -7,7 +7,8 @@ from path import path
 import yaml
 from distutils.spawn import find_executable
 
-from .bootstrap import pull, DB_NAME
+from chanjo.store.api import ChanjoDB
+from .bootstrap import pull, BED_NAME, DB_NAME
 from .demo import setup_demo
 
 log = logging.getLogger(__name__)
@@ -21,7 +22,11 @@ log = logging.getLogger(__name__)
 @click.pass_context
 def init(context, force, demo, auto, root_dir):
     """Bootstrap a new chanjo setup."""
+    root_path = path(root_dir).abspath()
+    log.info("setting up chanjo under: %s", root_path)
     db_uri = context.obj.get('database')
+    abs_db_path = root_path.joinpath(DB_NAME)
+    db_uri = db_uri or "sqlite:///{}".format(abs_db_path)
     # test setup of sambamba
     sambamba_bin = find_executable('sambamba')
     if sambamba_bin is None:  # pragma: no cover
@@ -29,23 +34,17 @@ def init(context, force, demo, auto, root_dir):
     else:
         log.debug("'sambamba' found: %s", sambamba_bin)
 
-    root_path = path(root_dir)
-    log.info("setting up chanjo under: %s", root_path.abspath())
-
     if demo:
         log.info("copying demo files: %s", root_dir)
         setup_demo(root_dir, force=force)
-        abs_db_path = root_path.joinpath('coverage.sqlite3').abspath()
-        db_uri = "sqlite:///{}".format(abs_db_path)
-        # inquire about bootstrapping
-    elif auto or click.confirm('Bootstrap CCDS transcript database?'):
+    elif auto or click.confirm('Bootstrap CCDS transcript BED?'):
         # ensure root dir exists
         root_path.makedirs_p()
         pull(root_dir, force=force)
-        abs_db_path = root_path.joinpath(DB_NAME).abspath()
-        db_uri = "sqlite:///{}".format(abs_db_path)
-    else:
-        db_uri = click.prompt('Please enter database to use?')
+
+        log.info("configure new chanjo database: %s", db_uri)
+        chanjo_db = ChanjoDB(db_uri)
+        chanjo_db.set_up()
 
     # setup config file
     conf_path = root_path.joinpath('chanjo.yaml')
@@ -54,3 +53,7 @@ def init(context, force, demo, auto, root_dir):
         data_str = yaml.dump(data, default_flow_style=False)
         log.info("writing config file: %s", conf_path)
         conf_handle.write(data_str)
+
+    click.echo('Chanjo bootstrap successful! Now run: ')
+    bed_path = root_path.joinpath(BED_NAME)
+    click.echo("chanjo --config {} link {}".format(conf_path, bed_path))

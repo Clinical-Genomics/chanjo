@@ -6,10 +6,8 @@ from path import path
 
 from chanjo.compat import urlretrieve
 
-DB_NAME = 'coverage.ccds15.grch37p13.extended.sqlite3'
-DATABASE_URL = ("https://s3.eu-central-1.amazonaws.com/chanjo/{}"
-                .format(DB_NAME))
-BED_NAME = 'ccds15.grch37p13.extended.bed'
+DB_NAME = 'coverage.sqlite3'
+BED_NAME = 'ccds.15.grch37p13.extended.bed'
 BED_URL = ("https://s3.eu-central-1.amazonaws.com/"
            "chanjo/ccds15.grch37p13.extended.bed.zip")
 
@@ -27,15 +25,8 @@ def pull(target_dir, force=False):  # pragma: no cover
     target_path = path(target_dir)
     target_path.makedirs_p()
 
-    db_path = target_path.joinpath(DB_NAME)
     bed_zip_path = target_path.joinpath("{}.zip".format(BED_NAME))
     final_bed = target_path.joinpath(BED_NAME)
-
-    if not path(db_path).exists() or force:
-        logger.info('downloading... [%s]', BED_URL)
-        urlretrieve(DATABASE_URL, db_path)
-    else:
-        logger.warn('file already exists, skipping: %s', db_path)
 
     if not final_bed.exists() or force:
         logger.info('downloading... [%s]', BED_URL)

@@ -64,8 +64,7 @@ def root(context, config, database, log_level, log_file):
             context.obj = yaml.load(conf_handle)
     else:
         context.obj = {}
-    context.obj['database'] = (database or
-                               context.obj.get('database', 'coverage.sqlite3'))
+    context.obj['database'] = (database or context.obj.get('database'))
 
     # update the context with new defaults from the config file
     context.default_map = context.obj
