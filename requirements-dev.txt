@@ -7,6 +7,5 @@ flake8
 invoke
 ipdb
 pytest
-sphinx
-sphinxcontrib-napoleon
 wheel>=0.23
+mock

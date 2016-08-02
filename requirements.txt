@@ -1,6 +1,6 @@
 SQLAlchemy>=0.8.2
 alchy
 PyYAML
-click
+Click
 path.py
 toolz

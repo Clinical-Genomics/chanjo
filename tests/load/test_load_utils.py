@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-from chanjo.load.utils import _exon_kwargs
+from chanjo.load import utils
 
 
-DATA = {'chrom': 'chr1', 'chromStart': 100, 'chromEnd': 220, 'name': 'exon1',
-        'score': 0, 'strand': '+', 'sampleName': 'sample1', 'readCount': 10,
-        'meanCoverage': 6.341, 'thresholds': {10: 95.421, 20: 86.21, 100: 10.21}}
+def test_groupby_tx(bed_exons, sambamba_exons):
+    transcripts = list(utils.groupby_tx(bed_exons))
+    assert len(transcripts) == 5
 
-
-def test__exon_kwargs():
-    kwargs = _exon_kwargs(DATA)
-    assert kwargs['chromosome'] == 'chr1'
-    assert kwargs['exon_id'] == 'exon1'
+    # GIVEN sambamba lines
+    transcripts = list(utils.groupby_tx(sambamba_exons, sambamba=True))
+    assert len(transcripts) == 10

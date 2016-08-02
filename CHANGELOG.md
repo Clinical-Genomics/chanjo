@@ -2,6 +2,20 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.0] - 2016-08-02
+Version 4 slims down Chanjo quite a bit.
+
+### Added
+- Lots of test, now 100% test coverage!
+- Cascade rules to make sure stats records get deleted with parent sample
+
+### Changed
+- Switched from Read the Docs to GitBook for documentation
+- Updated demo
+
+### Removed
+- Old database schema with explicit exon/gene records
+
 ## [3.4.1] - 2016-03-08
 ### Changed
 - setup and tear down session in Flask app usage

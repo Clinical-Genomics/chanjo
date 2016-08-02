@@ -32,7 +32,7 @@ pip-log.txt
 .tox
 nosetests.xml
 htmlcov
-.cache
+.cache/
 
 # Translations
 *.mo
@@ -44,11 +44,13 @@ htmlcov
 .env
 *.tar.gz
 TRASH*
-.vagrant
-dev
+.vagrant/
+_DEVELOP/
+TODO.md
 
 # Sphinx docs
 docs/_build
+docs/_book
 
 ### SublimeText ###
 # workspace files are user-specific

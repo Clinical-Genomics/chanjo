@@ -5,9 +5,12 @@ from invoke.util import log
 
 
 @task
-def test():
+def test(track=False):
     """Run the test runner."""
-    run('python setup.py test', pty=True)
+    command = ('py.test --cov-report html --cov "$(basename "$PWD")" tests/ '
+               '--verbose --color=yes -s')
+    command += ' --ipdb' if track else ' --looponfail'
+    run(command, pty=True)
 
 
 @task
@@ -39,11 +42,3 @@ def coverage():
     run('coverage html')
     run('open htmlcov/index.html')
     log.info('collected test coverage stats')
-
-
-@task
-def docs():
-    """Build Sphinx documentation and display in browser."""
-    run('make -C docs html')
-    run('open docs/_build/html/index.html')
-    log.info('built and displayed documentation')
