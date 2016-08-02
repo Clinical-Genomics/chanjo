@@ -16,10 +16,12 @@ log = logging.getLogger(__name__)
 @click.command()
 @click.option('-f', '--force', is_flag=True, help='overwrite existing files')
 @click.option('-d', '--demo', is_flag=True, help='copy demo files')
+@click.option('-a', '--auto', is_flag=True)
 @click.argument('root_dir', default='.', required=False)
 @click.pass_context
-def init(context, force, demo, root_dir):
+def init(context, force, demo, auto, root_dir):
     """Bootstrap a new chanjo setup."""
+    db_uri = context.obj.get('database')
     # test setup of sambamba
     sambamba_bin = find_executable('sambamba')
     if sambamba_bin is None:  # pragma: no cover
@@ -36,7 +38,7 @@ def init(context, force, demo, root_dir):
         abs_db_path = root_path.joinpath('coverage.sqlite3').abspath()
         db_uri = "sqlite:///{}".format(abs_db_path)
         # inquire about bootstrapping
-    elif click.confirm('Bootstrap CCDS transcript database?'):
+    elif auto or click.confirm('Bootstrap CCDS transcript database?'):
         # ensure root dir exists
         root_path.makedirs_p()
         pull(root_dir, force=force)

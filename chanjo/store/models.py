@@ -3,8 +3,7 @@ from collections import namedtuple
 from datetime import datetime
 
 from alchy import ModelBase, make_declarative_base
-from sqlalchemy import Column, types, ForeignKey, UniqueConstraint
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy import Column, types, ForeignKey, UniqueConstraint, orm
 
 Exon = namedtuple('Exon', ['chrom', 'start', 'end', 'completeness'])
 
@@ -32,6 +31,8 @@ class Transcript(BASE):
     chromosome = Column(types.String(10))
     length = Column(types.Integer)
 
+    stats = orm.relationship('TranscriptStat', backref='transcript')
+
 
 class Sample(BASE):
 
@@ -50,6 +51,9 @@ class Sample(BASE):
     group_id = Column(types.String(32), index=True)
     source = Column(types.String(256))
     created_at = Column(types.DateTime, default=datetime.now)
+
+    sample = orm.relationship('TranscriptStat', cascade='all,delete',
+                              backref='sample')
 
 
 class TranscriptStat(BASE):
@@ -71,12 +75,6 @@ class TranscriptStat(BASE):
                                        name='_sample_transcript_uc'),)
 
     id = Column(types.Integer, primary_key=True)
-    sample_id = Column(types.String(32), ForeignKey('sample.id'),
-                       nullable=False)
-    sample = relationship(Sample, backref=backref('stats'))
-    transcript_id = Column(types.String(32), ForeignKey('transcript.id'),
-                           nullable=False)
-    transcript = relationship(Transcript, backref=backref('stats'))
     mean_coverage = Column(types.Float, nullable=False)
     completeness_10 = Column(types.Float)
     completeness_15 = Column(types.Float)
@@ -86,6 +84,11 @@ class TranscriptStat(BASE):
 
     threshold = Column(types.Integer)
     _incomplete_exons = Column(types.Text)
+
+    sample_id = Column(types.String(32), ForeignKey('sample.id'),
+                       nullable=False)
+    transcript_id = Column(types.String(32), ForeignKey('transcript.id'),
+                           nullable=False)
 
     @property
     def incomplete_exons(self):

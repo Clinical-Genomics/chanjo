@@ -11,9 +11,9 @@ import types
 from alchy import Manager
 
 from chanjo.calculate.mixins import CalculateMixin
-from .models import BASE
+from .models import BASE, TranscriptStat
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class ChanjoDB(Manager, CalculateMixin):
@@ -102,7 +102,7 @@ class ChanjoDB(Manager, CalculateMixin):
         # create the tables
         self.create_all()
         tables = self.Model.metadata.tables.keys()
-        logger.info("created tables: %s", ', '.join(tables))
+        log.info("created tables: %s", ', '.join(tables))
         return self
 
     def tear_down(self):
@@ -129,7 +129,7 @@ class ChanjoDB(Manager, CalculateMixin):
             self.session.flush()
             self.session.commit()
         except Exception as error:
-            logger.debug('rolling back failed transaction')
+            log.debug('rolling back failed transaction')
             self.session.rollback()
             raise error
         return self

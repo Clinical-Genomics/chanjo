@@ -39,8 +39,6 @@ def remove(context, sample_id):
     if sample_obj is None:
         log.warn('sample (%s) not found in database', sample_id)
         context.abort()
-    log.debug('delete all related statistics')
-    TranscriptStat.query.filter_by(sample_id=sample_obj.id).delete()
     log.info('delete sample (%s) from database', sample_id)
     db.session.delete(sample_obj)
     db.save()
