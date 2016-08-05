@@ -27,8 +27,7 @@ def validate_stdin(context, param, value):
         click.BadParameter: if STDIN is empty
     """
     # check if input is a file or stdin
-    if value.name == '<stdin>':  # pragma: no cover
+    if value.name == '<stdin>' and sys.stdin.isatty():  # pragma: no cover
         # raise error if stdin is empty
-        if sys.stdin.isatty():
-            raise click.BadParameter('you need to pipe something to stdin')
+        raise click.BadParameter('you need to pipe something to stdin')
     return value
