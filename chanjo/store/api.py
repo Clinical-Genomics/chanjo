@@ -6,12 +6,11 @@ chanjo.store.core
 from __future__ import division
 import logging
 import os
-import types
 
 from alchy import Manager
 
 from chanjo.calculate.mixins import CalculateMixin
-from .models import BASE, TranscriptStat
+from .models import BASE
 
 log = logging.getLogger(__name__)
 
@@ -77,10 +76,6 @@ class ChanjoDB(Manager, CalculateMixin):
 
         # connect to the SQL database
         super(ChanjoDB, self).__init__(config=config, Model=self.Model)
-
-        # shortcut to query method
-        self.query = self.session.query
-        return self
 
     @property
     def dialect(self):
