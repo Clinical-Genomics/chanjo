@@ -33,7 +33,7 @@ def load(context, sample, group, threshold, bed_stream):
         with click.progressbar(result.models, length=result.count,
                                label='loading transcripts') as bar:
             for tx_model in bar:
-                chanjo_db.session.add(tx_model)
+                chanjo_db.add(tx_model)
         chanjo_db.save()
     except IntegrityError as error:
         log.error('sample already loaded, rolling back')

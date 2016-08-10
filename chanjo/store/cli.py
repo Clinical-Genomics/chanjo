@@ -4,7 +4,7 @@ import logging
 import click
 
 from .api import ChanjoDB
-from .models import Sample, TranscriptStat
+from .models import Sample
 
 log = logging.getLogger(__name__)
 

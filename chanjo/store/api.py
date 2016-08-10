@@ -126,33 +126,9 @@ class ChanjoDB(Manager, CalculateMixin):
         """
         try:
             # commit/persist dirty changes to the database
-            self.session.flush()
-            self.session.commit()
+            self.commit()
         except Exception as error:
             log.debug('rolling back failed transaction')
             self.session.rollback()
             raise error
-        return self
-
-    def add(self, items):
-        """Add one or more new items and commit the changes. Chainable.
-
-        Args:
-            items (orm/list): new ORM object instance or list of such
-
-        Returns:
-            Store: ``self`` for chainability
-        """
-        if isinstance(items, self.Model):
-            # Add the record to the session object
-            self.session.add(items)
-        elif isinstance(items, list):
-            # Add all records to the session object
-            self.session.add_all(items)
-        elif isinstance(items, types.GeneratorType):
-            # Iterate over all items
-            for element in items:
-                self.session.add(element)
-        else:
-            raise ValueError('unknown object type')
         return self
