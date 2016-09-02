@@ -52,11 +52,6 @@ class PyTest(TestCommand):
         import pytest
         sys.exit(pytest.main(self.test_args))
 
-# Get the long description from the relevant file
-here = os.path.abspath(os.path.dirname(__file__))
-with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
-
 
 setup(
     name='chanjo',
@@ -64,10 +59,9 @@ setup(
     # Versions should comply with PEP440. For a discussion on
     # single-sourcing the version across setup.py and the project code,
     # see http://packaging.python.org/en/latest/tutorial.html#version
-    version='4.0.0-beta',
+    version='4.0.0-beta2',
 
     description='Coverage analysis tool for clinical sequencing',
-    long_description=long_description,
     # What does your project relate to? Separate with spaces.
     keywords='coverage sequencing clinical exome completeness diagnostics',
     author='Robin Andeer',
