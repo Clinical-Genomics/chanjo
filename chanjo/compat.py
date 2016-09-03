@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-chanjo.compat
-~~~~~~~~~~~~~~~
-
-Python 2.7.x, 3.2+ compatability module.
-"""
+"""Python 2.7.x, 3.2+ compatability module."""
 import operator
 import sys
 

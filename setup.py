@@ -3,7 +3,6 @@
 """Based on https://github.com/pypa/sampleproject/blob/master/setup.py."""
 # To use a consistent encoding
 import codecs
-import io
 import os
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages

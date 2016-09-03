@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-chanjo.cli
-~~~~~~~~~~~
-
 Command line interface (console entry points). Based on Click_.
 
 .. _Click: http://click.pocoo.org/
@@ -24,7 +21,6 @@ TODAY = str(date.today())
 
 
 class EntryPointsCLI(click.MultiCommand):
-
     """Add subcommands dynamically to a CLI via entry points."""
 
     def _iter_commands(self):
