@@ -20,24 +20,25 @@ def calculate(context):
 
 @calculate.command()
 @click.option('-p', '--pretty', is_flag=True)
+@click.option('-s', '--sample', multiple=True, help='sample to limit query to')
 @click.pass_context
-def mean(context, pretty):
+def mean(context, sample, pretty):
     """Calculate mean statistics."""
-    query = context.obj['db'].mean()
+    query = context.obj['db'].mean(sample_ids=sample)
     columns = ['sample_id'] + STAT_COLUMNS
-    for sample in query:
-        result = {column: value for column, value in zip(columns, sample)}
-        click.echo(dump_json(result, pretty=pretty))
+    for result in query:
+        row = {column: value for column, value in zip(columns, result)}
+        click.echo(dump_json(row, pretty=pretty))
 
 
 @calculate.command()
 @click.option('-p', '--pretty', is_flag=True)
-@click.argument('gene')
+@click.argument('gene', nargs=-1)
 @click.pass_context
 def gene(context, pretty, gene):
     """Calculate stats for a given gene."""
-    query = context.obj['db'].gene_metrics(gene)
+    query = context.obj['db'].gene_metrics(*gene)
     columns = ['sample_id'] + STAT_COLUMNS + ['gene_id']
-    for sample in query:
-        result = {column: value for column, value in zip(columns, sample)}
-        click.echo(dump_json(result, pretty=pretty))
+    for result in query:
+        row = {column: value for column, value in zip(columns, result)}
+        click.echo(dump_json(row, pretty=pretty))

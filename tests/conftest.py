@@ -42,21 +42,24 @@ def existing_db(tmpdir):
 @pytest.yield_fixture(scope='function')
 def popexist_db(existing_db, exon_lines):
     result = link_elements(exon_lines)
-    existing_db.add(result.models)
+    existing_db.add(*result.models)
     result = load_transcripts(exon_lines, sample_id='sample', group_id='group')
     existing_db.add(result.sample)
-    existing_db.add(result.models)
+    existing_db.add(*result.models)
     existing_db.save()
     yield existing_db
 
 
 @pytest.yield_fixture(scope='function')
 def populated_db(chanjo_db, exon_lines):
+    exon_lines = list(exon_lines)
     result = link_elements(exon_lines)
-    chanjo_db.add(result.models)
-    result = load_transcripts(exon_lines, sample_id='sample', group_id='group')
-    chanjo_db.add(result.sample)
-    chanjo_db.add(result.models)
+    chanjo_db.add(*result.models)
+    results = [load_transcripts(exon_lines, sample_id='sample', group_id='group'),
+               load_transcripts(exon_lines, sample_id='sample2', group_id='group')]
+    for result in results:
+        chanjo_db.add(result.sample)
+        chanjo_db.add(*result.models)
     chanjo_db.save()
     yield chanjo_db
 

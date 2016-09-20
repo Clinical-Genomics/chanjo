@@ -55,10 +55,3 @@ def test_add_many(chanjo_db):
     chanjo_db.save()
     # THEN all samples should be added
     assert Sample.query.all() == new_samples
-
-    # GIVEN an unknown type to add, e.g. dict
-    data = {'sample': Sample(id='ADM13')}
-    # WHEN adding to session
-    # THEN it should raise ValueError
-    with pytest.raises(ValueError):
-        chanjo_db.add(data)

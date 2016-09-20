@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-chanjo.store.core
-~~~~~~~~~~~~~~~~~~
-"""
 from __future__ import division
 import logging
 import os
@@ -16,7 +12,6 @@ log = logging.getLogger(__name__)
 
 
 class ChanjoDB(Manager, CalculateMixin):
-
     """SQLAlchemy-based database object.
 
     Bundles functionality required to setup and interact with various
