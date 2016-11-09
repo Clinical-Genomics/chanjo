@@ -15,15 +15,10 @@ def test_expand_row(bed_row):
     with pytest.raises(BedFormattingError):
         bed.expand_row(bed_row)
 
-    bed_row[1] = '100'
-    bed_row[4] = '14.3'  # score must be int
-    with pytest.raises(BedFormattingError):
-        bed.expand_row(bed_row)
-
 
 def test_expand_row_space_separated():
     with pytest.raises(BedFormattingError):
-        bed.expand_row(['22 32588888 32589173 22-32588888-32589173 0 -'])
+        bed.expand_row(['22 32588888 32589173 22-32588888-32589173'])
 
 
 def test_chanjo(bed_lines):
