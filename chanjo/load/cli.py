@@ -16,18 +16,23 @@ log = logging.getLogger(__name__)
 @click.command()
 @click.option('-s', '--sample', help='override sample id from file')
 @click.option('-g', '--group', help='id to group related samples')
+@click.option('-n', '--name', help='display name for sample')
+@click.option('-gn', '--group-name', help='display name for sample group')
 @click.option('-r', '--threshold', type=int,
               help='completeness level to disqualify exons')
 @click.argument('bed_stream', callback=validate_stdin,
                 type=click.File(encoding='utf-8'), default='-', required=False)
 @click.pass_context
-def load(context, sample, group, threshold, bed_stream):
+def load(context, sample, group, name, group_name, threshold, bed_stream):
     """Load Sambamba output into the database for a sample."""
     chanjo_db = ChanjoDB(uri=context.obj['database'])
     source = os.path.abspath(bed_stream.name)
 
     result = load_transcripts(bed_stream, sample_id=sample, group_id=group,
                               source=source, threshold=threshold)
+
+    result.sample.name = name
+    result.sample.group_name = group_name
     try:
         chanjo_db.add(result.sample)
         with click.progressbar(result.models, length=result.count,

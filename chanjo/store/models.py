@@ -52,6 +52,9 @@ class Sample(BASE):
     source = Column(types.String(256))
     created_at = Column(types.DateTime, default=datetime.now)
 
+    name = Column(types.String(128))
+    group_name = Column(types.String(128))
+
     sample = orm.relationship('TranscriptStat', cascade='all,delete',
                               backref='sample')
 
