@@ -54,7 +54,7 @@ class EntryPointsCLI(click.MultiCommand):
 def root(context, config, database, log_level, log_file):
     """Clinical sequencing coverage analysis tool."""
     init_log(logging.getLogger(), loglevel=log_level, filename=log_file)
-    logger.info("version {0}".format(__version__))
+    logger.debug("version {0}".format(__version__))
 
     # avoid setting global defaults in Click options, do it below when
     if os.path.exists(config):
