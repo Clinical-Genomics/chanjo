@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 @click.option('-g', '--group', help='id to group related samples')
 @click.option('-n', '--name', help='display name for sample')
 @click.option('-gn', '--group-name', help='display name for sample group')
-@click.option('-r', '--threshold', type=int,
+@click.option('-r', '--threshold', default=10,
               help='completeness level to disqualify exons')
 @click.argument('bed_stream', callback=validate_stdin,
                 type=click.File(encoding='utf-8'), default='-', required=False)
