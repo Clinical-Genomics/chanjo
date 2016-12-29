@@ -62,7 +62,8 @@ def link(context, bed_stream):
     try:
         chanjo_db.save()
     except IntegrityError:
-        click.echo('elements already linked, rolling back')
+        log.exception()
+        click.echo('elements already linked?')
         chanjo_db.session.rollback()
         click.echo("use 'chanjo db setup --reset' to re-build")
         context.abort()
