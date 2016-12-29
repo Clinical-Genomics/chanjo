@@ -43,9 +43,9 @@ def expand_row(row):
         raise BedFormattingError("positions malformatted: {}".format(row))
 
     data['name'] = list_get(row, 3)
-    element_combos = extra_fields(row[4:6])
+    element_combos = extra_fields(row[4:7])
     data['elements'] = element_combos
-    data['extra_fields'] = row[8:]
+    data['extra_fields'] = row[7:]
     return data
 
 
@@ -63,9 +63,10 @@ def extra_fields(columns):
     try:
         transcripts = columns[0].split(',')
         genes = columns[1].split(',')
+        symbols = columns[2].split(',')
     except IndexError:
         return []
-    return zip(transcripts, genes)
+    return zip(transcripts, genes, symbols)
 
 
 def list_get(list_obj, index, default=None):
