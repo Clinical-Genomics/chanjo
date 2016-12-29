@@ -27,8 +27,8 @@ class Transcript(BASE):
     __tablename__ = 'transcript'
 
     id = Column(types.String(32), primary_key=True)
-    gene_id = Column(types.Integer, index=True, nullable=False, unique=True)
-    gene_name = Column(types.String(32), index=True, unique=True)
+    gene_id = Column(types.Integer, index=True, nullable=False)
+    gene_name = Column(types.String(32), index=True)
     chromosome = Column(types.String(10))
     length = Column(types.Integer)
 
