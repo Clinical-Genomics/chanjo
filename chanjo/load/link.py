@@ -40,7 +40,7 @@ def make_model(transcript_id, exons):
     # assume the same chromosome and gene for all exons
     chromosome = exons[0]['chrom']
     gene_id = int(exons[0]['elements'][transcript_id]['gene_id'])
-    gene_symbol = int(exons[0]['elements'][transcript_id]['symbol'])
+    gene_symbol = exons[0]['elements'][transcript_id]['symbol']
     tot_length = sum((exon['chromEnd'] - exon['chromStart']) for exon in exons)
     tx_model = Transcript(id=transcript_id, chromosome=chromosome,
                           length=tot_length, gene_id=gene_id,

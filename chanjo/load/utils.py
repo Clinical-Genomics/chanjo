@@ -15,7 +15,7 @@ def groupby_tx(exons, sambamba=False):
         else:
             ids = exon['elements']
         elements = {}
-        for symbol, gene_id, tx_id in ids:
+        for tx_id, gene_id, symbol in ids:
             elements[tx_id] = dict(symbol=symbol, gene_id=gene_id)
         exon['elements'] = elements
 
