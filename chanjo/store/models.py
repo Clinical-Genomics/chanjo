@@ -49,7 +49,7 @@ class Sample(BASE):
     __tablename__ = 'sample'
 
     id = Column(types.String(32), primary_key=True)
-    group_id = Column(types.String(32), index=True)
+    group_id = Column(types.String(128), index=True)
     source = Column(types.String(256))
     created_at = Column(types.DateTime, default=datetime.now)
 
