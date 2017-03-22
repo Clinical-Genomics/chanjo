@@ -4,20 +4,18 @@ Command line interface (console entry points). Based on Click_.
 
 .. _Click: http://click.pocoo.org/
 """
-from datetime import date
 import logging
 import os
 import pkg_resources
 
 import click
+import coloredlogs
 import yaml
 
 from chanjo import __version__, __title__
 from chanjo.compat import text_type
-from chanjo.log import init_log
 
-logger = logging.getLogger(__name__)
-TODAY = str(date.today())
+log = logging.getLogger(__name__)
 
 
 class EntryPointsCLI(click.MultiCommand):
@@ -53,8 +51,9 @@ class EntryPointsCLI(click.MultiCommand):
 @click.pass_context
 def root(context, config, database, log_level, log_file):
     """Clinical sequencing coverage analysis tool."""
-    init_log(logging.getLogger(), loglevel=log_level, filename=log_file)
-    logger.debug("version {0}".format(__version__))
+    logout = log_file or click.get_text_stream('stderr')
+    coloredlogs.install(level=log_level, stream=logout)
+    log.debug("version {0}".format(__version__))
 
     # avoid setting global defaults in Click options, do it below when
     if os.path.exists(config):
