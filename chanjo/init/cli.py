@@ -3,7 +3,7 @@ import codecs
 import logging
 
 import click
-from path import path
+from path import Path
 import yaml
 from distutils.spawn import find_executable
 
@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 @click.pass_context
 def init(context, force, demo, auto, root_dir):
     """Bootstrap a new chanjo setup."""
-    root_path = path(root_dir).abspath()
+    root_path = Path(root_dir).abspath()
     log.info("setting up chanjo under: %s", root_path)
     db_uri = context.obj.get('database')
     abs_db_path = root_path.joinpath(DB_NAME)

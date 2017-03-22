@@ -1,11 +1,10 @@
--r ./requirements.txt
-
 bumpversion
-coverage
 coveralls
 flake8
 invoke
 ipdb
 pytest
+pytest-cov
+pytest-xdist
 wheel>=0.23
 mock

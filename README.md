@@ -1,8 +1,6 @@
 <p align="center">
   <a href="http://chanjo.co">
-    <img height="235"
-         width="244"
-         src="docs/assets/logo.png"/>
+    <img height="235" width="244" src="docs/assets/logo.png"/>
   </a>
 </p>
 
@@ -16,16 +14,16 @@ Chanjo is distributed through `pip`. Install the latest stable release by
 running:
 
 ```bash
-$ pip install chanjo
+pip install chanjo
 ```
 
 ... or locally for development:
 
 ```bash
-$ git clone https://github.com/robinandeer/chanjo.git && cd chanjo
-$ ansible-galaxy install -r provision/requirements.yml
-$ vagrant up
-$ vagrant ssh
+git clone https://github.com/robinandeer/chanjo.git
+cd chanjo
+conda install --channel bioconda sambamba
+pip install --requirements requirements-dev.txt --editable .
 ```
 
 ## Usage
@@ -33,9 +31,9 @@ Chanjo exposes a decomposable command line interface with a nifty config file
 implementation.
 
 ```bash
-$ chanjo init --setup
-$ chanjo load /path/to/sambamba.output.bed
-$ chanjo calculate mean
+chanjo init --setup
+chanjo load /path/to/sambamba.output.bed
+chanjo calculate mean
 {"metrics": {"completeness_10": 90.92, "mean_coverage": 193.85}, "sample_id": "sample1"}
 ```
 

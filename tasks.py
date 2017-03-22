@@ -5,7 +5,7 @@ from invoke.util import log
 
 
 @task
-def test(track=False):
+def test(context, track=False):
     """Run the test runner."""
     command = ('py.test --cov-report html --cov "$(basename "$PWD")" tests/ '
                '--verbose --color=yes -s')
@@ -14,7 +14,7 @@ def test(track=False):
 
 
 @task
-def clean():
+def clean(context):
     """clean - remove build artifacts."""
     run('rm -rf build/')
     run('rm -rf dist/')
@@ -27,7 +27,7 @@ def clean():
 
 
 @task(clean)
-def publish():
+def publish(context):
     """Publish to the cheeseshop."""
     run('python setup.py sdist upload', pty=True)
     run('python setup.py bdist_wheel upload', pty=True)
@@ -35,7 +35,7 @@ def publish():
 
 
 @task
-def coverage():
+def coverage(context):
     """Run test coverage check and open HTML report."""
     run('coverage run --source chanjo setup.py test')
     run('coverage report -m')

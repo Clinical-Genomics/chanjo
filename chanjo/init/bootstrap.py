@@ -2,7 +2,7 @@
 import logging
 import zipfile
 
-from path import path
+from path import Path
 
 import chanjo.compat
 
@@ -22,7 +22,7 @@ def pull(target_dir, force=False):  # pragma: no cover
         force (Optional[bool]): whether to overwrite existing files
     """
     logger.debug('ensure target directory exists')
-    target_path = path(target_dir)
+    target_path = Path(target_dir)
     target_path.makedirs_p()
 
     bed_zip_path = target_path.joinpath("{}.zip".format(BED_NAME))

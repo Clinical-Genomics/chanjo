@@ -3,7 +3,7 @@ from errno import EEXIST
 import logging
 from pkg_resources import resource_filename, resource_listdir
 
-from path import path
+from path import Path
 
 log = logging.getLogger(__name__)
 
@@ -14,9 +14,9 @@ def setup_demo(location, force=False):
     \b
     LOCATION: directory to add demofiles to (default: ./chanjo-demo)
     """
-    target_dir = path(location)
+    target_dir = Path(location)
     pkg_dir = __name__.rpartition('.')[0]
-    demo_dir = path(resource_filename(pkg_dir, 'demo-files'))
+    demo_dir = Path(resource_filename(pkg_dir, 'demo-files'))
 
     # make sure we don't overwrite exiting files
     for demo_file in resource_listdir(pkg_dir, 'demo-files'):
