@@ -2,7 +2,6 @@
 from __future__ import division
 from collections import namedtuple
 
-from chanjo.compat import iteritems, itervalues
 from chanjo.store.models import TranscriptStat, Sample, Exon
 from .parse import sambamba
 from .utils import groupby_tx
@@ -27,10 +26,10 @@ def load_transcripts(sequence, sample_id=None, group_id=None, source=None,
     exons = sambamba.depth_output(sequence)
     transcripts = groupby_tx(exons, sambamba=True)
     raw_stats = ((tx_id, tx_stat(tx_id, exons, threshold=threshold))
-                 for tx_id, exons in iteritems(transcripts))
+                 for tx_id, exons in transcripts.items())
 
     if sample_id is None:
-        sample_id = next(iter(itervalues(transcripts)))[0]['sampleName']
+        sample_id = next(iter(transcripts.values()))[0]['sampleName']
     sample_obj = Sample(id=sample_id, group_id=group_id, source=source)
 
     models = (make_model(sample_obj, tx_id, raw_stat) for tx_id, raw_stat
@@ -73,8 +72,7 @@ def tx_stat(transcript_id, exons, threshold=None):
                                     exon['chromEnd'], completeness)
                     incomplete_exons.append(exon_obj)
 
-    fields = {key: (value / sums['bases']) for key, value in iteritems(sums)
-              if key != 'bases'}
+    fields = {key: (value / sums['bases']) for key, value in sums.items() if key != 'bases'}
     fields['incomplete_exons'] = incomplete_exons
     fields['threshold'] = threshold
     return fields
@@ -91,6 +89,5 @@ def make_model(sample_obj, transcript_id, fields):
     Returns:
         Transcript: composed transcript model
     """
-    tx_model = TranscriptStat(sample_id=sample_obj.id,
-                              transcript_id=transcript_id, **fields)
+    tx_model = TranscriptStat(sample_id=sample_obj.id, transcript_id=transcript_id, **fields)
     return tx_model

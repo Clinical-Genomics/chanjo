@@ -2,7 +2,6 @@
 """
 Parse the sambamba "depth region" output.
 """
-from chanjo.compat import iteritems
 from chanjo.exc import BedFormattingError
 
 
@@ -66,7 +65,7 @@ def expand_row(header, row):
         dict: parsed sambamba output row
     """
     thresholds = {threshold: float(row[key])
-                  for threshold, key in iteritems(header['thresholds'])}
+                  for threshold, key in header['thresholds'].items()}
     data = {
         'chrom': row[0],
         'chromStart': int(row[1]),

@@ -2,7 +2,6 @@
 import logging
 from collections import namedtuple
 
-from chanjo.compat import iteritems
 from chanjo.store.models import Transcript
 from .parse import bed as parse_bed
 from .utils import groupby_tx
@@ -22,8 +21,7 @@ def link_elements(sequence):
     """
     exons = parse_bed.chanjo(sequence)
     transcripts = groupby_tx(exons)
-    models = (make_model(tx_id, exons) for tx_id, exons in
-              iteritems(transcripts))
+    models = (make_model(tx_id, exons) for tx_id, exons in transcripts.items())
     return Result(models=models, count=len(transcripts))
 
 

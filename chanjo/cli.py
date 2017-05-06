@@ -13,7 +13,6 @@ import coloredlogs
 import yaml
 
 from chanjo import __version__, __title__
-from chanjo.compat import text_type
 
 log = logging.getLogger(__name__)
 
@@ -43,8 +42,7 @@ class EntryPointsCLI(click.MultiCommand):
 @click.group(cls=EntryPointsCLI)
 @click.option('-c', '--config', default='~/.chanjo.yaml',
               type=click.Path(), help='path to config file')
-@click.option('-d', '--database', type=text_type,
-              help='path/URI of the SQL database')
+@click.option('-d', '--database', help='path/URI of the SQL database')
 @click.option('-l', '--log-level', default='INFO')
 @click.option('--log-file', type=click.File('a'))
 @click.version_option(__version__, prog_name=__title__)

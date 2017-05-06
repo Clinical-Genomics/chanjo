@@ -3,7 +3,6 @@ import logging
 
 import click
 
-from chanjo.compat import zip
 from chanjo.store.api import ChanjoDB
 from chanjo.store.constants import STAT_COLUMNS
 from .utils import dump_json

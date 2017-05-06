@@ -2,7 +2,6 @@
 import click
 import logging
 
-from chanjo.compat import text_type
 from .core import sex_from_bam
 
 log = logging.getLogger(__name__)
@@ -23,4 +22,4 @@ def sex(context, prefix, bam_path):
     # print the results to the console for pipeability (csv)
     click.echo("#{prefix}X_coverage\t{prefix}Y_coverage\tsex"
                .format(prefix=prefix))
-    click.echo('\t'.join(map(text_type, result)))
+    click.echo('\t'.join(map(str, result)))

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """Parse BED files including Sambamba output files."""
-from chanjo.compat import zip
 from chanjo.exc import BedFormattingError
 
 

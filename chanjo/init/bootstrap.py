@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 import logging
 import zipfile
+from urllib.request import urlretrieve
 
 from path import Path
-
-import chanjo.compat
 
 DB_NAME = 'chanjo.coverage.sqlite3'
 BED_NAME = 'ccds.15.grch37p13.extended.bed'
@@ -30,7 +29,7 @@ def pull(target_dir, force=False):  # pragma: no cover
 
     if not final_bed.exists() or force:
         logger.info('downloading... [%s]', BED_URL)
-        chanjo.compat.urlretrieve(BED_URL, bed_zip_path)
+        urlretrieve(BED_URL, bed_zip_path)
 
         logger.info('extracting BED file...')
         zip_ref = zipfile.ZipFile(bed_zip_path, 'r')
