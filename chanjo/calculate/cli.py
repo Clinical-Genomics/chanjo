@@ -28,16 +28,3 @@ def mean(context, sample, pretty):
     for result in query:
         row = {column: value for column, value in zip(columns, result)}
         click.echo(dump_json(row, pretty=pretty))
-
-
-@calculate.command()
-@click.option('-p', '--pretty', is_flag=True)
-@click.argument('gene', nargs=-1)
-@click.pass_context
-def gene(context, pretty, gene):
-    """Calculate stats for a given gene."""
-    query = context.obj['db'].gene_metrics(*gene)
-    columns = ['sample_id'] + STAT_COLUMNS + ['gene_id']
-    for result in query:
-        row = {column: value for column, value in zip(columns, result)}
-        click.echo(dump_json(row, pretty=pretty))

@@ -1,10 +1,5 @@
-bumpversion
-coveralls
-flake8
-invoke
-ipdb
 pytest
-pytest-cov
-pytest-xdist
-wheel>=0.23
 mock
+ipdb
+pytest-cov
+coveralls

@@ -34,10 +34,11 @@ def test_gene(populated_db):
     # GIVEN a database populated with a single sample
     assert Sample.query.count() == 2
     # WHEN calculating average metrics for a gene
-    query = populated_db.gene_metrics('SAMD11')
+    gene_id = 28706
+    query = populated_db.gene_metrics(gene_id)
     # THEN the results should add up to a single row
     results = query.all()
     assert len(results) == 2
     result = results[0]
     assert result[0] == 'sample'
-    assert result[-1] == 'SAMD11'
+    assert result[-1] == gene_id

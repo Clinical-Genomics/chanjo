@@ -9,7 +9,7 @@ def test_load_transcripts(exon_lines):
     result = sambamba.load_transcripts(exon_lines, sample_id='sample',
                                        group_id='group')
     # THEN transcript models should be generated
-    assert result.count == 10
+    assert result.count == 9
     assert result.sample.id == 'sample'
     assert result.sample.group_id == 'group'
     assert isinstance(list(result.models)[0], TranscriptStat)

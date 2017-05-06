@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "*"
+mock = "*"
+ipdb = "*"
+pytest-cov = "*"
+coveralls = "*"
+
+[packages]
+coloredlogs = "*"
+alchy = "*"
+click = "*"
+"path.py" = "*"
+toolz = "*"
+"ruamel.yaml" = "*"

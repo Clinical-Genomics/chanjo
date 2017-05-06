@@ -1,7 +1,6 @@
 coloredlogs
-SQLAlchemy>=0.8.2
 alchy
-PyYAML
-Click
-path.py>=10.0
+click
+path.py
 toolz
+ruamel.yaml

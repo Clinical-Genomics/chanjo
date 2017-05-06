@@ -8,4 +8,4 @@ def test_groupby_tx(bed_exons, sambamba_exons):
 
     # GIVEN sambamba lines
     transcripts = list(utils.groupby_tx(sambamba_exons, sambamba=True))
-    assert len(transcripts) == 10
+    assert len(transcripts) == 9
