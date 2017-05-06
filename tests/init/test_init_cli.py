@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from tempfile import gettempdir
 
 from mock import patch
-import yaml
+import ruamel.yaml
 
 from test_utils import FakeZipFile, fake_urlretrieve
 
@@ -43,5 +43,5 @@ def test_init_no_bootstrap(tmpdir, invoke_cli):
     assert result.exit_code == 0
     conf_path = tmpdir.join('chanjo.yaml')
     with open(str(conf_path), 'r') as handle:
-        data = yaml.load(handle)
+        data = ruamel.yaml.safe_load(handle)
     assert 'coverage.sqlite3' in data['database']

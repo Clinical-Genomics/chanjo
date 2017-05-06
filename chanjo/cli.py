@@ -10,7 +10,7 @@ import pkg_resources
 
 import click
 import coloredlogs
-import yaml
+import ruamel.yaml
 
 from chanjo import __version__, __title__
 
@@ -56,7 +56,7 @@ def root(context, config, database, log_level, log_file):
     # avoid setting global defaults in Click options, do it below when
     if os.path.exists(config):
         with open(config) as conf_handle:
-            context.obj = yaml.load(conf_handle)
+            context.obj = ruamel.yaml.safe_load(conf_handle)
     else:
         context.obj = {}
     context.obj['database'] = (database or context.obj.get('database'))

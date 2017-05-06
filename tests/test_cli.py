@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 
-import yaml
+import ruamel.yaml
 
 
 def test_logging_to_file(tmpdir, invoke_cli):
@@ -34,7 +34,7 @@ def test_with_config(tmpdir, invoke_cli):
     db_path = str(tmpdir.join('coverage.sqlite3'))
     data = {'database': db_path}
     with open(conf_path, 'w') as handle:
-        handle.write(yaml.dump(data))
+        handle.write(ruamel.yaml.dump(data, Dumper=ruamel.yaml.RoundTripDumper))
     # WHEN launching CLI with config
     result = invoke_cli(['-c', conf_path, 'db', 'setup'])
     # THEN config values should be picked up

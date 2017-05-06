@@ -4,7 +4,7 @@ import logging
 
 import click
 from path import Path
-import yaml
+import ruamel.yaml
 from distutils.spawn import find_executable
 
 from chanjo.store.api import ChanjoDB
@@ -50,7 +50,7 @@ def init(context, force, demo, auto, root_dir):
     conf_path = root_path.joinpath('chanjo.yaml')
     with codecs.open(conf_path, 'w', encoding='utf-8') as conf_handle:
         data = {'database': db_uri}
-        data_str = yaml.dump(data, default_flow_style=False)
+        data_str = ruamel.yaml.dump(data, Dumper=ruamel.yaml.RoundTripDumper)
         log.info("writing config file: %s", conf_path)
         conf_handle.write(data_str)
 
