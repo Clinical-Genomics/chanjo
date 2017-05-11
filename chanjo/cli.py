@@ -40,7 +40,7 @@ class EntryPointsCLI(click.MultiCommand):
 
 
 @click.group(cls=EntryPointsCLI)
-@click.option('-c', '--config', default='~/.chanjo.yaml',
+@click.option('-c', '--config', default='./chanjo.yaml',
               type=click.Path(), help='path to config file')
 @click.option('-d', '--database', help='path/URI of the SQL database')
 @click.option('-l', '--log-level', default='INFO')

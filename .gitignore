@@ -47,6 +47,7 @@ TRASH*
 .vagrant/
 _DEVELOP/
 TODO.md
+.idea/
 
 # Sphinx docs
 docs/_build

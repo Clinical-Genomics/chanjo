@@ -14,15 +14,9 @@ This will create a new folder (`./chanjo-demo`) in your current working director
 
 > You can name the new folder anything you like but it must not already exist!
 
-## Setup and configuration
+## Configuration
 
 Chanjo went ahead and pre-filled a config-file for you under: `./chanjo-demo/chanjo.yaml`. For now it just references the SQLite database we will use. But since Chanjo will look for this file in the current working directory when you run the command we don't need to reference the database every time.
-
-Let's set up the database:
-
-```bash
-$ chanjo db setup
-```
 
 > You can optionally point to a config file in a different location by using the `--config` flag like: `chanjo --config /path/to/chanjo.yaml`.
 
