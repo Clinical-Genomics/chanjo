@@ -8,7 +8,6 @@ First we need some files to work with. Chanjo comes with some pre-installed demo
 
 ```bash
 $ chanjo init --demo ./chanjo-demo
-$ cd chanjo-demo
 ```
 This will create a new folder (`./chanjo-demo`) in your current working directory and fill it with example files.
 
@@ -22,10 +21,11 @@ Chanjo went ahead and pre-filled a config-file for you under: `./chanjo-demo/cha
 
 ## Linking exons/transcripts/genes
 
-Chanjo doesn't subscribe to any particular definition of exons/transcripts etc. You can take a look at the how exons/transcripts/genes are linked in: `ccds.min.bed`. Let's tell Chanjo which transcripts belong to which genes. You only need to run this command once.
+Chanjo doesn't subscribe to any particular definition of exons/transcripts etc. You can take a look at the how exons/transcripts/genes are linked in: `hgnc.min.bed`. Let's tell Chanjo which transcripts belong to which genes. You only need to run this command once.
 
 ```bash
-$ chanjo link ccds.min.bed
+$ cd chanjo-demo
+$ chanjo link ./hgnc.min.bed
 ```
 
 ## Loading annotations

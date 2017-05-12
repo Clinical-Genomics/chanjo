@@ -5,7 +5,7 @@ from pkg_resources import resource_filename, resource_listdir
 
 from path import Path
 
-DEMO_BED_NAME = 'ccds.min.bed'
+DEMO_BED_NAME = 'hgnc.min.bed'
 log = logging.getLogger(__name__)
 
 

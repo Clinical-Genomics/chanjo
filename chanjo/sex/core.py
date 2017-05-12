@@ -23,7 +23,7 @@ def predict_sex(x_coverage, y_coverage):
     Returns:
         str: prediction, ['male', 'female', 'unknown']
     """
-    # algoritm doesn't work if coverage is missing for X chromosome
+    # algorithm doesn't work if coverage is missing for X chromosome
     if x_coverage == 0:
         return 'unknown'
     elif (y_coverage > 0) and (x_coverage / y_coverage < 10):
@@ -49,8 +49,7 @@ def sex_from_bam(bam_path, prefix=''):
         SexGuess(x_coverage=123.31, y_coverage=0.13, sex='female')
     """
     # make up some sex chromosome regions
-    regions = ["{}X:1-59373566".format(prefix),
-               "{}Y:69362-11375310".format(prefix)]
+    regions = ["{}X:1-59373566".format(prefix), "{}Y:69362-11375310".format(prefix)]
     averages = []
     for region in regions:
         command = ["sambamba depth region -L {} {}".format(region, bam_path)]
@@ -62,7 +61,7 @@ def sex_from_bam(bam_path, prefix=''):
             averages.append(float(bed_rows[0][4]))
         else:
             chromosome = region.split(':')[0]
-            logger.warn("couldn't find any reads on %s-chromosome", chromosome)
+            logger.warning("couldn't find any reads on %s-chromosome", chromosome)
             averages.append(0.)
 
     # make the guess
