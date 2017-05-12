@@ -24,14 +24,18 @@ def predict_sex(x_coverage, y_coverage):
         str: prediction, ['male', 'female', 'unknown']
     """
     # algorithm doesn't work if coverage is missing for X chromosome
-    if x_coverage == 0:
-        return 'unknown'
-    elif (y_coverage > 0) and (x_coverage / y_coverage < 10):
-        # this is the entire prediction, it's usually very obvious
+    if y_coverage == 0:
         return 'male'
     else:
-        # the few reads mapping to the Y chromosomes are artifacts
-        return 'female'
+        ratio = x_coverage / y_coverage
+        if x_coverage == 0 or (ratio > 12 and ratio < 100):
+            return 'unknown'
+        elif ratio <= 12:
+            # this is the entire prediction, it's usually very obvious
+            return 'male'
+        else:
+            # the few reads mapping to the Y chromosomes are artifacts
+            return 'female'
 
 
 def sex_from_bam(bam_path, prefix=''):
