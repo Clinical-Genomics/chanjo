@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import zipfile
-from urllib.request import urlretrieve
+import urllib.request
 
 from path import Path
 
@@ -29,7 +29,7 @@ def pull(target_dir, force=False):  # pragma: no cover
 
     if not final_bed.exists() or force:
         logger.info('downloading... [%s]', BED_URL)
-        urlretrieve(BED_URL, bed_zip_path)
+        urllib.request.urlretrieve(BED_URL, bed_zip_path)
 
         logger.info('extracting BED file...')
         zip_ref = zipfile.ZipFile(bed_zip_path, 'r')

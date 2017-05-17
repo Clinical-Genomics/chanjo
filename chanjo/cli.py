@@ -18,10 +18,10 @@ log = logging.getLogger(__name__)
 
 
 class EntryPointsCLI(click.MultiCommand):
-    """Add subcommands dynamically to a CLI via entry points."""
+    """Add sub-commands dynamically to a CLI via entry points."""
 
     def _iter_commands(self):
-        """Iterate over all subcommands as defined by the entry point."""
+        """Iterate over all sub-commands as defined by the entry point."""
         return {entry_point.name: entry_point for entry_point in
                 pkg_resources.iter_entry_points('chanjo.subcommands.4')}
 
@@ -40,7 +40,7 @@ class EntryPointsCLI(click.MultiCommand):
 
 
 @click.group(cls=EntryPointsCLI)
-@click.option('-c', '--config', default='~/.chanjo.yaml',
+@click.option('-c', '--config', default='./chanjo.yaml',
               type=click.Path(), help='path to config file')
 @click.option('-d', '--database', help='path/URI of the SQL database')
 @click.option('-l', '--log-level', default='INFO')

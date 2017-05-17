@@ -15,9 +15,9 @@ def test_init_demo(tmpdir, invoke_cli):
     target_dir = tmpdir.join('chanjo-demo')
     target_path = str(target_dir)
     result = invoke_cli(['init', '--demo', target_path])
-    # THEN is should work and place 6 + 1 (config) in the folder
+    # THEN is should work and place 4 demo files + 1 sqlite db + 1 config
     assert result.exit_code == 0
-    assert len(target_dir.listdir()) == 7
+    assert len(target_dir.listdir()) == (4 + 1 + 1)
 
 
 @patch('urllib.request.urlretrieve', fake_urlretrieve)

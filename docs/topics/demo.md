@@ -8,30 +8,24 @@ First we need some files to work with. Chanjo comes with some pre-installed demo
 
 ```bash
 $ chanjo init --demo ./chanjo-demo
-$ cd chanjo-demo
 ```
 This will create a new folder (`./chanjo-demo`) in your current working directory and fill it with example files.
 
 > You can name the new folder anything you like but it must not already exist!
 
-## Setup and configuration
+## Configuration
 
 Chanjo went ahead and pre-filled a config-file for you under: `./chanjo-demo/chanjo.yaml`. For now it just references the SQLite database we will use. But since Chanjo will look for this file in the current working directory when you run the command we don't need to reference the database every time.
-
-Let's set up the database:
-
-```bash
-$ chanjo db setup
-```
 
 > You can optionally point to a config file in a different location by using the `--config` flag like: `chanjo --config /path/to/chanjo.yaml`.
 
 ## Linking exons/transcripts/genes
 
-Chanjo doesn't subscribe to any particular definition of exons/transcripts etc. You can take a look at the how exons/transcripts/genes are linked in: `ccds.min.bed`. Let's tell Chanjo which transcripts belong to which genes. You only need to run this command once.
+Chanjo doesn't subscribe to any particular definition of exons/transcripts etc. You can take a look at the how exons/transcripts/genes are linked in: `hgnc.min.bed`. Let's tell Chanjo which transcripts belong to which genes. You only need to run this command once.
 
 ```bash
-$ chanjo link ccds.min.bed
+$ cd chanjo-demo
+$ chanjo link ./hgnc.min.bed
 ```
 
 ## Loading annotations

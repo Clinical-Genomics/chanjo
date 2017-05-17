@@ -1,5 +1,6 @@
-import subprocess
+# -*- coding: utf-8 -*-
 import logging
+import subprocess
 
 from subprocess import CalledProcessError
 

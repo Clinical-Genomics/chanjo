@@ -9,7 +9,7 @@ from distutils.spawn import find_executable
 
 from chanjo.store.api import ChanjoDB
 from .bootstrap import pull, BED_NAME, DB_NAME
-from .demo import setup_demo
+from .demo import setup_demo, DEMO_BED_NAME
 
 log = logging.getLogger(__name__)
 
@@ -37,6 +37,10 @@ def init(context, force, demo, auto, root_dir):
     if demo:
         log.info("copying demo files: %s", root_dir)
         setup_demo(root_dir, force=force)
+
+        log.info("configure new chanjo database: %s", db_uri)
+        chanjo_db = ChanjoDB(db_uri)
+        chanjo_db.set_up()
     elif auto or click.confirm('Bootstrap CCDS transcript BED?'):
         # ensure root dir exists
         root_path.makedirs_p()
@@ -54,6 +58,7 @@ def init(context, force, demo, auto, root_dir):
         log.info("writing config file: %s", conf_path)
         conf_handle.write(data_str)
 
-    click.echo('Chanjo bootstrap successful! Now run: ')
-    bed_path = root_path.joinpath(BED_NAME)
-    click.echo("chanjo --config {} link {}".format(conf_path, bed_path))
+    if auto or demo:
+        click.echo('Chanjo bootstrap successful! Now run: ')
+        bed_path = root_path.joinpath(DEMO_BED_NAME if demo else BED_NAME)
+        click.echo("chanjo --config {} link {}".format(conf_path, bed_path))

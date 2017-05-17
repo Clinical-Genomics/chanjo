@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import logging
 from collections import namedtuple
+import logging
 
 from chanjo.store.models import Transcript
 from .parse import bed as parse_bed
