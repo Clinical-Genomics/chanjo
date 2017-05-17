@@ -23,9 +23,8 @@ def predict_sex(x_coverage, y_coverage):
     Returns:
         str: prediction, ['male', 'female', 'unknown']
     """
-    # algorithm doesn't work if coverage is missing for X chromosome
     if y_coverage == 0:
-        return 'male'
+        return 'female'
     else:
         ratio = x_coverage / y_coverage
         if x_coverage == 0 or (ratio > 12 and ratio < 100):
