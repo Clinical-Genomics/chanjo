@@ -22,11 +22,13 @@ log = logging.getLogger(__name__)
 @click.pass_context
 def init(context, force, demo, auto, root_dir):
     """Bootstrap a new chanjo setup."""
-    root_path = Path(root_dir).abspath()
+    is_bootstrapped = False
+    root_path = Path(root_dir)
+
     log.info("setting up chanjo under: %s", root_path)
     db_uri = context.obj.get('database')
-    abs_db_path = root_path.joinpath(DB_NAME)
-    db_uri = db_uri or "sqlite:///{}".format(abs_db_path)
+    db_uri = db_uri or "sqlite:///{}".format(root_path.joinpath(DB_NAME).abspath())
+
     # test setup of sambamba
     sambamba_bin = find_executable('sambamba')
     if sambamba_bin is None:  # pragma: no cover
@@ -41,16 +43,17 @@ def init(context, force, demo, auto, root_dir):
         log.info("configure new chanjo database: %s", db_uri)
         chanjo_db = ChanjoDB(db_uri)
         chanjo_db.set_up()
-    elif auto or click.confirm('Bootstrap CCDS transcript BED?'):
-        # ensure root dir exists
-        root_path.makedirs_p()
+        is_bootstrapped = True
+    elif auto or click.confirm('Bootstrap HGNC transcript BED?'):
         pull(root_dir, force=force)
 
         log.info("configure new chanjo database: %s", db_uri)
         chanjo_db = ChanjoDB(db_uri)
         chanjo_db.set_up()
+        is_bootstrapped = True
 
     # setup config file
+    root_path.makedirs_p()
     conf_path = root_path.joinpath('chanjo.yaml')
     with codecs.open(conf_path, 'w', encoding='utf-8') as conf_handle:
         data = {'database': db_uri}
@@ -58,7 +61,7 @@ def init(context, force, demo, auto, root_dir):
         log.info("writing config file: %s", conf_path)
         conf_handle.write(data_str)
 
-    if auto or demo:
+    if is_bootstrapped:
         click.echo('Chanjo bootstrap successful! Now run: ')
         bed_path = root_path.joinpath(DEMO_BED_NAME if demo else BED_NAME)
         click.echo("chanjo --config {} link {}".format(conf_path, bed_path))

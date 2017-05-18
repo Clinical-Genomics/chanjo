@@ -6,9 +6,8 @@ import urllib.request
 from path import Path
 
 DB_NAME = 'chanjo.coverage.sqlite3'
-BED_NAME = 'ccds.15.grch37p13.extended.bed'
-BED_URL = ("https://s3.eu-central-1.amazonaws.com/"
-           "chanjo/ccds15.grch37p13.extended.bed.zip")
+BED_NAME = 'hgnc.grch37p13.exons.bed'
+BED_URL = 'https://s3.eu-central-1.amazonaws.com/clinical-assets/hgnc.grch37p13.exons.bed.zip'
 
 logger = logging.getLogger(__name__)
 
