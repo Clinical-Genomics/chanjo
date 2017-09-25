@@ -23,6 +23,7 @@ pip install chanjo
 git clone https://github.com/Clinical-Genomics/chanjo.git
 cd chanjo
 conda install --channel bioconda sambamba
+
 pip install -r requirements-dev.txt --editable .
 ```
 
