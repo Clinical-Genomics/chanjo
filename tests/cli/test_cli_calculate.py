@@ -3,6 +3,7 @@ import json
 
 from chanjo.cli import root
 from chanjo.store.models import Sample
+from chanjo.cli.calculate import dump_json
 
 
 def test_mean(popexist_db, cli_runner):
@@ -19,3 +20,13 @@ def test_mean(popexist_db, cli_runner):
     data = json.loads(lines[0].strip())
     assert data['sample_id'] == 'sample'
     assert isinstance(data['mean_coverage'], float)
+
+
+def test_dump_json():
+    # GIVEN some dict
+    data = {'name': 'PT Anderson', 'age': 45}
+    # WHEN dumping to JSON with pretty-option enabled
+    json = dump_json(data, pretty=True)
+    # THEN the output is formatted over multiple lines
+    assert isinstance(json, str)
+    assert len(json.split('\n')) == 4

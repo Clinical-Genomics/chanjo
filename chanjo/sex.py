@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
+"""Component for guessing the sex from a BAM alignment.
+
+The component reads coverage for subsections of each sex chromosome.
+Based on the ratio between the average coverage across chromosomes it
+makes a simple sex prediction.
+"""
 from __future__ import division
 from collections import namedtuple
 import logging
 import subprocess
 
-logger = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 SexGuess = namedtuple('SexGuess', ['x_coverage', 'y_coverage', 'sex'])
 
@@ -56,7 +62,7 @@ def sex_from_bam(bam_path, prefix=''):
     averages = []
     for region in regions:
         command = ["sambamba depth region -L {} {}".format(region, bam_path)]
-        logger.debug("calling: %s", command)
+        LOG.debug("calling: %s", command)
         bed_out = subprocess.check_output(command, shell=True).decode('utf-8')
         bed_rows = [line.split() for line in bed_out.splitlines()
                     if not line.startswith('#')]
@@ -64,7 +70,7 @@ def sex_from_bam(bam_path, prefix=''):
             averages.append(float(bed_rows[0][4]))
         else:
             chromosome = region.split(':')[0]
-            logger.warning("couldn't find any reads on %s-chromosome", chromosome)
+            LOG.warning("couldn't find any reads on %s-chromosome", chromosome)
             averages.append(0.)
 
     # make the guess

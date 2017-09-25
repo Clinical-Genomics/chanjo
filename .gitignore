@@ -48,6 +48,7 @@ TRASH*
 _DEVELOP/
 TODO.md
 .idea/
+.vscode/
 
 # Sphinx docs
 docs/_build

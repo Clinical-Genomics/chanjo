@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-import click
 import logging
 
-from .core import sex_from_bam
+import click
 
-log = logging.getLogger(__name__)
+from chanjo.sex import sex_from_bam
+
+LOG = logging.getLogger(__name__)
 
 
 @click.command()
@@ -16,7 +17,7 @@ def sex(context, prefix, bam_path):
     try:
         result = sex_from_bam(bam_path, prefix=prefix)
     except Exception:
-        log.exception('Something went really wrong :(')
+        LOG.exception('Something went really wrong :(')
         context.abort()
 
     # print the results to the console for pipeability (csv)
