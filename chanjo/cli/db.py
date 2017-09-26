@@ -3,42 +3,42 @@ import logging
 
 import click
 
-from .api import ChanjoDB
-from .models import Sample
+from chanjo.store.api import ChanjoDB
+from chanjo.store.models import Sample
 
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
-@click.group()
+@click.group('db')
 @click.pass_context
-def db(context):
+def db_cmd(context):
     """Interact with the database for maintainance tasks."""
     context.obj['db'] = ChanjoDB(uri=context.obj['database'])
 
 
-@db.command()
+@db_cmd.command()
 @click.option('--reset', is_flag=True, help='tear down existing db')
 @click.pass_context
 def setup(context, reset):
     """Initialize a new datbase from scratch."""
     if reset:
-        log.info('tearing down existing database')
+        LOG.info('tearing down existing database')
         context.obj['db'].tear_down()
-    log.info('setting up new database')
+    LOG.info('setting up new database')
     context.obj['db'].set_up()
 
 
-@db.command()
+@db_cmd.command()
 @click.argument('sample_id', type=str)
 @click.pass_context
 def remove(context, sample_id):
     """Remove all traces of a sample from the database."""
-    db = context.obj['db']
-    log.debug('find sample in database with id: %s', sample_id)
+    store = context.obj['db']
+    LOG.debug('find sample in database with id: %s', sample_id)
     sample_obj = Sample.query.get(sample_id)
     if sample_obj is None:
-        log.warn('sample (%s) not found in database', sample_id)
+        LOG.warning('sample (%s) not found in database', sample_id)
         context.abort()
-    log.info('delete sample (%s) from database', sample_id)
-    db.session.delete(sample_obj)
-    db.save()
+    LOG.info('delete sample (%s) from database', sample_id)
+    store.session.delete(sample_obj)
+    store.save()

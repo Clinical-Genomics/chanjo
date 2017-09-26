@@ -14,7 +14,7 @@ import ruamel.yaml
 
 from chanjo import __version__, __title__
 
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
 class EntryPointsCLI(click.MultiCommand):
@@ -51,7 +51,7 @@ def root(context, config, database, log_level, log_file):
     """Clinical sequencing coverage analysis tool."""
     logout = log_file or click.get_text_stream('stderr')
     coloredlogs.install(level=log_level, stream=logout)
-    log.debug("version {0}".format(__version__))
+    LOG.debug("version {0}".format(__version__))
 
     # avoid setting global defaults in Click options, do it below when
     if os.path.exists(config):

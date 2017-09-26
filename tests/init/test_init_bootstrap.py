@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
 import os
-from mock import patch
-from chanjo.init import bootstrap
 
-from test_utils import FakeZipFile, fake_urlretrieve
+from mock import patch
+
+from chanjo.init import bootstrap
+from chanjo.testutils import FakeZipFile, fake_urlretrieve
 
 
 @patch('urllib.request.urlretrieve', fake_urlretrieve)

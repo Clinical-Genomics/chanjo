@@ -5,7 +5,7 @@ import os
 
 from alchy import Manager
 
-from chanjo.calculate.mixins import CalculateMixin
+from chanjo.calculate import CalculateMixin
 from .models import BASE
 
 log = logging.getLogger(__name__)

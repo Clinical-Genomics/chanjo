@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-import sys
-
-import click
 
 
 def groupby_tx(exons, sambamba=False):
@@ -26,14 +23,3 @@ def groupby_tx(exons, sambamba=False):
     return transcripts
 
 
-def validate_stdin(context, param, value):
-    """Validate piped input contains some data.
-
-    Raises:
-        click.BadParameter: if STDIN is empty
-    """
-    # check if input is a file or stdin
-    if value.name == '<stdin>' and sys.stdin.isatty():  # pragma: no cover
-        # raise error if stdin is empty
-        raise click.BadParameter('you need to pipe something to stdin')
-    return value

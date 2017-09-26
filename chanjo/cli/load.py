@@ -1,16 +1,29 @@
 # -*- coding: utf-8 -*-
 import os.path
 import logging
+import sys
 
 import click
 from sqlalchemy.exc import IntegrityError
 
 from chanjo.store.api import ChanjoDB
-from .utils import validate_stdin
-from .link import link_elements
-from .sambamba import load_transcripts
+from chanjo.load.link import link_elements
+from chanjo.load.sambamba import load_transcripts
 
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
+
+
+def validate_stdin(context, param, value):
+    """Validate piped input contains some data.
+
+    Raises:
+        click.BadParameter: if STDIN is empty
+    """
+    # check if input is a file or stdin
+    if value.name == '<stdin>' and sys.stdin.isatty():  # pragma: no cover
+        # raise error if stdin is empty
+        raise click.BadParameter('you need to pipe something to stdin')
+    return value
 
 
 @click.command()
@@ -41,8 +54,8 @@ def load(context, sample, group, name, group_name, threshold, bed_stream):
                 chanjo_db.add(tx_model)
         chanjo_db.save()
     except IntegrityError as error:
-        log.error('sample already loaded, rolling back')
-        log.debug(error.message)
+        LOG.error('sample already loaded, rolling back')
+        LOG.debug(error.args[0])
         chanjo_db.session.rollback()
         context.abort()
 
@@ -62,7 +75,7 @@ def link(context, bed_stream):
     try:
         chanjo_db.save()
     except IntegrityError:
-        log.exception('elements already linked?')
+        LOG.exception('elements already linked?')
         chanjo_db.session.rollback()
         click.echo("use 'chanjo db setup --reset' to re-build")
         context.abort()

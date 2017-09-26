@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
 from tempfile import gettempdir
 
 from mock import patch
 import ruamel.yaml
 
-from test_utils import FakeZipFile, fake_urlretrieve
+from chanjo.testutils import FakeZipFile, fake_urlretrieve
 
 
 def test_init_demo(tmpdir, invoke_cli):
