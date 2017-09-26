@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from errno import EEXIST
 import logging
-from pkg_resources import resource_filename, resource_listdir
+from pkg_resources import (resource_filename, resource_listdir)
 
 from path import Path
 
 DEMO_BED_NAME = 'hgnc.min.bed'
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
 def setup_demo(location, force=False):
@@ -23,15 +23,15 @@ def setup_demo(location, force=False):
     for demo_file in resource_listdir(pkg_dir, 'demo-files'):
         target_file_path = target_dir.joinpath(demo_file)
         if not force and target_file_path.exists():
-            log.error("%s exists, pick a different location", target_file_path)
+            LOG.error("%s exists, pick a different location", target_file_path)
             raise OSError(EEXIST, 'file already exists', target_file_path)
 
     try:
         # we can copy the directory(tree)
         demo_dir.copytree(target_dir)
     except OSError as error:
-        log.warn('location must be a non-existing directory')
+        LOG.warn('location must be a non-existing directory')
         raise error
 
     # inform the user
-    log.info("successfully copied demo files to %s", target_dir)
+    LOG.info("successfully copied demo files to %s", target_dir)

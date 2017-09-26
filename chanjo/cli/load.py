@@ -58,24 +58,3 @@ def load(context, sample, group, name, group_name, threshold, bed_stream):
         LOG.debug(error.args[0])
         chanjo_db.session.rollback()
         context.abort()
-
-
-@click.command()
-@click.argument('bed_stream', callback=validate_stdin,
-                type=click.File(encoding='utf-8'), default='-', required=False)
-@click.pass_context
-def link(context, bed_stream):
-    """Link related genomic elements."""
-    chanjo_db = ChanjoDB(uri=context.obj['database'])
-    result = link_elements(bed_stream)
-    with click.progressbar(result.models, length=result.count,
-                           label='adding transcripts') as bar:
-        for tx_model in bar:
-            chanjo_db.add(tx_model)
-    try:
-        chanjo_db.save()
-    except IntegrityError:
-        LOG.exception('elements already linked?')
-        chanjo_db.session.rollback()
-        click.echo("use 'chanjo db setup --reset' to re-build")
-        context.abort()

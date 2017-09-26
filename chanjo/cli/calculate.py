@@ -23,6 +23,9 @@ def dump_json(data, pretty=False):
 @click.pass_context
 def calculate(context):
     """Calculate statistics across samples."""
+    if context.obj['database'] is None:
+        LOG.warning('Please point to a database')
+        context.abort()
     context.obj['db'] = ChanjoDB(uri=context.obj['database'])
 
 

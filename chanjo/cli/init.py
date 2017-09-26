@@ -2,14 +2,19 @@
 import codecs
 from distutils.spawn import find_executable
 import logging
+import gzip
 
 import click
 from path import Path
 import ruamel.yaml
+from sqlalchemy.exc import IntegrityError
 
 from chanjo.store.api import ChanjoDB
-from chanjo.init.bootstrap import pull, BED_NAME, DB_NAME
+from chanjo.load.link import link_elements
+from chanjo.resources import BED_NAME
 from chanjo.init.demo import setup_demo, DEMO_BED_NAME
+
+DB_NAME = 'chanjo.coverage.sqlite3'
 
 LOG = logging.getLogger(__name__)
 
@@ -17,12 +22,13 @@ LOG = logging.getLogger(__name__)
 @click.command()
 @click.option('-f', '--force', is_flag=True, help='overwrite existing files')
 @click.option('-d', '--demo', is_flag=True, help='copy demo files')
-@click.option('-a', '--auto', is_flag=True)
+@click.option('-e', '--exons', type=click.Path(exists=True),
+    help='Specify a bed file with exon information'
+)
 @click.argument('root_dir', default='.', required=False)
 @click.pass_context
-def init(context, force, demo, auto, root_dir):
-    """Bootstrap a new chanjo setup."""
-    is_bootstrapped = False
+def init(context, force, demo, exons, root_dir):
+    """Setup a new chanjo database."""
     root_path = Path(root_dir)
 
     LOG.info("setting up chanjo under: %s", root_path)
@@ -38,19 +44,19 @@ def init(context, force, demo, auto, root_dir):
 
     if demo:
         LOG.info("copying demo files: %s", root_dir)
-        setup_demo(root_dir, force=force)
+        try:
+            setup_demo(root_dir, force=force)
+        except FileExistsError as err:
+            context.abort()
+        # Set the exons path
+        exons = root_path.joinpath(DEMO_BED_NAME)
 
-        LOG.info("configure new chanjo database: %s", db_uri)
-        chanjo_db = ChanjoDB(db_uri)
-        chanjo_db.set_up()
-        is_bootstrapped = True
-    elif auto or click.confirm('Bootstrap HGNC transcript BED?'):
-        pull(root_dir, force=force)
+    if not exons:
+        exons = BED_NAME
 
-        LOG.info("configure new chanjo database: %s", db_uri)
-        chanjo_db = ChanjoDB(db_uri)
-        chanjo_db.set_up()
-        is_bootstrapped = True
+    LOG.info("configure new chanjo database: %s", db_uri)
+    chanjo_db = ChanjoDB(db_uri)
+    chanjo_db.set_up()
 
     # setup config file
     root_path.makedirs_p()
@@ -60,8 +66,23 @@ def init(context, force, demo, auto, root_dir):
         data_str = ruamel.yaml.dump(data, Dumper=ruamel.yaml.RoundTripDumper)
         LOG.info("writing config file: %s", conf_path)
         conf_handle.write(data_str)
+    
+    LOG.info("Linking transcripts from file: %s", exons)
+    if exons.endswith('.gz'):
+        bed_stream = gzip.open(exons, mode='rt')
+    else:
+        bed_stream = codecs.open(exons, 'r')
 
-    if is_bootstrapped:
-        click.echo('Chanjo bootstrap successful! Now run: ')
-        bed_path = root_path.joinpath(DEMO_BED_NAME if demo else BED_NAME)
-        click.echo("chanjo --config {} link {}".format(conf_path, bed_path))
+    result = link_elements(bed_stream)
+    with click.progressbar(result.models, length=result.count,
+                           label='adding transcripts') as bar:
+        for tx_model in bar:
+            chanjo_db.add(tx_model)
+    try:
+        chanjo_db.save()
+    except IntegrityError:
+        LOG.exception('elements already linked?')
+        chanjo_db.session.rollback()
+        click.echo("use 'chanjo db setup --reset' to re-build")
+        context.abort()
+
