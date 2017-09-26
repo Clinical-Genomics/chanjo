@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 import codecs
+from distutils.spawn import find_executable
 import logging
 
 import click
 from path import Path
 import ruamel.yaml
-from distutils.spawn import find_executable
 
 from chanjo.store.api import ChanjoDB
-from .bootstrap import pull, BED_NAME, DB_NAME
-from .demo import setup_demo, DEMO_BED_NAME
+from chanjo.init.bootstrap import pull, BED_NAME, DB_NAME
+from chanjo.init.demo import setup_demo, DEMO_BED_NAME
 
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
 @click.command()
@@ -25,29 +25,29 @@ def init(context, force, demo, auto, root_dir):
     is_bootstrapped = False
     root_path = Path(root_dir)
 
-    log.info("setting up chanjo under: %s", root_path)
+    LOG.info("setting up chanjo under: %s", root_path)
     db_uri = context.obj.get('database')
     db_uri = db_uri or "sqlite:///{}".format(root_path.joinpath(DB_NAME).abspath())
 
     # test setup of sambamba
     sambamba_bin = find_executable('sambamba')
     if sambamba_bin is None:  # pragma: no cover
-        log.warn("'sambamba' command not found")
+        LOG.warning("'sambamba' command not found")
     else:
-        log.debug("'sambamba' found: %s", sambamba_bin)
+        LOG.debug("'sambamba' found: %s", sambamba_bin)
 
     if demo:
-        log.info("copying demo files: %s", root_dir)
+        LOG.info("copying demo files: %s", root_dir)
         setup_demo(root_dir, force=force)
 
-        log.info("configure new chanjo database: %s", db_uri)
+        LOG.info("configure new chanjo database: %s", db_uri)
         chanjo_db = ChanjoDB(db_uri)
         chanjo_db.set_up()
         is_bootstrapped = True
     elif auto or click.confirm('Bootstrap HGNC transcript BED?'):
         pull(root_dir, force=force)
 
-        log.info("configure new chanjo database: %s", db_uri)
+        LOG.info("configure new chanjo database: %s", db_uri)
         chanjo_db = ChanjoDB(db_uri)
         chanjo_db.set_up()
         is_bootstrapped = True
@@ -58,7 +58,7 @@ def init(context, force, demo, auto, root_dir):
     with codecs.open(conf_path, 'w', encoding='utf-8') as conf_handle:
         data = {'database': db_uri}
         data_str = ruamel.yaml.dump(data, Dumper=ruamel.yaml.RoundTripDumper)
-        log.info("writing config file: %s", conf_path)
+        LOG.info("writing config file: %s", conf_path)
         conf_handle.write(data_str)
 
     if is_bootstrapped:

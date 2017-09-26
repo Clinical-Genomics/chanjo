@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-import click
 import logging
 
-from .run import run_sambamba
+import click
 
-log = logging.getLogger(__name__)
+from chanjo.sambamba import run_sambamba
+
+LOG = logging.getLogger(__name__)
 
 
 @click.command()
@@ -21,9 +22,9 @@ log = logging.getLogger(__name__)
 @click.pass_context
 def sambamba(context, bam_file, regions, cov_thresholds, outfile):
     """Run Sambamba from chanjo."""
-    log.info("Running chanjo sambamba")
+    LOG.info("Running chanjo sambamba")
     try:
         run_sambamba(bam_file, regions, outfile, cov_thresholds)
     except Exception:
-        log.exception('something went really wrong :_(')
+        LOG.exception('something went really wrong :_(')
         context.abort()

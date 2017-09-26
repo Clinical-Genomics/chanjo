@@ -94,10 +94,10 @@ setup(
             'chanjo = chanjo.cli:root',
         ],
         'chanjo.subcommands.4': [
-            'init = chanjo.init.cli:init',
+            'init = chanjo.cli:init',
             'sex = chanjo.cli:sex',
-            'sambamba = chanjo.sambamba.cli:sambamba',
-            'db = chanjo.store.cli:db',
+            'sambamba = chanjo.cli:sambamba',
+            'db = chanjo.cli:db_cmd',
             'load = chanjo.cli:load',
             'link = chanjo.cli:link',
             'calculate = chanjo.cli:calculate',
