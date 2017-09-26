@@ -27,9 +27,9 @@ def test_init_bootstrap(tmpdir, invoke_cli):
     assert tmpdir.listdir() == []
     # WHEN boostrapping chanjo
     result = invoke_cli(['init', str(tmpdir)])
-    # THEN it should place 2 + 1 (BED, DB, config) files in the target dir
+    # THEN it should place 1 + 1 (DB, config) files in the target dir
     assert result.exit_code == 0
-    assert len(tmpdir.listdir()) == 3
+    assert len(tmpdir.listdir()) == 2
 
 
 @patch('click.confirm', lambda param: False)
