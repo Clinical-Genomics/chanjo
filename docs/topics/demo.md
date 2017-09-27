@@ -29,6 +29,7 @@ sample2.coverage.bed	sample3.coverage.bed
 ## Configuration {#configuration}
 
 Chanjo went ahead and pre-filled a config-file for you under: `./chanjo-demo/chanjo.yaml`. For now it just references the SQLite database we will use. But since Chanjo will look for this file in the current working directory when you run the command we don't need to reference the database every time.
+Read more about config file [here](../admin-guide/config.md)
 
 > You can optionally point to a config file in a different location by using the `--config` flag like: `chanjo --config /path/to/chanjo.yaml`.
 
