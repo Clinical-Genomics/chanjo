@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
 
-
 def groupby_tx(exons, sambamba=False):
-    """Group (unordered) exons per transcript."""
+    """Group (unordered) exons per transcript.
+    
+    Args:
+        exons(iterable(dict)): Parsed exon information
+        sambamba(bool)
+    
+    Returns:
+        transcripts(dict(list)): Exons grouped by transcript
+    """
     transcripts = {}
     for exon in exons:
         if sambamba:

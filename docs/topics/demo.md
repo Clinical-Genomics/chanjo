@@ -16,7 +16,7 @@ This will create a new folder (`./chanjo-demo`) in your current working director
 A couple of demo files are now generated:
 
 ```bash
-$ls chanjo-demo/
+$ ls chanjo-demo/
 chanjo.coverage.sqlite3	chanjo.yaml		hgnc.min.bed		sample1.coverage.bed	
 sample2.coverage.bed	sample3.coverage.bed
 ```
@@ -37,7 +37,7 @@ Read more about config file [here](../admin-guide/config.md)
 
 Chanjo doesn't subscribe to any particular definition of exons/transcripts etc. We'll have a look at the top few lines of our demmo file to see how exons/transcripts/genes are linked: 
 ```bash
-$head chanjo-demo/hgnc.min.bed
+$ head chanjo-demo/hgnc.min.bed
 1	955550	955755	1-955552-955753	NM_198576	329	AGRN
 1	957579	957844	1-957581-957842	NM_198576	329	AGRN
 1	970655	970706	1-970657-970704	NM_198576	329	AGRN

@@ -38,6 +38,9 @@ def validate_stdin(context, param, value):
 @click.pass_context
 def load(context, sample, group, name, group_name, threshold, bed_stream):
     """Load Sambamba output into the database for a sample."""
+    if not context.obj['database']:
+        LOG.warning('Please point to a database')
+        context.abort()
     chanjo_db = ChanjoDB(uri=context.obj['database'])
     source = os.path.abspath(bed_stream.name)
 

@@ -9,7 +9,8 @@ from .utils import groupby_tx
 Result = namedtuple('Result', ['models', 'count', 'sample'])
 
 
-def load_transcripts(sequence, sample_id=None, group_id=None, source=None, threshold=None):
+def load_transcripts(sequence, sample_id=None, group_id=None, source=None, 
+                     threshold=None):
     """Process a sequence of exon lines.
 
     Args:
