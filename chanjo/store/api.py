@@ -6,7 +6,7 @@ import os
 from alchy import Manager
 
 from chanjo.calculate import CalculateMixin
-from .models import BASE
+from .models import (BASE, Sample, Transcript)
 
 log = logging.getLogger(__name__)
 
@@ -122,3 +122,22 @@ class ChanjoDB(Manager, CalculateMixin):
             self.session.rollback()
             raise error
         return self
+
+    def sample(self, sample_ids=None, groups=None):
+        """Return samples from database"""
+        sql_query = self.query(Sample)
+        if sample_ids:
+            sql_query = sql_query.filter(Sample.id.in_(sample_ids))
+        if groups:
+            sql_query = sql_query.filter(Sample.group_id.in_(groups))
+        
+        return sql_query
+    
+    def gene(self, gene_id=None, gene_symbol=None):
+        """Return transcripts from certain genes"""
+        sql_query = self.query(Transcript)
+        if gene_id:
+            sql_query = sql_query.filter_by(gene_id=gene_id)
+        if gene_symbol:
+            sql_query = sql_query.filter_by(gene_name=gene_symbol)
+        return sql_query
