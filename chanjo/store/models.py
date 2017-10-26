@@ -85,6 +85,7 @@ class TranscriptStat(BASE):
     completeness_20 = Column(types.Float)
     completeness_50 = Column(types.Float)
     completeness_100 = Column(types.Float)
+    completeness_500 = Column(types.Float)
 
     threshold = Column(types.Integer)
     _incomplete_exons = Column(types.Text)

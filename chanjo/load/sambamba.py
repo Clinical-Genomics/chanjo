@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 from collections import namedtuple
+import logging
 
 from chanjo.store.models import TranscriptStat, Sample, Exon
+from chanjo.store.constants import COMPLETENESS_LEVELS
 from .parse import sambamba
 from .utils import groupby_tx
 
+LOG = logging.getLogger(__name__)
 Result = namedtuple('Result', ['models', 'count', 'sample'])
 
 
@@ -58,7 +61,7 @@ def tx_stat(transcript_id, exons, threshold=None):
         sums['mean_coverage'] += (exon['meanCoverage'] * exon_length)
 
         # add to the total sum for completeness levels
-        for comp_key in [10, 15, 20, 50, 100]:
+        for comp_key in COMPLETENESS_LEVELS:
             if comp_key in exon['thresholds']:
                 sums_key = "completeness_{}".format(comp_key)
                 if sums_key not in sums:
@@ -70,6 +73,8 @@ def tx_stat(transcript_id, exons, threshold=None):
                     exon_obj = Exon(exon['chrom'], exon['chromStart'],
                                     exon['chromEnd'], completeness)
                     incomplete_exons.append(exon_obj)
+            else:
+                LOG.debug("%s: completeness level not found", comp_key)
 
     fields = {key: (value / sums['bases']) for key, value in sums.items() if key != 'bases'}
     fields['incomplete_exons'] = incomplete_exons
