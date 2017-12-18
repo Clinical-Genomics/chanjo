@@ -23,7 +23,7 @@ pip install chanjo
 git clone https://github.com/robinandeer/chanjo.git
 cd chanjo
 conda install --channel bioconda sambamba
-pip install --requirements requirements-dev.txt --editable .
+pip install -r requirements-dev.txt --editable .
 ```
 
 ## Usage
@@ -59,7 +59,7 @@ the entire genome. Detailed histograms is something [BEDTools][bedtools]
 already handles with confidence.
 
 ## Contributors
--   Robin Andeer
+-   Robin Andeer ([robinandeer](https://github.com/robinandeer))
 -   Luca Beltrame ([lbeltrame](https://github.com/lbeltrame))
 -   John Kern ([kern3020](https://github.com/kern3020))
 -   Måns Magnusson ([moonso](https://github.com/moonso))
