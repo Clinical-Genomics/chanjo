@@ -20,10 +20,10 @@ pip install chanjo
 ... or locally for development:
 
 ```bash
-git clone https://github.com/robinandeer/chanjo.git
+git clone https://github.com/Clinical-Genomics/chanjo.git
 cd chanjo
 conda install --channel bioconda sambamba
-pip install --requirements requirements-dev.txt --editable .
+pip install -r requirements-dev.txt --editable .
 ```
 
 ## Usage
@@ -59,10 +59,11 @@ the entire genome. Detailed histograms is something [BEDTools][bedtools]
 already handles with confidence.
 
 ## Contributors
--   Robin Andeer
+-   Robin Andeer ([robinandeer](https://github.com/robinandeer))
 -   Luca Beltrame ([lbeltrame](https://github.com/lbeltrame))
 -   John Kern ([kern3020](https://github.com/kern3020))
 -   Måns Magnusson ([moonso](https://github.com/moonso))
+-   Patrik Grenfeldt ([patrikgrenfeldt](https://github.com/patrikgrenfeldt))
 
 ## License
 MIT. See the [LICENSE](LICENSE) file for more details.

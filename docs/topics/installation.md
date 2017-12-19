@@ -25,12 +25,12 @@ $ pip install pymysql
 Would you like to take part in the development or tweak the code for any other reason? In that case, you should follow these simple steps and download the code from the [GitHub repo][repo].
 
 ```bash
-$ git clone https://github.com/robinandeer/chanjo.git
+$ git clone https://github.com/Clinical-Genomics/chanjo.git
 $ cd chanjo
 $ pip install --editable .
 ```
 
 
 [miniconda]: http://conda.pydata.org/miniconda.html
-[repo]: https://github.com/robinandeer/chanjo/releases
+[repo]: https://github.com/Clinical-Genomics/chanjo/releases
 [sambamba]: http://lomereiter.github.io/sambamba/index.html
