@@ -30,4 +30,4 @@ The MIT License (MIT)
 
 [gitbook]: https://www.gitbook.com/
 [node]: https://nodejs.org/en/
-[contrib]: https://github.com/robinandeer/chanjo/blob/master/CONTRIBUTING.md
+[contrib]: https://github.com/Clinical-Genomics/chanjo/blob/master/CONTRIBUTING.md

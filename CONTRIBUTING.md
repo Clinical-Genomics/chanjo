@@ -145,13 +145,13 @@ $ python -m pytest tests.test_find
 ```
 
 
-[chanjo-boards]: https://github.com/robinandeer/chanjo/issues#boards
+[chanjo-boards]: https://github.com/Clinical-Genomics/chanjo/issues#boards
 [cookie-contrib]: https://github.com/audreyr/cookiecutter/blob/master/CONTRIBUTING.rst
 [editorconfig]: http://editorconfig.org/
 [gh-mac]: https://mac.github.com/
-[issues]: https://github.com/robinandeer/chanjo/issues
+[issues]: https://github.com/Clinical-Genomics/chanjo/issues
 [miniconda]: http://conda.pydata.org/miniconda.html
 [pr-guide]: https://help.github.com/articles/using-pull-requests
-[repo]: https://github.com/robinandeer/chanjo
+[repo]: https://github.com/Clinical-Genomics/chanjo
 [sourcetree]: http://www.sourcetreeapp.com/
 [zenhub]: https://www.zenhub.io/

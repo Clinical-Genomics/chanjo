@@ -32,5 +32,5 @@ $ pip install --editable .
 
 
 [miniconda]: http://conda.pydata.org/miniconda.html
-[repo]: https://github.com/robinandeer/chanjo/releases
+[repo]: https://github.com/Clinical-Genomics/chanjo/releases
 [sambamba]: http://lomereiter.github.io/sambamba/index.html
