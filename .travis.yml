@@ -28,4 +28,4 @@ deploy:
     on:
         tags: true
         distributions: sdist bdist_wheel
-        repo: robinandeer/chanjo
+        repo: Clinical-Genomics/chanjo
