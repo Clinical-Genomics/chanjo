@@ -7,7 +7,7 @@ from chanjo.init import bootstrap
 from chanjo.testutils import FakeZipFile, fake_urlretrieve
 
 
-@patch('urllib.urlretrieve', fake_urlretrieve)
+@patch('urlretrieve', fake_urlretrieve)
 @patch('zipfile.ZipFile', FakeZipFile)
 def test_pull(tmpdir):
     # GIVEN a target directory
