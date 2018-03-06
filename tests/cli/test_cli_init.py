@@ -19,7 +19,7 @@ def test_init_demo(tmpdir, invoke_cli):
     assert len(target_dir.listdir()) == (4 + 1 + 1)
 
 
-@patch('urlretrieve', fake_urlretrieve)
+@patch('urllib.request.urlretrieve', fake_urlretrieve)
 @patch('zipfile.ZipFile', FakeZipFile)
 @patch('click.confirm', lambda param: True)
 def test_init_bootstrap(tmpdir, invoke_cli):
