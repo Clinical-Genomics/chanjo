@@ -8,11 +8,11 @@ from path import Path
 import ruamel.yaml
 
 from chanjo.store.api import ChanjoDB
+from chanjo.store.mongo import ChanjoMongoDB
 from chanjo.init.bootstrap import pull, BED_NAME, DB_NAME
 from chanjo.init.demo import setup_demo, DEMO_BED_NAME
 
 LOG = logging.getLogger(__name__)
-
 
 @click.command()
 @click.option('-f', '--force', is_flag=True, help='overwrite existing files')
@@ -27,6 +27,7 @@ def init(context, force, demo, auto, root_dir):
 
     LOG.info("setting up chanjo under: %s", root_path)
     db_uri = context.obj.get('database')
+    backend = context.obj.get('backend', 'sql')
     db_uri = db_uri or "sqlite:///{}".format(root_path.joinpath(DB_NAME).abspath())
 
     # test setup of sambamba
@@ -41,14 +42,22 @@ def init(context, force, demo, auto, root_dir):
         setup_demo(root_dir, force=force)
 
         LOG.info("configure new chanjo database: %s", db_uri)
-        chanjo_db = ChanjoDB(db_uri)
+        
+        if backend == 'mongodb':
+            chanjo_db = ChanjoMongoDB(db_uri)
+        else:
+            chanjo_db = ChanjoDB(db_uri)
+
         chanjo_db.set_up()
         is_bootstrapped = True
     elif auto or click.confirm('Bootstrap HGNC transcript BED?'):
         pull(root_dir, force=force)
 
         LOG.info("configure new chanjo database: %s", db_uri)
-        chanjo_db = ChanjoDB(db_uri)
+        if backend == 'mongodb':
+            chanjo_db = ChanjoMongoDB(db_uri)
+        else:
+            chanjo_db = ChanjoDB(db_uri)
         chanjo_db.set_up()
         is_bootstrapped = True
 

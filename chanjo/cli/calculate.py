@@ -5,6 +5,7 @@ import logging
 import click
 
 from chanjo.store.api import ChanjoDB
+from chanjo.store.mongo import ChanjoMongoDB
 from chanjo.store.constants import STAT_COLUMNS
 
 LOG = logging.getLogger(__name__)
@@ -23,7 +24,12 @@ def dump_json(data, pretty=False):
 @click.pass_context
 def calculate(context):
     """Calculate statistics across samples."""
-    context.obj['db'] = ChanjoDB(uri=context.obj['database'])
+    backend = context.obj['backend']
+    if backend == 'mongodb':
+        chanjo_db = ChanjoMongoDB(uri=context.obj['database'])
+    else:
+        chanjo_db = ChanjoDB(uri=context.obj['database'])
+    context.obj['db'] = chanjo_db
 
 
 @calculate.command()
@@ -35,5 +41,8 @@ def mean(context, sample, pretty):
     query = context.obj['db'].mean(sample_ids=sample)
     columns = ['sample_id'] + STAT_COLUMNS
     for result in query:
-        row = {column: value for column, value in zip(columns, result)}
+        if context.obj['backend'] == 'sql':
+            row = {column: value for column, value in zip(columns, result)}
+        else:
+            row = result
         click.echo(dump_json(row, pretty=pretty))

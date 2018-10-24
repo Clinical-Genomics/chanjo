@@ -5,8 +5,10 @@ import sys
 
 import click
 from sqlalchemy.exc import IntegrityError
+from pymongo.errors import BulkWriteError
 
 from chanjo.store.api import ChanjoDB
+from chanjo.store.mongo import ChanjoMongoDB
 from chanjo.load.link import link_elements
 from chanjo.load.sambamba import load_transcripts
 
@@ -38,7 +40,12 @@ def validate_stdin(context, param, value):
 @click.pass_context
 def load(context, sample, group, name, group_name, threshold, bed_stream):
     """Load Sambamba output into the database for a sample."""
-    chanjo_db = ChanjoDB(uri=context.obj['database'])
+    backend = context.obj['backend']
+    # Get an adapter to the database
+    if backend == 'mongodb':
+        chanjo_db = ChanjoMongoDB(uri=context.obj['database'])
+    else:
+        chanjo_db = ChanjoDB(uri=context.obj['database'])
     source = os.path.abspath(bed_stream.name)
 
     result = load_transcripts(bed_stream, sample_id=sample, group_id=group,
@@ -53,7 +60,7 @@ def load(context, sample, group, name, group_name, threshold, bed_stream):
             for tx_model in bar:
                 chanjo_db.add(tx_model)
         chanjo_db.save()
-    except IntegrityError as error:
+    except (IntegrityError, BulkWriteError) as error:
         LOG.error('sample already loaded, rolling back')
         LOG.debug(error.args[0])
         chanjo_db.session.rollback()
@@ -66,7 +73,13 @@ def load(context, sample, group, name, group_name, threshold, bed_stream):
 @click.pass_context
 def link(context, bed_stream):
     """Link related genomic elements."""
-    chanjo_db = ChanjoDB(uri=context.obj['database'])
+    backend = context.obj['backend']
+    # Get an adapter to the database
+    if backend == 'mongodb':
+        chanjo_db = ChanjoMongoDB(uri=context.obj['database'])
+    else:
+        chanjo_db = ChanjoDB(uri=context.obj['database'])
+    
     result = link_elements(bed_stream)
     with click.progressbar(result.models, length=result.count,
                            label='adding transcripts') as bar:
@@ -74,7 +87,7 @@ def link(context, bed_stream):
             chanjo_db.add(tx_model)
     try:
         chanjo_db.save()
-    except IntegrityError:
+    except (IntegrityError, BulkWriteError) as err:
         LOG.exception('elements already linked?')
         chanjo_db.session.rollback()
         click.echo("use 'chanjo db setup --reset' to re-build")
