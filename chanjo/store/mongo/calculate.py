@@ -72,6 +72,6 @@ class CalculateMixin:
 
     def gene_metrics(self, *genes):
         """Calculate gene statistics."""
-        query = self.mean(gene_ids=genes))
+        query = self.mean(gene_ids=genes)
         
         return query

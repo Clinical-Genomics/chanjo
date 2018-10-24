@@ -3,10 +3,12 @@ from __future__ import division
 import logging
 import os
 
+from datetime import datetime
+
 from .calculate import CalculateMixin
 from chanjo.store.models import (Transcript, TranscriptStat, Sample, Exon)
 from sqlalchemy.exc import IntegrityError
-from pymongo.errors import BulkWriteError
+from pymongo.errors import (BulkWriteError, DuplicateKeyError)
 
 from mongo_adapter import (MongoAdapter, get_client)
 
@@ -127,6 +129,9 @@ class ChanjoMongoDB(MongoAdapter, CalculateMixin):
         
         if self.db is None:
             self.db = self.client[db_name]
+
+        print(self.db)
+        print(type(self.db))
         self.db_name = db_name
         self.session = Session(self.db)
         
@@ -160,9 +165,9 @@ class ChanjoMongoDB(MongoAdapter, CalculateMixin):
         NOT APPLICABLE FOR MONGODB
 
         Returns:
-            None
+            dialect(str): 'mongodb'
         """
-        return None
+        return 'mongodb'
 
     def set_up(self):
         """Initialize a new database with the default tables and columns.
@@ -182,59 +187,64 @@ class ChanjoMongoDB(MongoAdapter, CalculateMixin):
             Store: self
         """
         # drop/delete the tables
-        self.db.drop_database()
+        self.client.drop_database(self.db_name)
         return self
     
-    def add(self, obj):
-        """Add objects to mocked session"""
-        if isinstance(obj, Transcript):
-            tx_obj = dict(
-                    _id = obj.id,
-                    gene_id = obj.gene_id,
-                    gene_name = obj.gene_name,
-                    chromosome = obj.chromosome,
-                    length = obj.length,
-                    )
-
-            self.transcripts_bulk.append(tx_obj)
+    def add(self, *objs):
+        """Add objects to mocked session
         
-        elif isinstance(obj, Sample):
-            sample_obj = dict(
-                    _id = obj.id,
-                    group_id = obj.group_id,
-                    source = obj.source,
-                    created_at = obj.created_at,
-                    name = obj.name,
-                    group_name = obj.group_name,
-                    )
-
-            self.sample_bulk.append(sample_obj)
-            self.session.add_sample(sample_obj)
-
-        elif isinstance(obj, TranscriptStat):
-            if self.tx_dict is None:
-                self.tx_dict = self.transcripts_genes()
+        Args:
+            objs(iterable): Could be different types of objects
+        """
+        for obj in objs:
+            if isinstance(obj, Transcript):
+                tx_obj = dict(
+                        _id = obj.id,
+                        gene_id = obj.gene_id,
+                        gene_name = obj.gene_name,
+                        chromosome = obj.chromosome,
+                        length = obj.length,
+                        )
             
-            tx_info = self.tx_dict[obj.transcript_id]
-
-            tx_stats_obj = dict(
-                    mean_coverage = obj.mean_coverage,
-                    completeness_10 = obj.completeness_10,
-                    completeness_15 = obj.completeness_15,
-                    completeness_20 = obj.completeness_20,
-                    completeness_50 = obj.completeness_50,
-                    completeness_100 = obj.completeness_100,
-                    threshold = obj.threshold,
-                    sample_id = obj.sample_id,
-                    transcript_id = obj.transcript_id,
-                    gene_id = tx_info['gene_id'],
-                    gene_name = tx_info['gene_name'],
-                    )
-            if obj._incomplete_exons is not None:
-                tx_stats_obj['_incomplete_exons'] = obj._incomplete_exons.split(',')
-
-            self.tx_stats_bulk.append(tx_stats_obj)
-            self.session.add_transcript_stat(tx_stats_obj)
+                self.transcripts_bulk.append(tx_obj)
+            
+            elif isinstance(obj, Sample):
+                sample_obj = dict(
+                        _id = obj.id,
+                        group_id = obj.group_id,
+                        source = obj.source,
+                        created_at = datetime.now(),
+                        name = obj.name,
+                        group_name = obj.group_name,
+                        )
+            
+                self.sample_bulk.append(sample_obj)
+                self.session.add_sample(sample_obj)
+            
+            elif isinstance(obj, TranscriptStat):
+                if self.tx_dict is None:
+                    self.tx_dict = self.transcripts_genes()
+                
+                tx_info = self.tx_dict[obj.transcript_id]
+            
+                tx_stats_obj = dict(
+                        mean_coverage = obj.mean_coverage,
+                        completeness_10 = obj.completeness_10,
+                        completeness_15 = obj.completeness_15,
+                        completeness_20 = obj.completeness_20,
+                        completeness_50 = obj.completeness_50,
+                        completeness_100 = obj.completeness_100,
+                        threshold = obj.threshold,
+                        sample_id = obj.sample_id,
+                        transcript_id = obj.transcript_id,
+                        gene_id = tx_info['gene_id'],
+                        gene_name = tx_info['gene_name'],
+                        )
+                if obj._incomplete_exons is not None:
+                    tx_stats_obj['_incomplete_exons'] = obj._incomplete_exons.split(',')
+            
+                self.tx_stats_bulk.append(tx_stats_obj)
+                self.session.add_transcript_stat(tx_stats_obj)
 
     def clean(self):
         """Clean the bulks"""
@@ -255,13 +265,15 @@ class ChanjoMongoDB(MongoAdapter, CalculateMixin):
             self.transcripts_collection.insert_many(self.transcripts_bulk)
 
         if self.sample_bulk:
-            try:
-                self.sample_collection.insert_many(self.sample_bulk)
-            except BulkWriteError as err:
-                # This means that the sample already exists so we do not want to remove
-                # All the previously inserted data
-                self.session.clean()
-                raise err
+            for sample in self.sample_bulk:
+                try:
+                    self.sample_collection.insert_one(sample)
+                except Exception as err:
+                    # This means that the sample already exists so we do not want to remove
+                    # All the previously inserted data
+                    self.session.clean()
+                    self.clean()
+                    raise DuplicateKeyError('E11000 Duplicate key error', 11000)
 
         if self.tx_stats_bulk:
             self.transcript_stat_collection.insert_many(self.tx_stats_bulk)
@@ -285,7 +297,32 @@ class ChanjoMongoDB(MongoAdapter, CalculateMixin):
         if not sample_obj:
             return None
         
-        return Sample(id=sample_obj['_id'], group_id=sample_obj.get('group_id'), source=sample_obj.get('source'))
+        return Sample(id=sample_obj['_id'], group_id=sample_obj.get('group_id'), 
+                      source=sample_obj.get('source'), created_at=sample_obj.get('created_at'))
+
+    def samples(self):
+        """Return all samples from database
+        
+        Args:
+            sample_id(str)
+        
+        Returns:
+            sample_objs(list(models.Sample))
+        """
+        LOG.info("Fetch all samples")
+        sample_objs = []
+        res = self.sample_collection.find()
+        
+        for sample in res:
+            sample_objs.append(Sample(
+                id=sample['_id'], 
+                group_id=sample.get('group_id'), 
+                source=sample.get('source'), 
+                created_at=sample.get('created_at'))
+            )
+        
+        return sample_objs
+
 
     def transcripts(self):
         """Return all transcripts

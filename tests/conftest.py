@@ -8,6 +8,7 @@ import pytest
 
 from chanjo.cli import root
 from chanjo.store.api import ChanjoDB
+from chanjo.store.mongo import ChanjoMongoDB
 from chanjo.load.parse import bed, sambamba
 from chanjo.load.sambamba import load_transcripts
 from chanjo.load.link import link_elements
@@ -25,6 +26,13 @@ def reset_path():
 @pytest.yield_fixture(scope='function')
 def chanjo_db():
     _chanjo_db = ChanjoDB('sqlite://')
+    _chanjo_db.set_up()
+    yield _chanjo_db
+    _chanjo_db.tear_down()
+
+@pytest.yield_fixture(scope='function')
+def chanjo_mongo_db():
+    _chanjo_db = ChanjoMongoDB('mongomock://')
     _chanjo_db.set_up()
     yield _chanjo_db
     _chanjo_db.tear_down()
