@@ -4,6 +4,7 @@ import logging
 import click
 
 from chanjo.store.api import ChanjoDB
+from chanjo.store.mongo import ChanjoMongoDB
 from chanjo.store.models import Sample
 
 LOG = logging.getLogger(__name__)
@@ -13,7 +14,13 @@ LOG = logging.getLogger(__name__)
 @click.pass_context
 def db_cmd(context):
     """Interact with the database for maintainance tasks."""
-    context.obj['db'] = ChanjoDB(uri=context.obj['database'])
+    backend = context.obj['backend']
+    if backend == 'mongodb':
+        chanjo_db = ChanjoMongoDB(uri=context.obj['database'])
+    else:
+        chanjo_db = ChanjoDB(uri=context.obj['database'])
+    
+    context.obj['db'] = chanjo_db
 
 
 @db_cmd.command()
@@ -35,7 +42,7 @@ def remove(context, sample_id):
     """Remove all traces of a sample from the database."""
     store = context.obj['db']
     LOG.debug('find sample in database with id: %s', sample_id)
-    sample_obj = Sample.query.get(sample_id)
+    sample_obj = store.sample(sample_id)
     if sample_obj is None:
         LOG.warning('sample (%s) not found in database', sample_id)
         context.abort()

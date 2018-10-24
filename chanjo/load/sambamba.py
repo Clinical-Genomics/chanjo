@@ -27,6 +27,7 @@ def load_transcripts(sequence, sample_id=None, group_id=None, source=None, thres
     raw_stats = ((tx_id, tx_stat(tx_id, exons, threshold=threshold))
                  for tx_id, exons in transcripts.items())
 
+    # There is one sample per load call
     if sample_id is None:
         sample_id = next(iter(transcripts.values()))[0]['sampleName']
     sample_obj = Sample(id=sample_id, group_id=group_id, source=source)

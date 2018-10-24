@@ -3,6 +3,9 @@ sudo: false
 python:
     - '3.6'
 
+services:
+    - mongodb
+
 install:
     - mkdir -p ./bin
     - wget https://github.com/lomereiter/sambamba/releases/download/v0.5.8/sambamba_v0.5.8_linux.tar.bz2
@@ -20,12 +23,12 @@ after_success: coveralls
 notifications:
     email: never
 
-deploy:
-    provider: pypi
-    user: robinandeer
-    password:
-        secure: fQsE+5FUuXWuLMuGVirfSEz7WBc09gxDbEcPfIJFUQ2FzaGCQ+OGZpb6sbNCrazhqwnyyJ7b4ZD3bjJ++kWsmnpgvdUFZRDUUpcLuDtwzPSxHVx/1Zax4gMnny83Z1yF4O7m8bXt7HG1mPuKzPSHLOcTg3SxTQEgSi27dkeY4WE=
-    on:
-        tags: true
-        distributions: sdist bdist_wheel
-        repo: robinandeer/chanjo
+# deploy:
+#     provider: pypi
+#     user: robinandeer
+#     password:
+#         secure: fQsE+5FUuXWuLMuGVirfSEz7WBc09gxDbEcPfIJFUQ2FzaGCQ+OGZpb6sbNCrazhqwnyyJ7b4ZD3bjJ++kWsmnpgvdUFZRDUUpcLuDtwzPSxHVx/1Zax4gMnny83Z1yF4O7m8bXt7HG1mPuKzPSHLOcTg3SxTQEgSi27dkeY4WE=
+#     on:
+#         tags: true
+#         distributions: sdist bdist_wheel
+#         repo: robinandeer/chanjo

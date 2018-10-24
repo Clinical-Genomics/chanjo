@@ -42,7 +42,7 @@ class EntryPointsCLI(click.MultiCommand):
 @click.group(cls=EntryPointsCLI)
 @click.option('-c', '--config', default='./chanjo.yaml',
               type=click.Path(), help='path to config file')
-@click.option('-d', '--database', help='path/URI of the SQL database')
+@click.option('-d', '--database', help='URI of the database')
 @click.option('-l', '--log-level', default='INFO')
 @click.option('--log-file', type=click.File('a'))
 @click.version_option(__version__, prog_name=__title__)
@@ -59,7 +59,12 @@ def root(context, config, database, log_level, log_file):
             context.obj = ruamel.yaml.safe_load(conf_handle)
     else:
         context.obj = {}
+
     context.obj['database'] = (database or context.obj.get('database'))
+    
+    context.obj['backend'] = 'sql'
+    if (context.obj['database'] and 'mongo' in context.obj['database']):
+        context.obj['backend'] = 'mongodb'
 
     # update the context with new defaults from the config file
     context.default_map = context.obj

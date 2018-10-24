@@ -3,3 +3,4 @@ mock
 ipdb
 pytest-cov
 coveralls
+mongomock

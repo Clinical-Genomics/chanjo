@@ -6,7 +6,7 @@ import os
 from alchy import Manager
 
 from chanjo.calculate import CalculateMixin
-from .models import BASE
+from .models import (BASE, Sample)
 
 log = logging.getLogger(__name__)
 
@@ -122,3 +122,14 @@ class ChanjoDB(Manager, CalculateMixin):
             self.session.rollback()
             raise error
         return self
+    
+    def sample(self, sample_id):
+        """Fetch a sample from the database
+        
+        Args:
+            sample_id(str)
+        
+        Returns:
+            sample_obj(models.Sample)
+        """
+        return Sample.query.get(sample_id)
