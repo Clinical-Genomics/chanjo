@@ -4,6 +4,7 @@ import logging
 import os
 
 from datetime import datetime
+from pymongo import uri_parser
 
 from .calculate import CalculateMixin
 from chanjo.store.models import (Transcript, TranscriptStat, Sample, Exon)
@@ -130,8 +131,6 @@ class ChanjoMongoDB(MongoAdapter, CalculateMixin):
         if self.db is None:
             self.db = self.client[db_name]
 
-        print(self.db)
-        print(type(self.db))
         self.db_name = db_name
         self.session = Session(self.db)
         
@@ -153,10 +152,16 @@ class ChanjoMongoDB(MongoAdapter, CalculateMixin):
         if db_uri == "mongodb://":
             db_uri = "mongodb://localhost:27017"
             LOG.info('Set uri to %s', db_uri)
+        
+        db_name = 'chanjo'
+        if not 'mock' in db_uri:
+            uri_info = uri_parser.parse_uri(db_uri)
+            db_name = uri_info['database'] or db_name
+            
         self.uri = db_uri
         self.client = get_client(uri=db_uri)
         
-        self.setup()
+        self.setup(db_name=db_name)
 
     @property
     def dialect(self):
@@ -224,7 +229,14 @@ class ChanjoMongoDB(MongoAdapter, CalculateMixin):
             elif isinstance(obj, TranscriptStat):
                 if self.tx_dict is None:
                     self.tx_dict = self.transcripts_genes()
-                
+                    if not self.tx_dict:
+                        self.tx_dict = {}
+                        for tx in self.transcripts_bulk:
+                            self.tx_dict[tx['_id']] = {
+                                'gene_id': tx['gene_id'],
+                                'gene_name': tx['gene_name'],
+                            }
+
                 tx_info = self.tx_dict[obj.transcript_id]
             
                 tx_stats_obj = dict(

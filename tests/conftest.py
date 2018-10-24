@@ -5,6 +5,7 @@ import os
 
 from click.testing import CliRunner
 import pytest
+import pymongo
 
 from chanjo.cli import root
 from chanjo.store.api import ChanjoDB
@@ -37,6 +38,20 @@ def chanjo_mongo_db():
     yield _chanjo_db
     _chanjo_db.tear_down()
 
+@pytest.fixture(scope='function')
+def real_pymongo_db(request):
+    """Get a client to the mongo database"""
+
+    _chanjo_db = ChanjoMongoDB('mongodb://localhost:27017/chanjo-test')
+
+    def teardown():
+        print('\n')
+        _chanjo_db.tear_down()
+
+    request.addfinalizer(teardown)
+
+    return _chanjo_db
+
 
 @pytest.yield_fixture(scope='function')
 def existing_db(tmpdir):
@@ -57,6 +72,27 @@ def popexist_db(existing_db, exon_lines):
     existing_db.save()
     yield existing_db
 
+@pytest.yield_fixture(scope='function')
+def popexist_mongo_db(chanjo_mongo_db, exon_lines):
+    result = link_elements(exon_lines)
+    chanjo_mongo_db.add(*result.models)
+    result = load_transcripts(exon_lines, sample_id='sample', group_id='group')
+    chanjo_mongo_db.add(result.sample)
+    chanjo_mongo_db.add(*result.models)
+    chanjo_mongo_db.save()
+    yield chanjo_mongo_db
+
+@pytest.fixture(scope='function')
+def popexist_real_mongo_db(real_pymongo_db, exon_lines):
+    _db = real_pymongo_db
+    result = link_elements(exon_lines)
+    _db.add(*result.models)
+    result = load_transcripts(exon_lines, sample_id='sample', group_id='group')
+    _db.add(result.sample)
+    _db.add(*result.models)
+    _db.save()
+    yield _db
+
 
 @pytest.yield_fixture(scope='function')
 def populated_db(chanjo_db, exon_lines):
@@ -71,6 +107,19 @@ def populated_db(chanjo_db, exon_lines):
     chanjo_db.save()
     yield chanjo_db
 
+@pytest.yield_fixture(scope='function')
+def populated_mongo_db(chanjo_mongo_db, exon_lines):
+    chanjo_db = chanjo_mongo_db
+    exon_lines = list(exon_lines)
+    result = link_elements(exon_lines)
+    chanjo_db.add(*result.models)
+    results = [load_transcripts(exon_lines, sample_id='sample', group_id='group'),
+               load_transcripts(exon_lines, sample_id='sample2', group_id='group')]
+    for result in results:
+        chanjo_db.add(result.sample)
+        chanjo_db.add(*result.models)
+    chanjo_db.save()
+    yield chanjo_db
 
 @pytest.fixture
 def exon_lines(sambamba_path):

@@ -42,3 +42,22 @@ def test_gene(populated_db):
     result = results[0]
     assert result[0] == 'sample'
     assert result[-1] == gene_id
+
+### Mongo tests ###
+
+def test_mongo_mean(populated_mongo_db):
+    populated_db = populated_mongo_db
+    # GIVEN a database loaded with 2 samples
+    assert len(populated_db.samples()) == 2
+    # WHEN calculating mean values across metrics
+    query = populated_db.mean()
+    # THEN the results should group over 2 "rows"
+    results = [res for res in query]
+    assert len(results) == 2
+    sample_ids = set(result['sample_id'] for result in results)
+    assert sample_ids == set(['sample', 'sample2'])  # sample id
+    result = results[0]
+    LEVELS = ['10', '15', '20', '50', '100']
+    for level in LEVELS:
+        key = '_'.join(['completeness', level])
+        assert isinstance(results[key], float)
