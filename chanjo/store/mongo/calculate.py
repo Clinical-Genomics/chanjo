@@ -21,10 +21,11 @@ class CalculateMixin:
             query = {
                 '$match': {
                     'sample_id': {
-                        '$in': ['sample1']
+                        '$in': sample_ids
                     }
                 }
             }
+        
         if gene_ids:
             gene_ids = list(gene_ids)
             key = 'gene_id'
@@ -37,7 +38,8 @@ class CalculateMixin:
                 query['$match'] = {}
             
             query['$match'][key] = {'$in': gene_ids}
-
+        
+        if query:
             pipeline.append(query)
 
         group = {
@@ -65,6 +67,8 @@ class CalculateMixin:
         }
         
         pipeline.append(group)
+        
+        pp(pipeline)
 
         res = self.transcript_stat_collection.aggregate(pipeline)
         

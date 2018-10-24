@@ -121,6 +121,20 @@ def populated_mongo_db(chanjo_mongo_db, exon_lines):
     chanjo_db.save()
     yield chanjo_db
 
+@pytest.yield_fixture(scope='function')
+def populated_real_mongo_db(real_pymongo_db, exon_lines):
+    chanjo_db = real_pymongo_db
+    exon_lines = list(exon_lines)
+    result = link_elements(exon_lines)
+    chanjo_db.add(*result.models)
+    results = [load_transcripts(exon_lines, sample_id='sample', group_id='group'),
+               load_transcripts(exon_lines, sample_id='sample2', group_id='group')]
+    for result in results:
+        chanjo_db.add(result.sample)
+        chanjo_db.add(*result.models)
+    chanjo_db.save()
+    yield chanjo_db
+
 @pytest.fixture
 def exon_lines(sambamba_path):
     with codecs.open(sambamba_path, 'r', encoding='utf-8') as stream:
