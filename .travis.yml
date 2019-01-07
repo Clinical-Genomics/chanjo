@@ -3,6 +3,10 @@ sudo: false
 python:
     - '3.6'
 
+before_install:
+    - pip install git-lint pylint pycodestyle yamllint docutils html-linter
+    - git reset --soft ${TRAVIS_COMMIT_RANGE%...*} && git lint
+
 install:
     - mkdir -p ./bin
     - wget https://github.com/lomereiter/sambamba/releases/download/v0.5.8/sambamba_v0.5.8_linux.tar.bz2
