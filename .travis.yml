@@ -3,6 +3,9 @@ sudo: false
 python:
     - '3.6'
 
+before_install:
+    - pip install --upgrade pip
+
 install:
     - mkdir -p ./bin
     - wget https://github.com/lomereiter/sambamba/releases/download/v0.5.8/sambamba_v0.5.8_linux.tar.bz2
@@ -11,8 +14,9 @@ install:
     - chmod +x ./bin/sambamba
     - export PATH="${PATH}:${PWD}/bin"
     - pip install -r requirements.txt -r requirements-dev.txt .
-    - pip check
+
 before_script:
+    - pip check
     - git reset --soft ${TRAVIS_COMMIT_RANGE%...*} && git lint
 
 script:
