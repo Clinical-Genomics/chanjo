@@ -1,6 +1,6 @@
+pytest>=3.6     # due to pytest-cov
 mock
 ipdb
-pytest-cov
 pytest
 coveralls
 git-lint
