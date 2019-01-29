@@ -1,5 +1,11 @@
-pytest
+pytest>=3.6     # due to pytest-cov
 mock
 ipdb
 pytest-cov
 coveralls
+git-lint
+pylint
+pycodestyle
+yamllint
+docutils
+html-linter
