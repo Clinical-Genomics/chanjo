@@ -5,3 +5,4 @@ from .load import link, load
 from .sambamba import sambamba
 from .db import db_cmd
 from .init import init
+from .view import view

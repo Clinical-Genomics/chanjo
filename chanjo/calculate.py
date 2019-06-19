@@ -30,3 +30,20 @@ class CalculateMixin:
                      .filter(Transcript.gene_id.in_(genes))
                      .group_by(Transcript.gene_id))
         return query
+    
+    def mean_cov_gene(self, gene_id, sample_id):
+        """Return all transcript stats for a gene"""
+        mean = None
+        result = (self.query(Transcript, TranscriptStat)
+                     .filter(Transcript.id == TranscriptStat.transcript_id)
+                     .filter(Transcript.gene_id==gene_id)
+                     .filter(TranscriptStat.sample_id == sample_id)
+                     .all()
+                     )
+        if not result:
+            return mean
+        mean = 0
+        for i,res in enumerate(result):
+            mean += res[1].mean_coverage
+        mean = mean/(i+1)
+        return mean

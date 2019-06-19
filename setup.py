@@ -101,6 +101,7 @@ setup(
             'load = chanjo.cli:load',
             'link = chanjo.cli:link',
             'calculate = chanjo.cli:calculate',
+            'view = chanjo.cli:view',
         ]
     },
 
