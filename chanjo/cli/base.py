@@ -43,11 +43,13 @@ class EntryPointsCLI(click.MultiCommand):
 @click.option('-c', '--config', default='./chanjo.yaml',
               type=click.Path(), help='path to config file')
 @click.option('-d', '--database', help='URI of the database')
+@click.option('-b', '--backend', type=click.Choice(['sql', 'mongodb']),
+              help="Backend to use")
 @click.option('-l', '--log-level', default='INFO')
 @click.option('--log-file', type=click.File('a'))
 @click.version_option(__version__, prog_name=__title__)
 @click.pass_context
-def root(context, config, database, log_level, log_file):
+def root(context, config, database, backend, log_level, log_file):
     """Clinical sequencing coverage analysis tool."""
     logout = log_file or click.get_text_stream('stderr')
     coloredlogs.install(level=log_level, stream=logout)
@@ -61,10 +63,10 @@ def root(context, config, database, log_level, log_file):
         context.obj = {}
 
     context.obj['database'] = (database or context.obj.get('database'))
-    
-    context.obj['backend'] = 'sql'
-    if (context.obj['database'] and 'mongo' in context.obj['database']):
-        context.obj['backend'] = 'mongodb'
+    context.obj['backend'] = (backend or context.obj.get('backend') or 'sql')
+    if context.obj['backend'] not in ['sql', 'mongodb']:
+        LOG.info("backend must be 'sql' or 'mongodb'")
+        context.abort()
 
     # update the context with new defaults from the config file
     context.default_map = context.obj

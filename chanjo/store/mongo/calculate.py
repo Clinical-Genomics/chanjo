@@ -25,7 +25,7 @@ class CalculateMixin:
                     }
                 }
             }
-        
+
         if gene_ids:
             gene_ids = list(gene_ids)
             key = 'gene_id'
@@ -36,9 +36,9 @@ class CalculateMixin:
 
             if not '$match' in query:
                 query['$match'] = {}
-            
+
             query['$match'][key] = {'$in': gene_ids}
-        
+
         if query:
             pipeline.append(query)
 
@@ -47,35 +47,35 @@ class CalculateMixin:
                 '_id': '$sample_id',
                 'mean_coverage': {
                     '$avg': '$mean_coverage'
-                }, 
+                },
                 'completeness_10': {
                     '$avg': '$completeness_10'
-                }, 
+                },
                 'completeness_15': {
                     '$avg': '$completeness_15'
-                }, 
+                },
                 'completeness_20': {
                     '$avg': '$completeness_20'
-                }, 
+                },
                 'completeness_50': {
-                    '$avg': '$completeness_20'
-                }, 
+                    '$avg': '$completeness_50'
+                },
                 'completeness_100': {
-                    '$avg': '$completeness_20'
-                }, 
+                    '$avg': '$completeness_100'
+                },
             }
         }
-        
+
         pipeline.append(group)
-        
+
         pp(pipeline)
 
         res = self.transcript_stat_collection.aggregate(pipeline)
-        
+
         return res
 
     def gene_metrics(self, *genes):
         """Calculate gene statistics."""
         query = self.mean(gene_ids=genes)
-        
+
         return query

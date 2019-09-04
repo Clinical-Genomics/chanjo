@@ -7,6 +7,10 @@ from pymongo.errors import DuplicateKeyError
 
 from chanjo.store.api import ChanjoDB
 from chanjo.store.models import Sample
+from chanjo.load.sambamba import load_transcripts
+from chanjo.store.constants import STAT_COLUMNS
+
+
 
 
 def test_dialect(chanjo_db):
@@ -103,3 +107,57 @@ def test_mongo_add_many(chanjo_mongo_db):
     # THEN all samples should be added
     res = chanjo_db.samples()
     assert len(res) == len(new_samples)
+
+def test_mongo_calculate_mean(populated_mongo_db, exon_lines):
+
+    # GIVEN a populated mongodb and some mean on the completeness in tests/fixtures
+    # sambamba.depth.bed
+    chanjo_db = populated_mongo_db
+
+    transcript_stats = list(load_transcripts(exon_lines,
+                                             sample_id='sample',
+                                             group_id='group').models)
+    # Find expected mean coverage
+    tot_coverage = 0
+    for transcript_stat in transcript_stats:
+        tot_coverage += transcript_stat.mean_coverage
+    expected_mean = tot_coverage/len(transcript_stats)
+
+    # Find expected mean for each completeness level
+    expected_completeness = {}
+    for transcript_stat in transcript_stats:
+        for key, value in transcript_stat.__dict__.items():
+            if 'completeness' in key:
+                if key in expected_completeness.keys():
+                    expected_completeness[key] += value
+                else:
+                    expected_completeness[key] = value
+    # divide all fields by number of transcripts to get mean
+    for key, value in expected_completeness.items():
+        expected_completeness[key] = value/len(transcript_stats)
+
+    # WHEN calculating mean stats on the db
+    chanjo_mean = chanjo_db.mean().next()
+
+    # THEN these should be as expected
+    assert expected_mean == chanjo_mean['mean_coverage']
+
+    for key, value in expected_completeness.items():
+        if key in chanjo_mean.keys():
+            assert value == chanjo_mean[key]
+
+def test_compare_backends(populated_db, populated_mongo_db):
+    # GIVEN a populated sql and mongodb database loaded with the same data
+
+    # WHEN calling mean on the database api
+    mongodb_results = populated_mongo_db.mean().next()
+    columns = ['_id'] + STAT_COLUMNS
+    sql_results = {column: value for column, value in zip(columns, populated_db.mean()[0])}
+
+    # THEN the results should be the same
+    for key, value in mongodb_results.items():
+        if isinstance(value, str):
+            assert mongodb_results[key] == sql_results[key]
+        elif isinstance(value, float):
+            # make sure floats have same number of decimals before comparing
+            assert format(mongodb_results[key], '.5f') == format(sql_results[key], '.5f')
