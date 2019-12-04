@@ -64,6 +64,19 @@ def test_mongo_mean(populated_real_mongo_db):
         if res:
             assert isinstance(res, float)
 
+def test_mongo_calculate_mean_gene_ids(populated_mongo_db, exon_lines):
+
+    # GIVEN a populated mongodb and two gene lists (one with number, and other
+    # with corresponding names)
+    chanjo_db = populated_mongo_db
+    gene_ids = [14825, 31275, 15079, 28706]
+    gene_names = ['OR4F5', 'OR4F29', 'OR4F16', 'SAMD11']
+    # WHEN calculating the mean, using the gene lists
+    chanjo_mean_gene_ids = chanjo_db.mean(gene_ids=gene_ids)
+    chanjo_mean_gene_names = chanjo_db.mean(gene_ids=gene_names)
+    # THEN the results using both lists should be the same
+    assert [mean for mean in chanjo_mean_gene_ids] == [mean for mean in chanjo_mean_gene_names]
+
 def test_mean_with_samples(populated_real_mongo_db):
     populated_db = populated_real_mongo_db
     # GIVEN a database loaded with 2 samples

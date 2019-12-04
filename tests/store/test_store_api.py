@@ -153,11 +153,12 @@ def test_compare_backends(populated_db, populated_mongo_db):
     mongodb_results = populated_mongo_db.mean().next()
     columns = ['_id'] + STAT_COLUMNS
     sql_results = {column: value for column, value in zip(columns, populated_db.mean()[0])}
-
     # THEN the results should be the same
     for key, value in mongodb_results.items():
         if isinstance(value, str):
             assert mongodb_results[key] == sql_results[key]
         elif isinstance(value, float):
             # make sure floats have same number of decimals before comparing
+            if sql_results[key] is None:
+                sql_results[key] = 0
             assert format(mongodb_results[key], '.5f') == format(sql_results[key], '.5f')
