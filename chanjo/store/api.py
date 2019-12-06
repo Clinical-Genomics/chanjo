@@ -4,14 +4,15 @@ import logging
 import os
 
 from alchy import Manager
-
 from chanjo.calculate import CalculateMixin
 from .models import BASE
+from .fetch import FetchMixin
+from .delete import DeleteMixin
 
 log = logging.getLogger(__name__)
 
 
-class ChanjoDB(Manager, CalculateMixin):
+class ChanjoDB(Manager, CalculateMixin, DeleteMixin, FetchMixin):
     """SQLAlchemy-based database object.
 
     Bundles functionality required to setup and interact with various

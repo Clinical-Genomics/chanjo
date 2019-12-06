@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import logging
 
 import click
@@ -42,3 +43,46 @@ def remove(context, sample_id):
     LOG.info('delete sample (%s) from database', sample_id)
     store.session.delete(sample_obj)
     store.save()
+
+
+@db_cmd.command()
+@click.option('--group-id', '-g')
+@click.option('--sample-id', '-s')
+@click.option('--pretty', '-p', is_flag=True)
+@click.pass_context
+def samples(context, group_id, sample_id, pretty):
+
+    store = context.obj['db']
+    query = store.sample(sample_id=sample_id, group_id=group_id)
+    indent = None
+    if pretty:
+        indent=4
+    click.echo(json.dumps([dict(result) for result in query], default=str, indent=indent))
+
+
+@db_cmd.command()
+@click.option('--group-id', '-g')
+@click.option('--sample-id', '-s')
+@click.option('--pretty', '-p', is_flag=True)
+@click.pass_context
+def transcripts(context, group_id, sample_id, pretty):
+
+    store = context.obj['db']
+    query = store.transcripts(sample_id=sample_id)
+    indent = None
+    if pretty:
+        indent=4
+    click.echo(json.dumps([dict(result) for result in query], default=str, indent=indent))
+
+
+@db_cmd.command()
+@click.option('--group-id', '-g')
+@click.option('--sample-id', '-s')
+@click.pass_context
+def delete(context, group_id, sample_id):
+
+    store = context.obj['db']
+    if sample_id:
+        store.delete_sample(sample_id=sample_id)
+    elif group_id:
+        store.delete_group(group_id=group_id)

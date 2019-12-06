@@ -2,6 +2,7 @@
 from sqlalchemy.sql import func
 
 from chanjo.store.models import Sample, Transcript, TranscriptStat
+from .store.constants import OMIM_GENE_IDS
 
 
 class CalculateMixin:
@@ -30,3 +31,23 @@ class CalculateMixin:
                      .filter(Transcript.gene_id.in_(genes))
                      .group_by(Transcript.gene_id))
         return query
+
+
+    def omim_coverage(self, samples):
+        """Calculate coverage for OMIM panel."""
+        sample_ids = [sample.id for sample in samples]
+        query = self.query(
+            TranscriptStat.sample_id.label('sample_id'),
+            func.avg(TranscriptStat.mean_coverage).label('mean_coverage'),
+            func.avg(TranscriptStat.completeness_10).label('mean_completeness'),
+        ).join(
+            TranscriptStat.transcript,
+        ).filter(
+            TranscriptStat.sample_id.in_(sample_ids),
+            Transcript.gene_id.in_(OMIM_GENE_IDS),
+        ).group_by(TranscriptStat.sample_id)
+        data = {result.sample_id: {
+            'mean_coverage': result.mean_coverage,
+            'mean_completeness': result.mean_completeness,
+        } for result in query}
+        return data
