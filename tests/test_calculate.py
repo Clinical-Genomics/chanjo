@@ -1,8 +1,10 @@
-# -*- coding: utf-8 -*-
+"""Test calculate module"""
+
 from chanjo.store.models import Sample
 
 
 def test_mean(populated_db):
+    """Test for calculating mean coverage"""
     # GIVEN a database loaded with 2 samples
     assert Sample.query.count() == 2
     # WHEN calculating mean values across metrics
@@ -18,6 +20,7 @@ def test_mean(populated_db):
 
 
 def test_mean_with_samples(populated_db):
+    """Test for caluclating mean with samples"""
     # GIVEN a database loaded with 2 samples
     assert Sample.query.count() == 2
     # WHEN calculating mean values across metrics for a particular sample
@@ -31,6 +34,7 @@ def test_mean_with_samples(populated_db):
 
 
 def test_gene(populated_db):
+    """Test for calculating gene metrics"""
     # GIVEN a database populated with a single sample
     assert Sample.query.count() == 2
     # WHEN calculating average metrics for a gene
@@ -42,3 +46,13 @@ def test_gene(populated_db):
     result = results[0]
     assert result[0] == 'sample'
     assert result[-1] == gene_id
+
+
+def test_omim_coverage(populated_db):
+    """Test for OMIM coverage"""
+    # GIVEN a database populated with a single sample
+    assert Sample.query.count() == 2
+    # WHEN calculating coverage for OMIM panel
+    query = populated_db.omim_coverage(sample_ids=['sample', 'sample2'])
+    # THEN query should contain OMIM coverage for sample (None for mocked samples)
+    assert query == {}
