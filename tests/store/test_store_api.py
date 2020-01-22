@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+"""
+    Tests for store
+"""
 from datetime import datetime
 
 import pytest
@@ -63,7 +65,7 @@ def test_fetch_samples(populated_db):
     store = populated_db
     sample_id = "sample"
     # WHEN fetching a sample
-    samples = [sample for sample in store.fetch_samples(sample_id=sample_id)]
+    samples = list(store.fetch_samples(sample_id=sample_id))
     # THEN only the sample with specified sample-id is found
     assert len(samples) == 1
     sample = samples[0]
@@ -76,7 +78,7 @@ def test_fetch_samples_non_existing(populated_db):
     store = populated_db
     sample_id = "no_sample"
     # WHEN fetching a sample
-    samples = [sample for sample in store.fetch_samples(sample_id=sample_id)]
+    samples = list(store.fetch_samples(sample_id=sample_id))
     # THEN no samples are found
     assert len(samples) == 0
 
@@ -88,7 +90,7 @@ def test_fetch_samples_by_group_id(populated_db):
     group_id = "group"
 
     # WHEN fetching the samples in a group
-    samples = [sample for sample in store.fetch_samples(group_id=group_id)]
+    samples = list(store.fetch_samples(group_id=group_id))
 
     # THEN all samples in group are found
     assert len(samples) == 2
@@ -104,7 +106,7 @@ def test_samples_group_non_existing(populated_db):
     group_id = "no_group"
 
     # WHEN fetching the samples in a group
-    samples = [sample for sample in store.fetch_samples(group_id=group_id)]
+    samples = list(store.fetch_samples(group_id=group_id))
 
     # THEN no samples are found
     assert len(samples) == 0
@@ -117,9 +119,7 @@ def test_fetch_transcripts(populated_db):
     sample_id = "sample"
 
     # WHEN fetching transcrips from database
-    transcripts = [
-        transcript for transcript in store.fetch_transcripts(sample_id=sample_id)
-    ]
+    transcripts = list(store.fetch_transcripts(sample_id=sample_id))
 
     # THEN transcripts for that sample are found
     assert len(transcripts) != 0

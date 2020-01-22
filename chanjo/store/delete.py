@@ -1,3 +1,5 @@
+"""Module for deleting from database"""
+
 import logging
 
 LOG = logging.getLogger(__name__)
@@ -9,7 +11,7 @@ class DeleteMixin:
 
     def delete_sample(self, sample_id):
         """Delete single sample from database"""
-        sample = [result for result in self.fetch_samples(sample_id=sample_id)]
+        sample = list(self.fetch_samples(sample_id=sample_id))
         if len(sample) > 0:
             LOG.info("Deleting sample %s from database", sample[0].id)
             self.delete_commit(sample)
