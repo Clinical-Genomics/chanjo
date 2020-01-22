@@ -13,7 +13,7 @@ install:
     - mv sambamba_v0.5.8 ./bin/sambamba
     - chmod +x ./bin/sambamba
     - export PATH="${PATH}:${PWD}/bin"
-    - pip install -r requirements.txt -r requirements-dev.txt .
+    - pip install -U -r requirements.txt -r requirements-dev.txt .
 
 before_script:
     - pip check
