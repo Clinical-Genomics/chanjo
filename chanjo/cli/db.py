@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+"""CLI commands to interact with db"""
+
 import json
 import logging
 
