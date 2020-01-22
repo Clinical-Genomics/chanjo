@@ -51,6 +51,7 @@ def remove(context, sample_id):
 @click.option("--pretty", "-p", is_flag=True)
 @click.pass_context
 def samples(context, group_id, sample_id, pretty):
+    """Display samples from database"""
 
     store = context.obj["db"]
     query = store.fetch_samples(sample_id=sample_id, group_id=group_id)
@@ -67,7 +68,7 @@ def samples(context, group_id, sample_id, pretty):
 @click.option("--pretty", "-p", is_flag=True)
 @click.pass_context
 def transcripts(context, sample_id, pretty):
-
+    """Display transcripts from database"""
     store = context.obj["db"]
     query = store.fetch_transcripts(sample_id=sample_id)
     indent = None

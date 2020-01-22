@@ -32,7 +32,6 @@ class CalculateMixin:
                      .group_by(Transcript.gene_id))
         return query
 
-
     def omim_coverage(self, samples):
         """Calculate coverage for OMIM panel."""
         sample_ids = [sample.id for sample in samples]

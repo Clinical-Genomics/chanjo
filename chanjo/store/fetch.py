@@ -1,8 +1,6 @@
-import json
+"""Module for fetching from database"""
 
-from sqlalchemy.sql import func
-
-from chanjo.store.models import Sample, Transcript, TranscriptStat
+from chanjo.store.models import Sample, TranscriptStat
 
 
 class FetchMixin:
@@ -10,6 +8,9 @@ class FetchMixin:
     """Methods for fetching from database"""
 
     def fetch_samples(self, sample_id=None, group_id=None):
+        """
+            Fetch samples from database
+        """
         query = self.query(Sample)
         if sample_id:
             query = query.filter(Sample.id.is_(sample_id))
@@ -18,6 +19,9 @@ class FetchMixin:
         return query
 
     def fetch_transcripts(self, sample_id):
+        """
+            Fetch transcripts from database
+        """
         query = self.query(TranscriptStat).filter(
             TranscriptStat.sample_id.is_(sample_id)
         )

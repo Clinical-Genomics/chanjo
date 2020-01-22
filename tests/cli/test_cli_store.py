@@ -105,7 +105,7 @@ def test_delete(cli_runner, popexist_db):
     assert Sample.query.get(sample_id)
 
     # WHEN deleting a sample from the database through the CLI
-    result = cli_runner.invoke(
+    cli_runner.invoke(
         root, ["--database", popexist_db.uri, "db", "delete", "--sample-id", sample_id]
     )
 
@@ -121,7 +121,7 @@ def test_delete_group(cli_runner, popexist_db):
     assert Sample.query.get(sample_id)
 
     # WHEN deleting a sample from the database through the CLI
-    result = cli_runner.invoke(
+    cli_runner.invoke(
         root, ["--database", popexist_db.uri, "db", "delete", "--group-id", group_id]
     )
 
