@@ -85,7 +85,7 @@ def transcripts(context, sample_id, pretty):
 @click.option("--sample-id", "-s")
 @click.pass_context
 def delete(context, group_id, sample_id):
-
+    """Delete from database"""
     store = context.obj["db"]
     if sample_id:
         store.delete_sample(sample_id=sample_id)
