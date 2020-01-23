@@ -13,9 +13,9 @@ class FetchMixin:
         """
         query = self.query(Sample)
         if sample_id:
-            query = query.filter(Sample.id.is_(sample_id))
+            query = query.filter(Sample.id == sample_id)
         if group_id:
-            query = query.filter(Sample.group_id.is_(group_id))
+            query = query.filter(Sample.group_id == group_id)
         return query
 
     def fetch_transcripts(self, sample_id):
@@ -23,6 +23,6 @@ class FetchMixin:
             Fetch transcripts from database
         """
         query = self.query(TranscriptStat).filter(
-            TranscriptStat.sample_id.is_(sample_id)
+            TranscriptStat.sample_id == sample_id
         )
         return query
