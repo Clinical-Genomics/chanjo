@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+"""Functions for calculating operations on database"""
 import json
 import logging
 
@@ -37,3 +37,24 @@ def mean(context, sample, pretty):
     for result in query:
         row = {column: value for column, value in zip(columns, result)}
         click.echo(dump_json(row, pretty=pretty))
+
+
+@calculate.command()
+@click.option('-p', '--pretty', is_flag=True)
+@click.option('-s', '--sample', type=str)
+@click.argument('genes', nargs=-1)
+@click.pass_context
+def coverage(context, pretty, sample, genes):
+    """Calculate coverage for sample on specified genes"""
+    query = context.obj['db'].sample_coverage(sample_id=sample, genes=list(genes))
+    click.echo(dump_json(query, pretty=pretty))
+
+
+@calculate.command()
+@click.option('-p', '--pretty', is_flag=True)
+@click.option('-s', '--sample', multiple=True, help='sample to limit query to')
+@click.pass_context
+def omim(context, sample, pretty):
+    """Calculate omim coverage for sample"""
+    query = context.obj['db'].omim_coverage(sample_ids=sample)
+    click.echo(dump_json(query, pretty=pretty))

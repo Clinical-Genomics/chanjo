@@ -56,3 +56,13 @@ def test_omim_coverage(populated_db):
     query = populated_db.omim_coverage(sample_ids=['sample', 'sample2'])
     # THEN query should contain OMIM coverage for sample (None for mocked samples)
     assert query == {}
+
+
+def test_sample_coverage(populated_db):
+    """Test for OMIM coverage"""
+    # GIVEN a database populated with two samples
+    assert Sample.query.count() == 2
+    # WHEN calculating coverage for sample 'sample' on gene 14825
+    query = populated_db.sample_coverage(sample_id='sample', genes=(14825,))
+    # THEN query should be a dict with keys 'mean_coverage' and 'mean_completeness'
+    assert set(list(query.keys())) == set(['mean_coverage', 'mean_completeness'])
