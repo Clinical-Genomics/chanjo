@@ -36,32 +36,7 @@ class CalculateMixin:
         )
         return query
 
-    def omim_coverage(self, sample_ids):
-        """Calculate coverage for OMIM panel."""
-        query = (
-            self.query(
-                TranscriptStat.sample_id.label("sample_id"),
-                func.avg(TranscriptStat.mean_coverage).label("mean_coverage"),
-                func.avg(TranscriptStat.completeness_10).label("mean_completeness"),
-            )
-            .join(Transcript)
-            .filter(
-                TranscriptStat.sample_id.in_(sample_ids),
-                Transcript.gene_id.in_(OMIM_GENE_IDS),
-            )
-            .group_by(TranscriptStat.sample_id)
-        )
-
-        data = {
-            result.sample_id: {
-                "mean_coverage": result.mean_coverage,
-                "mean_completeness": result.mean_completeness,
-            }
-            for result in query
-        }
-        return data
-
-    def sample_coverage(self, sample_id: str, genes: list) -> dict:
+    def sample_coverage(self, sample_ids: list, genes: list) -> dict:
         """Calculate coverage for samples."""
         query = self.query(
             TranscriptStat.sample_id.label('sample_id'),
@@ -71,17 +46,14 @@ class CalculateMixin:
             Transcript,
         ).filter(
             Transcript.gene_id.in_(genes),
-            TranscriptStat.sample_id == sample_id,
+            TranscriptStat.sample_id.in_(sample_ids),
         ).group_by(TranscriptStat.sample_id)
 
-        data = None
-
-        result = query.first()
-
-        if result:
-            data = {
-                'mean_coverage': result.mean_coverage,
-                'mean_completeness': result.mean_completeness,
+        data = {
+            result.sample_id: {
+                "mean_coverage": result.mean_coverage,
+                "mean_completeness": result.mean_completeness,
             }
-
+            for result in query
+        }
         return data

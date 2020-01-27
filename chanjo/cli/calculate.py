@@ -5,7 +5,7 @@ import logging
 import click
 
 from chanjo.store.api import ChanjoDB
-from chanjo.store.constants import STAT_COLUMNS
+from chanjo.store.constants import STAT_COLUMNS, OMIM_GENE_IDS
 
 LOG = logging.getLogger(__name__)
 
@@ -41,20 +41,13 @@ def mean(context, sample, pretty):
 
 @calculate.command()
 @click.option('-p', '--pretty', is_flag=True)
-@click.option('-s', '--sample', type=str)
+@click.option('-s', '--sample', multiple=True, type=str)
+@click.option('-o', '--omim', is_flag=True)
 @click.argument('genes', nargs=-1)
 @click.pass_context
-def coverage(context, pretty, sample, genes):
+def coverage(context, pretty, sample, omim, genes):
     """Calculate coverage for sample on specified genes"""
-    query = context.obj['db'].sample_coverage(sample_id=sample, genes=list(genes))
-    click.echo(dump_json(query, pretty=pretty))
-
-
-@calculate.command()
-@click.option('-p', '--pretty', is_flag=True)
-@click.option('-s', '--sample', multiple=True, help='sample to limit query to')
-@click.pass_context
-def omim(context, sample, pretty):
-    """Calculate omim coverage for sample"""
-    query = context.obj['db'].omim_coverage(sample_ids=sample)
+    if omim:
+        genes = OMIM_GENE_IDS
+    query = context.obj['db'].sample_coverage(sample_ids=sample, genes=list(genes))
     click.echo(dump_json(query, pretty=pretty))

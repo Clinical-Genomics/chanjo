@@ -48,21 +48,16 @@ def test_gene(populated_db):
     assert result[-1] == gene_id
 
 
-def test_omim_coverage(populated_db):
-    """Test for OMIM coverage"""
-    # GIVEN a database populated with a single sample
-    assert Sample.query.count() == 2
-    # WHEN calculating coverage for OMIM panel
-    query = populated_db.omim_coverage(sample_ids=['sample', 'sample2'])
-    # THEN query should contain OMIM coverage for sample (None for mocked samples)
-    assert query == {}
-
-
 def test_sample_coverage(populated_db):
     """Test for OMIM coverage"""
     # GIVEN a database populated with two samples
     assert Sample.query.count() == 2
+    sample_ids = ('sample', 'sample2')
+    gene_ids = (14825, 28706)
     # WHEN calculating coverage for sample 'sample' on gene 14825
-    query = populated_db.sample_coverage(sample_id='sample', genes=(14825,))
-    # THEN query should be a dict with keys 'mean_coverage' and 'mean_completeness'
-    assert set(list(query.keys())) == set(['mean_coverage', 'mean_completeness'])
+    query = populated_db.sample_coverage(sample_ids=sample_ids, genes=gene_ids)
+    # THEN query should be a dict with samples as keys, where each sample
+    # is a dict with keys mean_coverage and mean completeness
+    assert set(query.keys()) == set(sample_ids)
+    for _, value in query.items():
+        assert set(value.keys()) == set(['mean_coverage', 'mean_completeness'])

@@ -32,23 +32,6 @@ def test_dump_json():
     assert len(json_str.split('\n')) == 4
 
 
-def test_omim(popexist_db, cli_runner):
-    """Test omim command"""
-    # GIVEN an existing databse with one sample
-    assert Sample.query.count() == 1
-    # WHEN assessing the omim coverage per sample
-    res = cli_runner.invoke(root, ['-d', popexist_db.uri, 'calculate', 'omim', '-s', 'sample'])
-    # THEN the command should return JSON results
-    assert res.exit_code == 0
-    # ... returns some debug info to STDERR that we strip away
-    lines = res.output.strip().split('\n')
-    assert len(lines) == 1
-    # ... the last row (no incl. empty line) is JSON formatted
-    data = json.loads(lines[0].strip())
-    # the dict should be empty, since no OMIM genes are in the database
-    assert isinstance(data, dict) and not data
-
-
 def test_coverage(popexist_db, cli_runner):
     """test coverage command"""
     # GIVEN an existing databse with one sample
@@ -63,5 +46,5 @@ def test_coverage(popexist_db, cli_runner):
     assert len(lines) == 1
     # ... the last row (no incl. empty line) is JSON formatted
     data = json.loads(lines[0].strip())
-    # the dict should be empty, since no OMIM genes are in the database
-    assert set(data.keys()) == set(['mean_coverage', 'mean_completeness'])
+    # THE dict should include mean_coverage and mean completeness for sample
+    assert set(data['sample'].keys()) == set(['mean_coverage', 'mean_completeness'])
