@@ -47,9 +47,9 @@ def remove(context, sample_id):
 
 
 @db_cmd.command()
-@click.option("--group-id", "-g")
-@click.option("--sample-id", "-s")
-@click.option("--pretty", "-p", is_flag=True)
+@click.option("--group-id", "-g", help="Display samples in a group")
+@click.option("--sample-id", "-s", help="Display sample")
+@click.option("--pretty", "-p", is_flag=True, help="Print in pretty format")
 @click.pass_context
 def samples(context, group_id, sample_id, pretty):
     """Display samples from database"""
@@ -65,8 +65,8 @@ def samples(context, group_id, sample_id, pretty):
 
 
 @db_cmd.command()
-@click.option("--sample-id", "-s")
-@click.option("--pretty", "-p", is_flag=True)
+@click.option("--sample-id", "-s", help="Samples to limit query to")
+@click.option("--pretty", "-p", is_flag=True, help="Print in pretty format")
 @click.pass_context
 def transcripts(context, sample_id, pretty):
     """Display transcripts from database"""
@@ -81,8 +81,8 @@ def transcripts(context, sample_id, pretty):
 
 
 @db_cmd.command()
-@click.option("--group-id", "-g")
-@click.option("--sample-id", "-s")
+@click.option("--group-id", "-g", help="Delete entire group")
+@click.option("--sample-id", "-s", help="Delete sample")
 @click.pass_context
 def delete(context, group_id, sample_id):
     """Delete from database"""
