@@ -3,7 +3,6 @@
 from sqlalchemy.sql import func
 
 from chanjo.store.models import Transcript, TranscriptStat
-from .store.constants import OMIM_GENE_IDS
 
 
 class CalculateMixin:
