@@ -1,11 +1,11 @@
-# -*- coding: utf-8 -*-
+"""Functions for calculating operations on database"""
 import json
 import logging
 
 import click
 
 from chanjo.store.api import ChanjoDB
-from chanjo.store.constants import STAT_COLUMNS
+from chanjo.store.constants import STAT_COLUMNS, OMIM_GENE_IDS
 
 LOG = logging.getLogger(__name__)
 
@@ -37,3 +37,17 @@ def mean(context, sample, pretty):
     for result in query:
         row = {column: value for column, value in zip(columns, result)}
         click.echo(dump_json(row, pretty=pretty))
+
+
+@calculate.command()
+@click.option('-p', '--pretty', is_flag=True, help="Print in pretty format")
+@click.option('-s', '--sample', multiple=True, type=str, help="Sample to get coverage for")
+@click.option('-o', '--omim', is_flag=True, help="Use genes in the OMIM panel")
+@click.argument('genes', nargs=-1)
+@click.pass_context
+def coverage(context, pretty, sample, omim, genes):
+    """Calculate coverage for sample on specified genes"""
+    if omim:
+        genes = OMIM_GENE_IDS
+    query = context.obj['db'].sample_coverage(sample_ids=sample, genes=list(genes))
+    click.echo(dump_json(query, pretty=pretty))
