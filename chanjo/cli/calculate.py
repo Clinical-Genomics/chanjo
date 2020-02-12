@@ -43,11 +43,17 @@ def mean(context, sample, pretty):
 @click.option('-p', '--pretty', is_flag=True, help="Print in pretty format")
 @click.option('-s', '--sample', multiple=True, type=str, help="Sample to get coverage for")
 @click.option('-o', '--omim', is_flag=True, help="Use genes in the OMIM panel")
+@click.option('-f', '--gene-file',
+              type=click.Path(exists=True),
+              help="File with row separated gene IDs")
 @click.argument('genes', nargs=-1)
 @click.pass_context
-def coverage(context, pretty, sample, omim, genes):
+def coverage(context, pretty, sample, omim, gene_file, genes):
     """Calculate coverage for sample on specified genes"""
     if omim:
         genes = OMIM_GENE_IDS
+    if gene_file:
+        with open(gene_file) as file_handle:
+            genes = file_handle.read().strip().split("\n")
     query = context.obj['db'].sample_coverage(sample_ids=sample, genes=list(genes))
     click.echo(dump_json(query, pretty=pretty))
