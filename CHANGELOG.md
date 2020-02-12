@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.4.0] - 2020-02-12
+
+### Added
+- User can pass on file with row separated gene IDs for coverage calculation
+
 ## [4.3.0] - 2020-02-05
 
 ### Added
