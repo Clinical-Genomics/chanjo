@@ -44,8 +44,8 @@ def mean(context, sample, pretty):
 @click.option('-s', '--sample', multiple=True, type=str, help="Sample to get coverage for")
 @click.option('-o', '--omim', is_flag=True, help="Use genes in the OMIM panel")
 @click.option('-f', '--gene-file',
-    type=click.Path(exists=True), 
-    help="File with row separated gene IDs")
+              type=click.Path(exists=True),
+              help="File with row separated gene IDs")
 @click.argument('genes', nargs=-1)
 @click.pass_context
 def coverage(context, pretty, sample, omim, gene_file, genes):
