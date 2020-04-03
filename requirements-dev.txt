@@ -9,3 +9,5 @@ pycodestyle
 yamllint
 docutils
 html-linter
+mkdocs
+markdown-include
