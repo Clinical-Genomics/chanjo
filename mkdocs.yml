@@ -1,0 +1,26 @@
+---
+site_name: Chanjo Docs
+site_url: http://www.clinicalgenomics.se/chanjo/
+repo_url: https://github.com/Clinical-Genomics/chanjo
+dev_addr: "0.0.0.0:4000"
+site_author: Clinical Genomics bioinfo team
+docs_dir: docs
+
+markdown_extensions:
+  - markdown_include.include:
+      base_path: docs
+
+theme:
+  name: 'readthedocs'
+  logo: 'assets/logo.png'
+  palette:
+    primary: 'blue grey'
+    accent: 'cyan'
+
+
+nav:
+  - Introduction: 'README.md'
+
+  - Installation: topics/installation.md
+  - Demo: topics/demo.md
+  - Developer's Guide]: topics/developer.md

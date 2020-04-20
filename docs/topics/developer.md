@@ -8,17 +8,16 @@ Currently the best resource on this topic is available at GitHub, in the [CONTRI
 
 ## Building documentation
 
-I use [GitBook][gitbook] for the documentation. For this one, you'll need a working [Node.js][node] installation. Fortunately with Miniconda this is easy!
+We use [MkDocs][mkdocs] for the documentation. To build documentation local install `requirements-dev.txt`
 
 ```bash
-$ conda install -c bokeh nodejs
-$ npm install -g gitbook-cli
+$ pip install -r requirements-dev.txt
 ```
 
 To build the documentation locally, you just run:
 
 ```bash
-$ gitbook serve
+$ mkdocs serve
 ```
 
 ...and open your browser to [http://localhost:4000](http://localhost:4000).
@@ -28,6 +27,5 @@ $ gitbook serve
 The MIT License (MIT)
 
 
-[gitbook]: https://www.gitbook.com/
-[node]: https://nodejs.org/en/
+[mkdocs]: https://www.mkdocs.org
 [contrib]: https://github.com/Clinical-Genomics/chanjo/blob/master/CONTRIBUTING.md

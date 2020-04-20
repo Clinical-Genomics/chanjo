@@ -50,9 +50,10 @@ TODO.md
 .idea/
 .vscode/
 
-# Sphinx docs
+# Docs
 docs/_build
 docs/_book
+site/
 
 ### SublimeText ###
 # workspace files are user-specific
@@ -64,3 +65,7 @@ docs/_book
 
 # Demo
 chanjo-demo/
+
+# Local
+
+local/
