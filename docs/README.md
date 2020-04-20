@@ -1,10 +1,10 @@
 
 <center>
 	<img src="assets/logo.png" width="400px" />
-
-	<h1>Chanjo</h1>
-	<i>Coverage analysis for clinical sequencing</i>
 </center>
+
+# Chanjo
+## Coverage analysis for clinical sequencing
 
 <br><br>
 
