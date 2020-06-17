@@ -9,6 +9,8 @@
 Chanjo is coverage analysis for clinical sequencing. It's implemented in Python
 with a command line interface that adheres to [UNIX pipeline philosophy][unix].
 
+If you find chanjo useful in your project, please cite the [article][publication].
+
 ## Installation
 Chanjo is distributed through `pip`. Install the latest stable release by
 running:
@@ -89,3 +91,5 @@ to get started!
 
 [bioconda-url]: http://bioconda.github.io
 [bioconda-img]: https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square
+
+[publication]: https://f1000research.com/articles/9-615/v1
