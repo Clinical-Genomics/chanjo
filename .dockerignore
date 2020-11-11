@@ -1,0 +1,10 @@
+.git
+.github
+.gitignore
+.travis.yml
+.gitlint.yaml
+docs
+tests
+Dockerfile
+Pipfile
+Pipfile.lock
