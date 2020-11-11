@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - User can pass on file with row separated gene IDs for coverage calculation
+- Dockerfile
 
 ## [4.3.0] - 2020-02-05
 
