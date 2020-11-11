@@ -4,3 +4,4 @@ click
 path.py
 toolz
 ruamel.yaml
+importlib_metadata
