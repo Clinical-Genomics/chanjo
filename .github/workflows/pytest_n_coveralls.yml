@@ -2,7 +2,7 @@ name: Tests and coverage
 on: [pull_request]
 jobs:
   Pytest_Coveralls:
-    runs-on: frolvlad/alpine-miniconda3
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -12,12 +12,9 @@ jobs:
     - name: Install required linux libs via conda
       run: |
         conda update -n base -c defaults conda
-        conda install -c bioconda sambamba \
+        conda install -c bioconda sambamba
         conda install -c conda-forge ruamel.yaml
-    - name: Install other libs using Alpine apk
-      run: |
-        apk update
-        apk --no-cache add bash python3
+        conda install python3
     - name: Install repo and its dependencies
       run: |
         pip install -r requirements.txt
