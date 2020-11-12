@@ -1,9 +1,9 @@
 FROM frolvlad/alpine-miniconda3
 
-LABEL base_image="python:3.8-alpine3.12"
+LABEL base_image="frolvlad/alpine-miniconda3"
 LABEL about.home="https://github.com/Clinical-Genomics/chanjo"
 LABEL about.documentation="https://www.clinicalgenomics.se/chanjo/"
-LABEL about.tags="bam,NGS,coverage,sambamba,alpine,python3"
+LABEL about.tags="chanjo,bam,NGS,coverage,sambamba,alpine,python,python3.7"
 LABEL about.license="MIT License (MIT)"
 
 # Install Sambamba using conda
@@ -28,3 +28,6 @@ RUN pip install -e .
 RUN adduser -D worker
 RUN chown worker:worker -R /home/worker
 USER worker
+
+ENTRYPOINT ["chanjo"]
+CMD ["--help"]
