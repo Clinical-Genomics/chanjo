@@ -9,11 +9,9 @@ jobs:
       uses: actions/setup-python@master
       with:
         python-version: 3.7 #installed on this Linux distro
-    - name: Install required linux libs via conda
+    - name: Install Sambamba
       run: |
-        $CONDA/bin/conda update -n base -c defaults conda
-        $CONDA/bin/conda install -c bioconda sambamba
-        $CONDA/bin/conda install -c conda-forge ruamel.yaml
+        brew install brewsci/bio/sambamba
     - name: Install repo and its dependencies
       run: |
         pip install -r requirements.txt
