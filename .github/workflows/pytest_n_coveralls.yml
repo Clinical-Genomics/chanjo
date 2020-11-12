@@ -14,7 +14,6 @@ jobs:
         conda update -n base -c defaults conda
         conda install -c bioconda sambamba
         conda install -c conda-forge ruamel.yaml
-        conda install python3
     - name: Install repo and its dependencies
       run: |
         pip install -r requirements.txt
