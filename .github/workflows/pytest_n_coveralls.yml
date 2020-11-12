@@ -1,0 +1,32 @@
+name: Tests and coverage
+on: [pull_request]
+jobs:
+  Pytest_Coveralls:
+    runs-on: frolvlad/alpine-miniconda3
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@master
+      with:
+        python-version: 3.7 #installed on this Linux distro
+    - name: Install required linux libs via conda
+      run: |
+        conda update -n base -c defaults conda
+        conda install -c bioconda sambamba \
+        conda install -c conda-forge ruamel.yaml
+    - name: Install other libs using Alpine apk
+      run: |
+        apk update
+        apk --no-cache add bash python3
+    - name: Install repo and its dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        pip install -e .
+        pip install coveralls
+    - name: Run pytest and coveralls
+      run: |
+        pytest --cov=chanjo tests/
+        coveralls
+      env:
+        GITHUB_TOKEN: ${{ github.token }}

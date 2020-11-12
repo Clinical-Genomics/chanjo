@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - User can pass on file with row separated gene IDs for coverage calculation
 - Dockerfile
+- Added the Docker image build and push triggered by new releases
+- Added githib action running pytest and coveralls
 
 ## [4.3.0] - 2020-02-05
 
