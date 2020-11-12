@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Dockerfile
 - Added the Docker image build and push triggered by new releases
 - Added github action running pytest and coveralls
+- Software deployment instructions
 
 ## [4.4.0] - 2020-02-12
 ### Added
