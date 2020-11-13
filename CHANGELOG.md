@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.5.1] - 2020-11-13
+### Fixed
+- Patching version number
+
 ## [4.5.0] - 2020-11-12
 ### Added
 - Dockerfile
