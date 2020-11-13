@@ -58,7 +58,7 @@ setup(
     # Versions should comply with PEP440. For a discussion on
     # single-sourcing the version across setup.py and the project code,
     # see http://packaging.python.org/en/latest/tutorial.html#version
-    version='4.5.1',
+    version='4.5.2',
 
     description='Coverage analysis tool for clinical sequencing',
     # What does your project relate to? Separate with spaces.
