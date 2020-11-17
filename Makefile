@@ -5,7 +5,7 @@
 # @version 0.1
 
 .DEFAULT_GOAL := help
-.PHONY: build run init prune help up down bash-chanjo
+.PHONY: build run init prune help up down calculate
 
 build:    ## Build new images
 	docker-compose build
