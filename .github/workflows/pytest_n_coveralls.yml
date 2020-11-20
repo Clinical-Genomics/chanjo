@@ -1,0 +1,26 @@
+name: Tests and coverage
+on: [pull_request]
+jobs:
+  Pytest_Coveralls:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@master
+      with:
+        python-version: 3.7
+    - name: Install Sambamba
+      run: |
+        brew install brewsci/bio/sambamba
+    - name: Install repo and its dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        pip install -e .
+        pip install coveralls
+    - name: Run pytest and coveralls
+      run: |
+        pytest --cov=chanjo tests/
+        coveralls
+      env:
+        GITHUB_TOKEN: ${{ github.token }}

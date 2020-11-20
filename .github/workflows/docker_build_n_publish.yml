@@ -1,0 +1,20 @@
+name: Publish to Docker Hub
+
+on:
+ release:
+  types:
+   - created
+jobs:
+  docker-image-CI:
+   name: Docker Image CI
+   runs-on: ubuntu-latest
+   steps:
+    - name: Check out git repository
+      uses: actions/checkout@v2
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: clinicalgenomics/chanjo
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        tags: "latest,${{ github.event.release.tag_name }}"

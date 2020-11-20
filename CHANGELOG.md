@@ -2,8 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [4.4.0] - 2020-02-12
+## [4.5.0] - 2020-11-12
+### Added
+- Dockerfile
+- Added the Docker image build and push triggered by new releases
+- Added github action running pytest and coveralls
+- Software deployment instructions
 
+## [4.4.0] - 2020-02-12
 ### Added
 - User can pass on file with row separated gene IDs for coverage calculation
 
