@@ -28,6 +28,3 @@ RUN pip install -e .
 RUN adduser -D worker
 RUN chown worker:worker -R /home/worker
 USER worker
-
-ENTRYPOINT ["chanjo"]
-CMD ["--help"]

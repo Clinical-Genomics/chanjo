@@ -1,0 +1,39 @@
+version: '3'
+# usage:
+# (sudo) docker-compose up -d
+# (sudo) docker-compose down
+services:
+    mariadb:
+      container_name: mariadb
+      image: mariadb:latest
+      restart: 'always'
+      environment:
+        - MYSQL_ROOT_PASSWORD=root
+        - MYSQL_DATABASE=chanjo4_test
+        - MYSQL_USER=chanjoUser
+        - MYSQL_PASSWORD=chanjoPassword
+      healthcheck: # Wait for the service to be ready before accepting incoming connections
+        test: "mysql --user=chanjoUser --password=chanjoPassword --execute \"SHOW DATABASES;\""
+        timeout: 10s
+        retries: 20
+      networks:
+        - chanjo-net
+
+    chanjo-cli:
+      container_name: chanjo-cli
+      build:
+        context: .
+        dockerfile: Dockerfile
+      depends_on:
+        mariadb:
+          condition: service_healthy # DB_URI=mysql+pymysql://chanjoUser:chanjoPassword@mariadb/chanjo4_test
+      networks:
+        - chanjo-net
+
+networks:
+  chanjo-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.21.0.0/24
