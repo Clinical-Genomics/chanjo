@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [4.5.1] - 2020-11-20
+## [4.6] - 2020-11-20
 ### Added
 - docker-compose and Makefile
 - adds link to publication
