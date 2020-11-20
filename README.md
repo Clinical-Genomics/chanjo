@@ -91,5 +91,4 @@ to get started!
 
 [bioconda-url]: http://bioconda.github.io
 [bioconda-img]: https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square
-
 [publication]: https://f1000research.com/articles/9-615/v1
