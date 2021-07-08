@@ -35,19 +35,3 @@ jobs:
      with:
        user: __token__
        password: ${{ secrets.pypi_password }}
-
-
- deploy-docs:
-   name: Deploy Docs to GitHubIO
-   runs-on: ubuntu-latest
-   steps:
-    - name: Checkout repo
-      uses: actions/checkout@v2
-    - name: Setup environment for docs deployment
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.x
-    - name: Install mkdocs
-      run: pip install mkdocs mkdocs-material markdown-include
-    - name: Deploy documentation
-      run: mkdocs gh-deploy --force
