@@ -4,8 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [x.x.x] -
 ### Added
-- github action to publish the repo to PyPI and publish mkdocs on new release event
-
+- github actions to publish the repo to PyPI and publish mkdocs on new release event
 
 ## [4.6.1] - 2021-07-08
 ### Fixed
