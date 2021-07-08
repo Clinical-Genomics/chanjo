@@ -21,6 +21,6 @@ jobs:
     - name: Run pytest and coveralls
       run: |
         pytest --cov=chanjo tests/
-        coveralls
+        coveralls --service=github
       env:
         GITHUB_TOKEN: ${{ github.token }}
