@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [x.x.x] -
+### Added
+- github action to publish the repo to PyPI and publish mkdocs on new release event
+
+
 ## [4.6.1] - 2021-07-08
 ### Fixed
 - Freeze SQLAlchemy to a version <1.4 to avoid report creation crashing
