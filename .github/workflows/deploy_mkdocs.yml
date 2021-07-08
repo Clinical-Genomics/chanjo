@@ -1,6 +1,9 @@
 name: Deploy mkdocs on new release action
 
-on: [pull_request]
+on:
+ release:
+  types:
+   - created
 
 jobs:
  deploy-docs:
