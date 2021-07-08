@@ -28,7 +28,6 @@ Chanjo if following the [GitHub flow][gh-flow] branching model which means that 
 
 
 
-
 [pr-version]: docs/img/version.png
-[development-guide]: http://www.clinicalgenomics.se/development/publish/prod/
-[gh-flow]: http://www.clinicalgenomics.se/development/dev/models/#rolling-release-github-flow
+[development-guide]: http://clinical-genomics.github.io/development/publish/prod/
+[gh-flow]: http://clinical-genomics.github.io/development/dev/models/#rolling-release-github-flow

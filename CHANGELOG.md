@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.6.1] - 2021-07-08
+### Fixed
+- Freeze SQLAlchemy to a version <1.4 to avoid report creation crashing
+- Fix links to documentation pages
+
 ## [4.6] - 2020-11-20
 ### Added
 - docker-compose and Makefile

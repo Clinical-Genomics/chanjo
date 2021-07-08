@@ -2,7 +2,7 @@ FROM frolvlad/alpine-miniconda3
 
 LABEL base_image="frolvlad/alpine-miniconda3"
 LABEL about.home="https://github.com/Clinical-Genomics/chanjo"
-LABEL about.documentation="https://www.clinicalgenomics.se/chanjo/"
+LABEL about.documentation="https://clinical-genomics.github.io/chanjo/"
 LABEL about.tags="chanjo,bam,NGS,coverage,sambamba,alpine,python,python3.7"
 LABEL about.license="MIT License (MIT)"
 

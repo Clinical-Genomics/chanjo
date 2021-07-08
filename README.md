@@ -76,7 +76,7 @@ to get started!
 
 
 [unix]: http://en.wikipedia.org/wiki/Unix_philosophy
-[docs]: http://www.clinicalgenomics.se/chanjo/
+[docs]: https://clinical-genomics.github.io/chanjo/
 [bedtools]: http://bedtools.readthedocs.org/en/latest/
 [thesis]: https://s3.amazonaws.com/tudo/chanjo/RobinAndeerMastersThesisFinal_2013.pdf
 [sambamba]: http://lomereiter.github.io/sambamba/
