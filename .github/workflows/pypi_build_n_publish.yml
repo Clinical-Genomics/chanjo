@@ -1,9 +1,6 @@
 name: Publish to PyPI && publish mkdocs action
 
-on:
- release:
-  types:
-   - created
+on: [pull_request]
 
 jobs:
  build-n-publish:
@@ -37,4 +34,4 @@ jobs:
      uses: pypa/gh-action-pypi-publish@master
      with:
        user: __token__
-       password: ${{ secrets.pypi_password }}
+       password: ${{ secrets.PYPI_TOKEN }}
