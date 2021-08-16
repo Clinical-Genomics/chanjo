@@ -1,6 +1,9 @@
 name: Publish to PyPI && publish mkdocs action
 
-on: [pull_request]
+on:
+ release:
+  types:
+   - created
 
 jobs:
  build-n-publish:
