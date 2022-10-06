@@ -39,6 +39,20 @@ chanjo calculate mean
 {"metrics": {"completeness_10": 90.92, "mean_coverage": 193.85}, "sample_id": "sample1"}
 ```
 
+### Docker
+
+When running the dockerized version of [Chanjo](https://hub.docker.com/r/clinicalgenomics/chanjo) the setup process is slightly different. Chanjo depends on a configuration file `config.yaml` and sqlite database `chanjo.coverage.sqlite3` which are created at initialization. Docker [volumes](https://docs.docker.com/storage/volumes/) can be used to make these files persistent and backupable. The following examples demonstrate how to setup Chanjo using the default definition of exons. The config file and database are stored on the host in a folder called config. Other exon definitions can be used by mounting them to the container. 
+
+**Before initializing chanjo**, please ensure that the config directory has the correct permissions. The default user in the container has UID 1000, GID 1000.
+
+```bash
+# setup chanjo
+docker-compose run -v "${PWD}/config:/config" --rm chanjo-cli bash -c "chanjo init --auto && chanjo --config ./chanjo.yaml link ./hgnc.grch37p13.exons.bed && cp /home/worker/app/chanjo.coverage.sqlite3 /config && cp chanjo.yaml /config"
+
+# load sample
+docker-compose run -v "${PWD}/config/chanjo.coverage.sqlite3:/home/worker/app/chanjo.coverage.sqlite3" -v "${PWD}/config/chanjo.yaml:/home/worker/app/chanjo.yaml" --rm chanjo-cli bash -c "chanjo load" < tests/fixtures/sambamba.depth.bed
+```
+
 ## Documentation
 Read the Docs is hosting the [official documentation][docs].
 
