@@ -12,6 +12,7 @@ jobs:
     - run: echo "/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
     - name: Install Sambamba
       run: |
+        brew update
         brew install sambamba
     - name: Install repo and its dependencies
       run: |

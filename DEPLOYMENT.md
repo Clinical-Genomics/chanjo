@@ -17,7 +17,7 @@ Chanjo if following the [GitHub flow][gh-flow] branching model which means that 
 1. Push the tag: `git push --tags`
 1. First deploy on stage so log into hasta and run:
     - `us`
-    - `bash /home/proj/production/servers/resources/hasta.scilifelab.se/update-chanjo-stage.sh master`
+    - `bash /home/proj/production/servers/resources/hasta.scilifelab.se/update-tool-stage.sh -e S_chanjo -t chanjo -b master`
 1. Deploy in productions by running the following commands:
     - `down`
     - `up`
