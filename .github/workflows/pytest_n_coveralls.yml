@@ -9,6 +9,7 @@ jobs:
       uses: actions/setup-python@master
       with:
         python-version: 3.7
+    - run: echo "/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
     - name: Install Sambamba
       run: |
         brew install brewsci/bio/sambamba
