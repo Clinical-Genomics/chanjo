@@ -16,6 +16,8 @@ services:
         test: "mysql --user=chanjoUser --password=chanjoPassword --execute \"SHOW DATABASES;\""
         timeout: 10s
         retries: 20
+      volumes:
+        - mysqldata:/home/worker/data/database
       networks:
         - chanjo-net
 
@@ -29,6 +31,9 @@ services:
           condition: service_healthy # DB_URI=mysql+pymysql://chanjoUser:chanjoPassword@mariadb/chanjo4_test
       networks:
         - chanjo-net
+
+volumes:
+  mysqldata:
 
 networks:
   chanjo-net:
