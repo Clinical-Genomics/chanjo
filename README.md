@@ -39,6 +39,39 @@ chanjo calculate mean
 {"metrics": {"completeness_10": 90.92, "mean_coverage": 193.85}, "sample_id": "sample1"}
 ```
 
+## Docker
+
+When running the dockerized version of [Chanjo](https://hub.docker.com/r/clinicalgenomics/chanjo) the setup process is slightly different. Chanjo depends on a configuration file `config.yaml` and either a sqlite database `chanjo.coverage.sqlite3` or a `MySQL database`, which are created at initialization. For convenience, we provide a docker-compose file containing a mariadb (MySQL-based) service and the chanjo-command line that can be used to set up a demo instance of Chanjo.
+Since the database set up (chanjo init command) and sample data insertion are executed by two distinct instances of the same service (chanjo-cli), Docker [volumes](https://docs.docker.com/storage/volumes/) must be used to make sure that the database instance has data continuity during the two steps.
+The following examples demonstrate how to set up Chanjo using the docker-compose file using the default definition of exons (init demo files are present in folder `chanjo/init/demo-files`). The config file and the creted database will be stored on the host in a folder named `data`, which is mirrored by folder `/home/worker/data` in the chanjo container . Other exon definitions can be used by mounting them to the container.
+
+### Example with MySQL-based database (MariaDB)
+
+```bash
+# Build a docker image
+docker-compose build
+```
+```bash
+# Set up chanjo and populate demo database with exons definitions
+docker-compose run --rm -v "${PWD}/data:/home/worker/data" -v "${PWD}/data/database:/home/worker/data/database" chanjo-cli bash -c "chanjo -d mysql+pymysql://chanjoUser:chanjoPassword@mariadb/chanjo4_test init --auto /home/worker/data && chanjo --config /home/worker/data/chanjo.yaml link /home/worker/data/hgnc.grch37p13.exons.bed"
+```
+This initial step will create a `data` folder containing 2 files:
+- hgnc.grch37p13.exons.bed --> Exons definitions
+- chanjo.yaml --> Contains the database URI, so in the next step you can use this config file instead of `-d mysql+pymysql://chanjoUser:chanjoPassword@mariadb/chanjo4_test`
+
+```bash
+# Load sample
+docker-compose run --rm -v "${PWD}/data:/home/worker/data" -v "${PWD}/data/database:/home/worker/data/database" chanjo-cli bash -c "chanjo --config /home/worker/data/chanjo.yaml load /home/worker/app/chanjo/init/demo-files/sample1.coverage.bed"
+```
+
+### Example with SQLite database
+
+```bash
+# setup chanjo and save populate demo database with exon definitions
+docker-compose run --rm -v "${PWD}/data:/home/worker/data" -v "${PWD}/data/database:/home/worker/data/database" chanjo-cli bash -c "chanjo init --auto /home/worker/data && chanjo --config /home/worker/data/chanjo.yaml link /home/worker/data/hgnc.grch37p13.exons.bed"
+# load sample
+docker-compose run --rm -v "${PWD}/data/chanjo.coverage.sqlite3:/home/worker/app/chanjo.coverage.sqlite3" -v "${PWD}/data:/home/worker/data" chanjo-cli bash -c "chanjo --config /home/worker/data/chanjo.yaml load /home/worker/app/chanjo/init/demo-files/sample1.coverage.bed"
+
 ## Documentation
 Read the Docs is hosting the [official documentation][docs].
 
