@@ -21,7 +21,7 @@ Chanjo if following the [GitHub flow][gh-flow] branching model which means that 
 1. Deploy in productions by running the following commands:
     - `down`
     - `up`
-    - `bbash /home/proj/production/servers/resources/hasta.scilifelab.se/update-tool-prod.sh -e P_chanjo -t chanjo -b master`
+    - `bash /home/proj/production/servers/resources/hasta.scilifelab.se/update-tool-prod.sh -e P_chanjo -t chanjo -b master`
 1. Take a screen shot that includes the name of the environment and publish it as a comment on the PR.
 1. Great job :whale2:
 
