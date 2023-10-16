@@ -1,10 +1,14 @@
 <p align="center">
-  <a href="http://chanjo.co">
+  <a href="https://github.com/Clinical-Genomics/chanjo">
     <img height="235" width="244" src="docs/assets/logo.png"/>
   </a>
 </p>
 
-# Chanjo [![PyPI version][fury-image]][fury-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url] [![bioconda-badge][bioconda-img]][bioconda-url]
+# Chanjo 
+![Docker build - GitHub](https://github.com/Clinical-Genomics/chanjo/actions/workflows/docker_build_n_publish.yml/badge.svg)
+[![PyPI version](https://badge.fury.io/py/chanjo.svg)](https://badge.fury.io/py/chanjo)
+[![Coverage Status](https://coveralls.io/repos/github/Clinical-Genomics/chanjo/badge.svg?branch=master)](https://coveralls.io/github/Clinical-Genomics/chanjo?branch=master)
+
 
 Chanjo is coverage analysis for clinical sequencing. It's implemented in Python
 with a command line interface that adheres to [UNIX pipeline philosophy][unix].
@@ -107,21 +111,10 @@ MIT. See the [LICENSE](LICENSE) file for more details.
 Anyone can help make this project better - read [CONTRIBUTION](CONTRIBUTION.md)
 to get started!
 
-
-[unix]: http://en.wikipedia.org/wiki/Unix_philosophy
-[docs]: https://clinical-genomics.github.io/chanjo/
 [bedtools]: http://bedtools.readthedocs.org/en/latest/
-[thesis]: https://s3.amazonaws.com/tudo/chanjo/RobinAndeerMastersThesisFinal_2013.pdf
-[sambamba]: http://lomereiter.github.io/sambamba/
-[fury-url]: http://badge.fury.io/py/chanjo
-[fury-image]: https://badge.fury.io/py/chanjo.png
-
-[travis-url]: https://travis-ci.org/robinandeer/chanjo
-[travis-image]: https://img.shields.io/travis/robinandeer/chanjo.svg?style=flat-square
-
-[coveralls-url]: https://coveralls.io/r/robinandeer/chanjo
-[coveralls-image]: https://img.shields.io/coveralls/robinandeer/chanjo.svg?style=flat-square
-
-[bioconda-url]: http://bioconda.github.io
-[bioconda-img]: https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square
+[docs]: https://clinical-genomics.github.io/chanjo/
 [publication]: https://f1000research.com/articles/9-615/v1
+[sambamba]: http://lomereiter.github.io/sambamba/
+[thesis]: https://s3.amazonaws.com/tudo/chanjo/RobinAndeerMastersThesisFinal_2013.pdf
+[unix]: http://en.wikipedia.org/wiki/Unix_philosophy
+
