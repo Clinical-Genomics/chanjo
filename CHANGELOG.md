@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - github actions to publish the repo to PyPI and publish mkdocs on new release event
 ### Fixed
 - Add missing brew path to GitHub action. It has been removed from PATH variable in Ubuntu
+- Badges on README page
 
 ## [4.6.1] - 2021-07-08
 ### Fixed
