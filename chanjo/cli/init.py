@@ -5,7 +5,7 @@ import logging
 
 import click
 from path import Path
-import ruamel.yaml
+import yaml
 
 from chanjo.store.api import ChanjoDB
 from chanjo.init.bootstrap import pull, BED_NAME, DB_NAME
@@ -55,11 +55,10 @@ def init(context, force, demo, auto, root_dir):
     # setup config file
     root_path.makedirs_p()
     conf_path = root_path.joinpath('chanjo.yaml')
-    with codecs.open(conf_path, 'w', encoding='utf-8') as conf_handle:
+    with open(conf_path, 'w') as conf_handle:
         data = {'database': db_uri}
-        data_str = ruamel.yaml.dump(data, Dumper=ruamel.yaml.RoundTripDumper)
         LOG.info("writing config file: %s", conf_path)
-        conf_handle.write(data_str)
+        yaml.dump(data, conf_handle, default_flow_style=False)
 
     if is_bootstrapped:
         click.echo('Chanjo bootstrap successful! Now run: ')
