@@ -4,7 +4,7 @@
 from datetime import datetime
 
 import pytest
-from sqlalchemy.orm.exc import FlushError
+from sqlite3 import IntegrityError
 
 from chanjo.store.api import ChanjoDB
 from chanjo.store.models import Sample
@@ -38,7 +38,7 @@ def test_save(chanjo_db):
     # GIVEN sample already exists
     conflict_sample = Sample(id=sample_id, group_id="ADMG2")
     # WHEN saving it again with same id
-    # THEN error is raised _after_ rollback
+    # THEN an error is raised
     with pytest.raises(IntegrityError):
         chanjo_db.add(conflict_sample)
         chanjo_db.save()
