@@ -9,8 +9,6 @@ LABEL about.license="MIT License (MIT)"
 # Install Sambamba using conda
 RUN conda update -n base -c defaults conda && conda install -c bioconda sambamba
 
-RUN conda install -c conda-forge ruamel.yaml
-
 # Install required libs
 RUN apk update \
 	&& apk --no-cache add bash python3

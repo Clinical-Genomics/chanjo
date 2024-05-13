@@ -1,9 +1,9 @@
 coloredlogs
-alchy
+sqlservice
 click
 path.py
 toolz
-ruamel.yaml
+pyyaml
 importlib_metadata
 pymysql
 sqlalchemy<2.0
