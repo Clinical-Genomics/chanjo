@@ -30,7 +30,7 @@ def setup_demo(location, force=False):
         # we can copy the directory(tree)
         demo_dir.copytree(target_dir)
     except OSError as error:
-        log.warn('location must be a non-existing directory')
+        log.warning('location must be a non-existing directory')
         raise error
 
     # inform the user

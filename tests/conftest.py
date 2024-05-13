@@ -13,7 +13,7 @@ from chanjo.load.sambamba import load_transcripts
 from chanjo.load.link import link_elements
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def reset_path():
     """Reset PATH environment variable temporarily."""
     path_env = os.environ['PATH']
@@ -22,7 +22,7 @@ def reset_path():
     os.environ['PATH'] = path_env
 
 
-@pytest.yield_fixture(scope='function')
+@pytest.fixture(scope='function')
 def chanjo_db():
     _chanjo_db = ChanjoDB('sqlite://')
     _chanjo_db.set_up()
@@ -30,7 +30,7 @@ def chanjo_db():
     _chanjo_db.tear_down()
 
 
-@pytest.yield_fixture(scope='function')
+@pytest.fixture(scope='function')
 def existing_db(tmpdir):
     db_path = tmpdir.join('coverage.sqlite3')
     chanjo_db = ChanjoDB(str(db_path))
@@ -39,7 +39,7 @@ def existing_db(tmpdir):
     chanjo_db.tear_down()
 
 
-@pytest.yield_fixture(scope='function')
+@pytest.fixture(scope='function')
 def popexist_db(existing_db, exon_lines):
     result = link_elements(exon_lines)
     existing_db.add(*result.models)
@@ -50,7 +50,7 @@ def popexist_db(existing_db, exon_lines):
     yield existing_db
 
 
-@pytest.yield_fixture(scope='function')
+@pytest.fixture(scope='function')
 def populated_db(chanjo_db, exon_lines):
     exon_lines = list(exon_lines)
     result = link_elements(exon_lines)

@@ -42,4 +42,4 @@ def pull(target_dir, force=False):  # pragma: no cover
         logger.info('removing BED archive...')
         bed_zip_path.remove_p()
     else:
-        logger.warn('file already exists, skipping: %s', final_bed)
+        logger.warning('file already exists, skipping: %s', final_bed)

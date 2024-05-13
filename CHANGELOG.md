@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Add missing brew path to GitHub action. It has been removed from PATH variable in Ubuntu
 - Badges on README page
+- Unfreeze SQLAlchemy again, allowing >=1.3 as the limitation in chanjo-report is being fixed
 
 ## [4.6.1] - 2021-07-08
 ### Fixed
