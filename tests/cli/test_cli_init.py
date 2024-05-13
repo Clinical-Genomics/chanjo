@@ -42,5 +42,5 @@ def test_init_no_bootstrap(tmpdir, invoke_cli):
     assert result.exit_code == 0
     conf_path = tmpdir.join('chanjo.yaml')
     with open(str(conf_path), 'r') as handle:
-        yaml.dump(data, handle, default_flow_style=False)
+        data = yaml.safe_load(handle)
     assert 'coverage.sqlite3' in data['database']
