@@ -6,4 +6,4 @@ toolz
 ruamel.yaml
 importlib_metadata
 pymysql
-sqlalchemy
+sqlalchemy<2.0
