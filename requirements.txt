@@ -3,7 +3,7 @@ alchy
 click
 path.py
 toolz
-ruamel.yaml
+pyyaml
 importlib_metadata
 pymysql
 sqlalchemy==1.3.*
