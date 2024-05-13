@@ -2,13 +2,12 @@
 import codecs
 from distutils.spawn import find_executable
 import logging
-import yaml
 
 import click
 from path import Path
+import ruamel.yaml
 
 from chanjo.store.api import ChanjoDB
-from chanjo.store.models import BASE
 from chanjo.init.bootstrap import pull, BED_NAME, DB_NAME
 from chanjo.init.demo import setup_demo, DEMO_BED_NAME
 
@@ -49,18 +48,18 @@ def init(context, force, demo, auto, root_dir):
         pull(root_dir, force=force)
 
         LOG.info("configure new chanjo database: %s", db_uri)
-        chanjo_db = ChanjoDB(uri=db_uri, model_class=BASE)
+        chanjo_db = ChanjoDB(db_uri)
         chanjo_db.set_up()
         is_bootstrapped = True
 
     # setup config file
     root_path.makedirs_p()
     conf_path = root_path.joinpath('chanjo.yaml')
-
-    with open(conf_path, 'w') as conf_handle:
+    with codecs.open(conf_path, 'w', encoding='utf-8') as conf_handle:
         data = {'database': db_uri}
+        data_str = ruamel.yaml.dump(data, Dumper=ruamel.yaml.RoundTripDumper)
         LOG.info("writing config file: %s", conf_path)
-        yaml.dump(data, conf_handle, default_flow_style=False)
+        conf_handle.write(data_str)
 
     if is_bootstrapped:
         click.echo('Chanjo bootstrap successful! Now run: ')

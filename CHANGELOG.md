@@ -5,9 +5,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [x.x.x] -
 ### Added
 - github actions to publish the repo to PyPI and publish mkdocs on new release event
-### Changed
-- replaced ruamel.yaml lib with pyyaml
-- Use linux/amd64 platform in docker-compose containers
 ### Fixed
 - Add missing brew path to GitHub action. It has been removed from PATH variable in Ubuntu
 - Badges on README page
