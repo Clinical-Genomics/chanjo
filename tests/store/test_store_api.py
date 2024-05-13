@@ -4,7 +4,7 @@
 from datetime import datetime
 
 import pytest
-from sqlite3 import IntegrityError
+from sqlalchemy.exc import IntegrityError
 
 from chanjo.store.api import ChanjoDB
 from chanjo.store.models import Sample
