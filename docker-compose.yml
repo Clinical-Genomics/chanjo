@@ -5,6 +5,7 @@ version: '3'
 services:
     mariadb:
       container_name: mariadb
+      platform: linux/amd64
       image: mariadb:latest
       restart: 'always'
       environment:
@@ -23,6 +24,7 @@ services:
 
     chanjo-cli:
       container_name: chanjo-cli
+      platform: linux/amd64
       build:
         context: .
         dockerfile: Dockerfile
