@@ -53,7 +53,7 @@ def load(context, sample, group, name, group_name, threshold, bed_stream):
                                    label='loading transcripts') as bar:
                 for tx_model in bar:
                     session.add(tx_model)
-    
+
     except IntegrityError as error:
         LOG.error('sample already loaded, rolling back')
         LOG.debug(error.args[0])

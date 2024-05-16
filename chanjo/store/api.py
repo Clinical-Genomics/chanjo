@@ -54,8 +54,6 @@ class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
     def connect(self, db_uri, debug=False):
         """Configure connection to a SQL database.
 
-        .. versionadded:: 2.1.0
-
         Args:
             db_uri (str): path/URI to the database to connect to
             debug (Optional[bool]): whether to output logging information
@@ -69,7 +67,6 @@ class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
             db_uri = "sqlite:///{}".format(db_path)
 
         config['SQLALCHEMY_DATABASE_URI'] = db_uri
-        # connect to the SQL database
 
     @property
     def dialect(self):
