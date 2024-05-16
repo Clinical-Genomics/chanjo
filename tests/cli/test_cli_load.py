@@ -4,12 +4,13 @@ from chanjo.store.models import Sample, Transcript
 
 def test_load(existing_db, invoke_cli, sambamba_path):
     # GIVEN processed sambamba depth output and empty database
-    assert Sample.query.count() == 0
-    db_uri = existing_db.uri
-    result = invoke_cli(['--database', db_uri, 'load', sambamba_path])
-    # WHEN loading into database
-    assert result.exit_code == 0
-    assert Sample.query.count() == 1
+    with existing_db.begin() as session:
+        assert session.first(Sample.select()) is None
+        db_uri = existing_db.uri
+        result = invoke_cli(['--database', db_uri, 'load', sambamba_path])
+        # WHEN loading into database
+        assert result.exit_code == 0
+        assert session.first(Sample.select())
 
 
 def test_load_conflict(popexist_db, invoke_cli, sambamba_path):
