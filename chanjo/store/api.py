@@ -51,7 +51,6 @@ class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
 
         super(ChanjoDB, self).__init__(uri=uri, model_class=BASE)
 
-
     def connect(self, db_uri, debug=False):
         """Configure connection to a SQL database.
 
@@ -71,7 +70,6 @@ class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
 
         config['SQLALCHEMY_DATABASE_URI'] = db_uri
         # connect to the SQL database
-
 
     @property
     def dialect(self):
@@ -120,6 +118,5 @@ class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
             self.commit()
         except Exception as error:
             log.debug('rolling back failed transaction')
-            self.session.rollback()
             raise error
         return self

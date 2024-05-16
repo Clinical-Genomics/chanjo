@@ -68,15 +68,14 @@ def link(context, bed_stream):
     """Link related genomic elements."""
     chanjo_db = ChanjoDB(uri=context.obj['database'])
     result = link_elements(bed_stream)
-    with chanjo_db.begin() as session:
-        with click.progressbar(result.models, length=result.count,
-                               label='adding transcripts') as bar:
-            for tx_model in bar:
-                session.add(tx_model)
     try:
-        chanjo_db.save()
+        with chanjo_db.begin() as session:
+            with click.progressbar(result.models, length=result.count,
+                                   label='adding transcripts') as bar:
+                for tx_model in bar:
+                    session.add(tx_model)
+
     except IntegrityError:
-        LOG.exception('elements already linked?')
-        chanjo_db.session.rollback()
-        click.echo("use 'chanjo db setup --reset' to re-build")
-        context.abort()
+            LOG.exception('elements already linked?')
+            click.echo("use 'chanjo db setup --reset' to re-build")
+            context.abort()
