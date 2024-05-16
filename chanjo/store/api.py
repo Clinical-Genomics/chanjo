@@ -3,7 +3,7 @@ from __future__ import division
 import logging
 import os
 
-from alchy import Manager
+from sqlservice import Database
 from chanjo.calculate import CalculateMixin
 from .models import BASE
 from .fetch import FetchMixin
@@ -12,7 +12,7 @@ from .delete import DeleteMixin
 log = logging.getLogger(__name__)
 
 
-class ChanjoDB(Manager, CalculateMixin, DeleteMixin, FetchMixin):
+class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
     """SQLAlchemy-based database object.
 
     Bundles functionality required to setup and interact with various
@@ -44,11 +44,21 @@ class ChanjoDB(Manager, CalculateMixin, DeleteMixin, FetchMixin):
         classes (dict): bound ORM classes
     """
 
+    """
     def __init__(self, uri=None, debug=False, base=BASE):
         self.Model = base
         self.uri = uri
         if uri:
             self.connect(uri, debug=debug)
+
+    @property
+    def uri(self) -> str:
+        return self.uri
+
+    @uri.setter
+    def uri(self, new_val: str):
+        self.uri = new_val
+    """
 
     def connect(self, db_uri, debug=False):
         """Configure connection to a SQL database.
@@ -92,7 +102,7 @@ class ChanjoDB(Manager, CalculateMixin, DeleteMixin, FetchMixin):
         """
         # create the tables
         self.create_all()
-        tables = self.Model.metadata.tables.keys()
+        tables = self.model_class.metadata.tables.keys()
         log.info("created tables: %s", ', '.join(tables))
         return self
 
