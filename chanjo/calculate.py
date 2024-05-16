@@ -38,22 +38,23 @@ class CalculateMixin:
 
     def sample_coverage(self, sample_ids: list, genes: list) -> dict:
         """Calculate coverage for samples."""
-        query = self.query(
-            TranscriptStat.sample_id.label('sample_id'),
-            func.avg(TranscriptStat.mean_coverage).label('mean_coverage'),
-            func.avg(TranscriptStat.completeness_10).label('mean_completeness'),
-        ).join(
-            Transcript,
-        ).filter(
-            Transcript.gene_id.in_(genes),
-            TranscriptStat.sample_id.in_(sample_ids),
-        ).group_by(TranscriptStat.sample_id)
+        with self.begin() as session:
+            query = session.query(
+                TranscriptStat.sample_id.label('sample_id'),
+                func.avg(TranscriptStat.mean_coverage).label('mean_coverage'),
+                func.avg(TranscriptStat.completeness_10).label('mean_completeness'),
+            ).join(
+                Transcript,
+            ).filter(
+                Transcript.gene_id.in_(genes),
+                TranscriptStat.sample_id.in_(sample_ids),
+            ).group_by(TranscriptStat.sample_id)
 
-        data = {
-            result.sample_id: {
-                "mean_coverage": result.mean_coverage,
-                "mean_completeness": result.mean_completeness,
+            data = {
+                result.sample_id: {
+                    "mean_coverage": result.mean_coverage,
+                    "mean_completeness": result.mean_completeness,
+                }
+                for result in query
             }
-            for result in query
-        }
-        return data
+            return data
