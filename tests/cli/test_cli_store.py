@@ -19,11 +19,12 @@ def test_setup(cli_runner, tmpdir):
 
 def test_setup_reset(cli_runner, popexist_db):
     # GIVEN an existing database with a single sample
-    assert Sample.query.count() == 1
-    # WHEN resetting it
-    cli_runner.invoke(root, ["--database", popexist_db.uri, "db", "setup", "--reset"])
-    # THEN the database should be empty
-    assert Sample.query.count() == 0
+    with popexist_db.begin() as session:
+        assert session.first(Sample.select())
+        # WHEN resetting it
+        cli_runner.invoke(root, ["--database", popexist_db.uri, "db", "setup", "--reset"])
+        # THEN the database should be empty
+        assert session.first(Sample.select()) is None
 
 
 def test_remove(cli_runner, popexist_db):
