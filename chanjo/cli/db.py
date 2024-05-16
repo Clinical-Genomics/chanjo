@@ -22,7 +22,7 @@ def db_cmd(context):
 @click.option("--reset", is_flag=True, help="tear down existing db")
 @click.pass_context
 def setup(context, reset):
-    """Initialize a new datbase from scratch."""
+    """Initialize a new database from scratch."""
     if reset:
         LOG.info("tearing down existing database")
         context.obj["db"].tear_down()

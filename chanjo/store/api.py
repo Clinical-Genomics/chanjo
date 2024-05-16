@@ -9,7 +9,7 @@ from .models import BASE
 from .fetch import FetchMixin
 from .delete import DeleteMixin
 
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
 class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
@@ -45,11 +45,13 @@ class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
     """
 
     def __init__(self, uri=None, debug=False, base=BASE):
-        self.model_class = base
-        if uri:
-            self.connect(uri, debug=debug)
+        try:
+            self.model_class = base
+            if uri:
+                self.connect(uri, debug=debug)
 
-        super(ChanjoDB, self).__init__(uri=uri, model_class=BASE)
+        except Exception as ex:
+            LOG.error(ex)
 
     def connect(self, db_uri, debug=False):
         """Configure connection to a SQL database.
@@ -67,6 +69,7 @@ class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
             db_uri = "sqlite:///{}".format(db_path)
 
         config['SQLALCHEMY_DATABASE_URI'] = db_uri
+        super(ChanjoDB, self).__init__(db_uri, model_class=BASE)
 
     @property
     def dialect(self):
@@ -88,7 +91,7 @@ class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
         # create the tables
         self.create_all()
         tables = self.model_class.metadata.tables.keys()
-        log.info("created tables: %s", ', '.join(tables))
+        LOG.info("created tables: %s", ', '.join(tables))
         return self
 
     def tear_down(self):
