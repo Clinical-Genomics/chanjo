@@ -41,12 +41,12 @@ def existing_db(tmpdir):
 
 @pytest.yield_fixture(scope='function')
 def popexist_db(existing_db, exon_lines):
-    result = link_elements(exon_lines)
-    existing_db.add(*result.models)
-    result = load_transcripts(exon_lines, sample_id='sample', group_id='group')
-    existing_db.add(result.sample)
-    existing_db.add(*result.models)
-    existing_db.save()
+    with existing_db.begin(expire_on_commit=False) as session:
+        result = link_elements(exon_lines)
+        session.add_all(result.models)
+        result = load_transcripts(exon_lines, sample_id='sample', group_id='group')
+        session.add(result.sample)
+        session.add_all(result.models)
     yield existing_db
 
 

@@ -45,13 +45,10 @@ class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
     """
 
     def __init__(self, uri=None, debug=False, base=BASE):
-        try:
-            self.model_class = base
-            if uri:
-                self.connect(uri, debug=debug)
+        self.model_class = base
+        if uri:
+            self.connect(uri, debug=debug)
 
-        except Exception as ex:
-            LOG.error(ex)
 
     def connect(self, db_uri, debug=False):
         """Configure connection to a SQL database.
