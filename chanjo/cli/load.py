@@ -68,10 +68,11 @@ def link(context, bed_stream):
     """Link related genomic elements."""
     chanjo_db = ChanjoDB(uri=context.obj['database'])
     result = link_elements(bed_stream)
-    with click.progressbar(result.models, length=result.count,
-                           label='adding transcripts') as bar:
-        for tx_model in bar:
-            chanjo_db.add(tx_model)
+    with chanjo_db.begin() as session:
+        with click.progressbar(result.models, length=result.count,
+                               label='adding transcripts') as bar:
+            for tx_model in bar:
+                session.add(tx_model)
     try:
         chanjo_db.save()
     except IntegrityError:

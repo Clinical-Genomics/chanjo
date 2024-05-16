@@ -44,6 +44,14 @@ class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
         classes (dict): bound ORM classes
     """
 
+    def __init__(self, uri=None, debug=False, base=BASE):
+        self.model_class = base
+        if uri:
+            self.connect(uri, debug=debug)
+
+        super(ChanjoDB, self).__init__(uri=uri, model_class=BASE)
+
+
     def connect(self, db_uri, debug=False):
         """Configure connection to a SQL database.
 
@@ -60,12 +68,10 @@ class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
             # expect only a path to a sqlite database
             db_path = os.path.abspath(os.path.expanduser(db_uri))
             db_uri = "sqlite:///{}".format(db_path)
-            self.uri = db_uri
 
         config['SQLALCHEMY_DATABASE_URI'] = db_uri
-
         # connect to the SQL database
-        super(ChanjoDB, self).__init__(config=config, Model=self.Model)
+
 
     @property
     def dialect(self):
