@@ -23,6 +23,7 @@ class DeleteMixin:
         """Delete entire group from database"""
         LOG.info("Deleting entire group %s from database", group_id)
         samples = self.fetch_samples(group_id=group_id)
-        for sample in samples:
-            LOG.info("Deleting sample %s from database", sample.id)
-            self.delete_commit(sample)
+        with self.begin() as session:
+            for sample in samples:
+                LOG.info("Deleting sample %s from database", sample.id)
+                session.execute(sample.delete())
