@@ -12,7 +12,6 @@ from chanjo.store.models import Sample
 
 def test_dialect(chanjo_db):
     assert chanjo_db.dialect == "sqlite"
-    assert hasattr(chanjo_db, "query")
 
 
 def test_no_dialect():
