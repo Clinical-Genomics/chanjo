@@ -34,19 +34,11 @@ def test_link(existing_db, invoke_cli, bed_path):
     result = invoke_cli(['--database', db_uri, 'link', bed_path])
     # THEN database should be populated with all transcripts
     assert result.exit_code == 0
-    assert Transcript.query.count() == 5
+    with existing_db.begin() as session:
+        assert len(session.all(Transcript.select())) == 5
 
-    # WHEN loading again...
-    result = invoke_cli(['--database', db_uri, 'link', bed_path])
-    # THEN it should error and rollback the session
-    assert result.exit_code != 0
-    assert Transcript.query.count() == 5
-
-
-# def test_load_with_stdin(invoke_cli):
-#     # GIVEN the STDIN is empty
-#     # WHEN loading data
-#     result = invoke_cli(['--database', 'sqlite://', 'load'])
-#     # THEN it should complain
-#     assert result.exit_code != 0
-#     assert result.exception == click.BadParameter
+        # WHEN loading again...
+        result = invoke_cli(['--database', db_uri, 'link', bed_path])
+        # THEN it should error and rollback the session
+        assert result.exit_code != 0
+        assert len(session.all(Transcript.select())) == 5
