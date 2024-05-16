@@ -44,22 +44,6 @@ class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
         classes (dict): bound ORM classes
     """
 
-    """
-    def __init__(self, uri=None, debug=False, base=BASE):
-        self.Model = base
-        self.uri = uri
-        if uri:
-            self.connect(uri, debug=debug)
-
-    @property
-    def uri(self) -> str:
-        return self.uri
-
-    @uri.setter
-    def uri(self, new_val: str):
-        self.uri = new_val
-    """
-
     def connect(self, db_uri, debug=False):
         """Configure connection to a SQL database.
 
