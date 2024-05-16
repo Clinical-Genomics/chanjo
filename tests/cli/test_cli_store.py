@@ -30,20 +30,20 @@ def test_setup_reset(cli_runner, popexist_db):
 def test_remove(cli_runner, popexist_db):
     # GIVEN an existing database with one sample
     sample_id = "sample"
-    assert Sample.query.get(sample_id)
-    assert TranscriptStat.query.filter_by(sample_id=sample_id).count() > 0
-    # WHEN removing the sample from the CLI
-    cli_runner.invoke(root, ["--database", popexist_db.uri, "db", "remove", sample_id])
-    # THEN the sample should be deleted along with annotations
-    assert Sample.query.get(sample_id) is None
-    assert TranscriptStat.query.filter_by(sample_id=sample_id).count() == 0
-
-    # WHEN removing a sample with non-existing id
-    result = cli_runner.invoke(
-        root, ["--database", popexist_db.uri, "db", "remove", "no-sample-id"]
-    )
-    # THEN context is aborted
-    assert result.exit_code == 1
+    with popexist_db.begin() as session:
+        assert session.first(Sample.select())
+        assert session.all(TranscriptStat.select().where(TranscriptStat.sample_id == sample_id))
+        # WHEN removing the sample from the CLI
+        cli_runner.invoke(root, ["--database", popexist_db.uri, "db", "remove", sample_id])
+        # THEN the sample should be deleted along with annotations
+        assert session.first(Sample.select()) is None
+        assert len(session.all(TranscriptStat.select().where(TranscriptStat.sample_id == sample_id))) == 0
+        # WHEN removing a sample with non-existing id
+        result = cli_runner.invoke(
+            root, ["--database", popexist_db.uri, "db", "remove", "no-sample-id"]
+        )
+        # THEN context is aborted
+        assert result.exit_code == 1
 
 
 def test_samples(cli_runner, popexist_db):

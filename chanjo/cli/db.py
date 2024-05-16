@@ -37,13 +37,13 @@ def remove(context, sample_id):
     """Remove all traces of a sample from the database."""
     store = context.obj["db"]
     LOG.debug("find sample in database with id: %s", sample_id)
-    sample_obj = Sample.query.get(sample_id)
-    if sample_obj is None:
-        LOG.warning("sample (%s) not found in database", sample_id)
-        context.abort()
-    LOG.info("delete sample (%s) from database", sample_id)
-    store.session.delete(sample_obj)
-    store.save()
+    with store.begin() as session:
+        sample_obj = session.first(Sample.select().where(Sample.id == sample_id))
+        if sample_obj is None:
+            LOG.warning("sample (%s) not found in database", sample_id)
+            context.abort()
+        LOG.info("delete sample (%s) from database", sample_id)
+        session.delete(sample_obj)
 
 
 @db_cmd.command()
