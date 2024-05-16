@@ -50,7 +50,8 @@ def test_samples(cli_runner, popexist_db):
 
     # GIVEN an existing database with one sample
     sample_id = "sample"
-    assert Sample.query.get(sample_id)
+    with popexist_db.begin() as session:
+        assert session.first(Sample.select())
 
     # WHEN fetching a sample from the database through the CLI
     result = cli_runner.invoke(
@@ -76,7 +77,8 @@ def test_transcripts(cli_runner, popexist_db):
 
     # GIVEN an existing database with one sample
     sample_id = "sample"
-    assert Sample.query.get(sample_id)
+    with popexist_db.begin() as session:
+        assert session.first(Sample.select())
 
     # WHEN fetching the transcripts for that case in the database
     result = cli_runner.invoke(
@@ -103,15 +105,16 @@ def test_delete(cli_runner, popexist_db):
 
     # GIVEN an existing database with one sample
     sample_id = "sample"
-    assert Sample.query.get(sample_id)
+    with popexist_db.begin() as session:
+        assert session.first(Sample.select())
 
-    # WHEN deleting a sample from the database through the CLI
-    cli_runner.invoke(
-        root, ["--database", popexist_db.uri, "db", "delete", "--sample-id", sample_id]
-    )
+        # WHEN deleting a sample from the database through the CLI
+        cli_runner.invoke(
+            root, ["--database", popexist_db.uri, "db", "delete", "--sample-id", sample_id]
+        )
 
-    # THEN the sample is no longer in the database
-    assert Sample.query.get(sample_id) is None
+        # THEN the sample is no longer in the database
+        assert session.first(Sample.select()) is None
 
 
 def test_delete_group(cli_runner, popexist_db):

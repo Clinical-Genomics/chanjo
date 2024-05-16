@@ -1,6 +1,7 @@
 """Module for deleting from database"""
 
 import logging
+from chanjo.store.models import Sample
 
 LOG = logging.getLogger(__name__)
 
@@ -11,10 +12,12 @@ class DeleteMixin:
 
     def delete_sample(self, sample_id):
         """Delete single sample from database"""
-        sample = list(self.fetch_samples(sample_id=sample_id))
-        if len(sample) > 0:
-            LOG.info("Deleting sample %s from database", sample[0].id)
-            self.delete_commit(sample)
+        samples = list(self.fetch_samples(sample_id=sample_id))
+        if len(samples) > 0:
+            with self.begin() as session:
+                LOG.info("Deleting sample %s from database", samples[0].id)
+                for sample in samples:
+                    session.execute(sample.delete())
 
     def delete_group(self, group_id):
         """Delete entire group from database"""

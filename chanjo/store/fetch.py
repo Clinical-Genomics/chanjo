@@ -11,18 +11,20 @@ class FetchMixin:
         """
             Fetch samples from database
         """
-        query = self.query(Sample)
-        if sample_id:
-            query = query.filter(Sample.id == sample_id)
-        if group_id:
-            query = query.filter(Sample.group_id == group_id)
-        return query
+        with self.begin() as session:
+            query = session.query(Sample)
+            if sample_id:
+                query = query.filter(Sample.id == sample_id)
+            if group_id:
+                query = query.filter(Sample.group_id == group_id)
+            return query
 
     def fetch_transcripts(self, sample_id):
         """
             Fetch transcripts from database
         """
-        query = self.query(TranscriptStat).filter(
-            TranscriptStat.sample_id == sample_id
-        )
-        return query
+        with self.begin() as session:
+            query = session.query(TranscriptStat).filter(
+                TranscriptStat.sample_id == sample_id
+            )
+            return query
