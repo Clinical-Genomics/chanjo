@@ -103,20 +103,3 @@ class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
         # drop/delete the tables
         self.drop_all()
         return self
-
-    def save(self):
-        """Manually persist changes made to various elements. Chainable.
-
-        .. versionchanged:: 2.1.2
-            Flush session before commit.
-
-        Returns:
-            Store: ``self`` for chainability
-        """
-        try:
-            # commit/persist dirty changes to the database
-            self.commit()
-        except Exception as error:
-            log.debug('rolling back failed transaction')
-            raise error
-        return self
