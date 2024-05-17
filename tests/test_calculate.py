@@ -37,17 +37,18 @@ def test_mean_with_samples(populated_db):
 
 def test_gene(populated_db):
     """Test for calculating gene metrics"""
-    # GIVEN a database populated with a single sample
-    assert Sample.query.count() == 2
-    # WHEN calculating average metrics for a gene
-    gene_id = 28706
-    query = populated_db.gene_metrics(gene_id)
-    # THEN the results should add up to a single row
-    results = query.all()
-    assert len(results) == 2
-    result = results[0]
-    assert result[0] == 'sample'
-    assert result[-1] == gene_id
+    with populated_db.begin() as session:
+        # GIVEN a database loaded with 2 samples
+        assert len(session.all(Sample.select())) == 2
+        # WHEN calculating average metrics for a gene
+        gene_id = 28706
+        query = populated_db.gene_metrics(gene_id)
+        # THEN the results should add up to a single row
+        results = query.all()
+        assert len(results) == 2
+        result = results[0]
+        assert result[0] == 'sample'
+        assert result[-1] == gene_id
 
 
 def test_sample_coverage(populated_db):
