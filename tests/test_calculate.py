@@ -21,17 +21,18 @@ def test_mean(populated_db):
 
 
 def test_mean_with_samples(populated_db):
-    """Test for caluclating mean with samples"""
-    # GIVEN a database loaded with 2 samples
-    assert Sample.query.count() == 2
-    # WHEN calculating mean values across metrics for a particular sample
-    sample_id = 'sample'
-    query = populated_db.mean(sample_ids=[sample_id])
-    # THEN the results should be limited to that sample
-    results = query.all()
-    assert len(results) == 1
-    result = results[0]
-    assert result[0] == sample_id
+    """Test for calculating mean with samples"""
+    with populated_db.begin() as session:
+        # GIVEN a database loaded with 2 samples
+        assert len(session.all(Sample.select())) == 2
+        # WHEN calculating mean values across metrics for a particular sample
+        sample_id = 'sample'
+        query = populated_db.mean(sample_ids=[sample_id])
+        # THEN the results should be limited to that sample
+        results = query.all()
+        assert len(results) == 1
+        result = results[0]
+        assert result[0] == sample_id
 
 
 def test_gene(populated_db):
