@@ -5,18 +5,19 @@ from chanjo.store.models import Sample
 
 def test_mean(populated_db):
     """Test for calculating mean coverage"""
-    # GIVEN a database loaded with 2 samples
-    assert Sample.query.count() == 2
-    # WHEN calculating mean values across metrics
-    query = populated_db.mean()
-    # THEN the results should group over 2 "rows"
-    results = query.all()
-    assert len(results) == 2
-    sample_ids = set(result[0] for result in results)
-    assert sample_ids == set(['sample', 'sample2'])  # sample id
-    result = results[0]
-    for metric in filter(None, result[1:]):
-        assert isinstance(metric, float)
+    with populated_db.begin() as session:
+        # GIVEN a database loaded with 2 samples
+        assert len(session.all(Sample.select())) == 2
+        # WHEN calculating mean values across metrics
+        query = populated_db.mean()
+        # THEN the results should group over 2 "rows"
+        results = query.all()
+        assert len(results) == 2
+        sample_ids = set(result[0] for result in results)
+        assert sample_ids == set(['sample', 'sample2'])  # sample id
+        result = results[0]
+        for metric in filter(None, result[1:]):
+            assert isinstance(metric, float)
 
 
 def test_mean_with_samples(populated_db):
