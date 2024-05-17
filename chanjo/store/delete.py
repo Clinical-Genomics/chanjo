@@ -12,12 +12,11 @@ class DeleteMixin:
 
     def delete_sample(self, sample_id):
         """Delete single sample from database"""
-        samples = list(self.fetch_samples(sample_id=sample_id))
-        if len(samples) > 0:
-            with self.begin() as session:
-                LOG.info("Deleting sample %s from database", samples[0].id)
-                for sample in samples:
-                    session.execute(sample.delete())
+        LOG.info(f"Deleting sample {sample_id} from database")
+        with self.begin() as session:
+            sample = session.get(Sample, sample_id)
+            if sample:
+                session.delete(sample)
 
     def delete_group(self, group_id):
         """Delete entire group from database"""

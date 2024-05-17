@@ -10,7 +10,6 @@ Exon = namedtuple('Exon', ['chrom', 'start', 'end', 'completeness'])
 # base for declaring a mapping
 BASE = declarative_base()
 
-
 class Transcript(BASE):
 
     """Set of non-overlapping exons.
@@ -56,8 +55,7 @@ class Sample(BASE):
     name = Column(types.String(128))
     group_name = Column(types.String(128))
 
-    sample = orm.relationship('TranscriptStat', cascade='all,delete',
-                              backref='sample')
+    stats = orm.relationship('TranscriptStat', cascade='delete,delete-orphan')
 
 
 class TranscriptStat(BASE):
@@ -89,10 +87,12 @@ class TranscriptStat(BASE):
     threshold = Column(types.Integer)
     _incomplete_exons = Column(types.Text)
 
-    sample_id = Column(types.String(32), ForeignKey('sample.id'),
+    sample_id = Column(types.String(32), ForeignKey('sample.id', ondelete='CASCADE'),
                        nullable=False)
     transcript_id = Column(types.String(32), ForeignKey('transcript.id'),
                            nullable=False)
+
+
 
     @property
     def incomplete_exons(self):

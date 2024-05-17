@@ -7,7 +7,7 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 
 from chanjo.store.api import ChanjoDB
-from chanjo.store.models import Sample
+from chanjo.store.models import Sample, TranscriptStat
 
 
 def test_dialect(chanjo_db):
@@ -103,15 +103,18 @@ def test_delete_sample(populated_db):
     # GIVEN a populated database and a sample-id
     store = populated_db
     sample_id = "sample"
-    assert len(list(store.fetch_samples(sample_id=sample_id))) != 0
-    assert len(list(store.fetch_transcripts(sample_id=sample_id))) != 0
+    with populated_db.begin() as session:
+        assert len(list(store.fetch_samples(sample_id=sample_id))) != 0
+        assert  session.all(TranscriptStat.select().where(TranscriptStat.sample_id == sample_id))
+        assert len(list(store.fetch_transcripts(sample_id=sample_id))) != 0
 
-    # WHEN deleting a sample
-    store.delete_sample(sample_id=sample_id)
+        # WHEN deleting a sample
+        store.delete_sample(sample_id=sample_id)
 
-    # THEN that sample and all its transcripts are deleted from the database
-    assert len(list(store.fetch_samples(sample_id=sample_id))) == 0
-    assert len(list(store.fetch_transcripts(sample_id=sample_id))) == 0
+        # THEN that sample and all its transcripts are deleted from the database
+        assert len(list(store.fetch_samples(sample_id=sample_id))) == 0
+        assert len(session.all(TranscriptStat.select().where(TranscriptStat.sample_id == sample_id))) == 0
+        assert len(list(store.fetch_transcripts(sample_id=sample_id))) == 0
 
 
 def test_delete_group(populated_db):
