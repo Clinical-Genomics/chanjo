@@ -55,7 +55,7 @@ class Sample(BASE):
     name = Column(types.String(128))
     group_name = Column(types.String(128))
 
-    stats = orm.relationship('TranscriptStat', cascade='all,delete,delete-orphan')
+    sample = orm.relationship('TranscriptStat', cascade='all,delete,delete-orphan')
 
 
 class TranscriptStat(BASE):
