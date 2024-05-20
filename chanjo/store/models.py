@@ -55,8 +55,7 @@ class Sample(BASE):
     name = Column(types.String(128))
     group_name = Column(types.String(128))
 
-    sample = orm.relationship('TranscriptStat', cascade='all,delete,delete-orphan')
-
+    stats = orm.relationship('TranscriptStat', cascade='all,delete,delete-orphan', back_populates="sample")
 
 class TranscriptStat(BASE):
 
@@ -91,6 +90,7 @@ class TranscriptStat(BASE):
                        nullable=False)
     transcript_id = Column(types.String(32), ForeignKey('transcript.id'),
                            nullable=False)
+    sample = orm.relationship("Sample", back_populates="stats")
 
 
 
