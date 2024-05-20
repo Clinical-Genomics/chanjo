@@ -55,7 +55,8 @@ class Sample(BASE):
     name = Column(types.String(128))
     group_name = Column(types.String(128))
 
-    stats = orm.relationship('TranscriptStat', cascade='all,delete,delete-orphan', back_populates="sample")
+    sample = orm.relationship('TranscriptStat', cascade='all,delete',
+                              backref='sample')
 
 class TranscriptStat(BASE):
 
@@ -90,9 +91,6 @@ class TranscriptStat(BASE):
                        nullable=False)
     transcript_id = Column(types.String(32), ForeignKey('transcript.id'),
                            nullable=False)
-    sample = orm.relationship("Sample", back_populates="stats")
-
-
 
     @property
     def incomplete_exons(self):
