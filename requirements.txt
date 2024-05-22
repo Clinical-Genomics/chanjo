@@ -1,9 +1,9 @@
 coloredlogs
-alchy
 click
 path.py
 toolz
 pyyaml
 importlib_metadata
 pymysql
-sqlalchemy==1.3.*
+sqlalchemy>=2.0
+sqlservice>=3.0

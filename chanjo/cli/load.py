@@ -47,16 +47,16 @@ def load(context, sample, group, name, group_name, threshold, bed_stream):
     result.sample.name = name
     result.sample.group_name = group_name
     try:
-        chanjo_db.add(result.sample)
-        with click.progressbar(result.models, length=result.count,
-                               label='loading transcripts') as bar:
-            for tx_model in bar:
-                chanjo_db.add(tx_model)
-        chanjo_db.save()
+        with chanjo_db.begin() as session:
+            session.add(result.sample)
+            with click.progressbar(result.models, length=result.count,
+                                   label='loading transcripts') as bar:
+                for tx_model in bar:
+                    session.add(tx_model)
+
     except IntegrityError as error:
         LOG.error('sample already loaded, rolling back')
         LOG.debug(error.args[0])
-        chanjo_db.session.rollback()
         context.abort()
 
 
@@ -68,14 +68,14 @@ def link(context, bed_stream):
     """Link related genomic elements."""
     chanjo_db = ChanjoDB(uri=context.obj['database'])
     result = link_elements(bed_stream)
-    with click.progressbar(result.models, length=result.count,
-                           label='adding transcripts') as bar:
-        for tx_model in bar:
-            chanjo_db.add(tx_model)
     try:
-        chanjo_db.save()
+        with chanjo_db.begin() as session:
+            with click.progressbar(result.models, length=result.count,
+                                   label='adding transcripts') as bar:
+                for tx_model in bar:
+                    session.add(tx_model)
+
     except IntegrityError:
-        LOG.exception('elements already linked?')
-        chanjo_db.session.rollback()
-        click.echo("use 'chanjo db setup --reset' to re-build")
-        context.abort()
+            LOG.exception('elements already linked?')
+            click.echo("use 'chanjo db setup --reset' to re-build")
+            context.abort()

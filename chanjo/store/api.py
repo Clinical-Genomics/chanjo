@@ -3,16 +3,16 @@ from __future__ import division
 import logging
 import os
 
-from alchy import Manager
+from sqlservice import Database
 from chanjo.calculate import CalculateMixin
 from .models import BASE
 from .fetch import FetchMixin
 from .delete import DeleteMixin
 
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
-class ChanjoDB(Manager, CalculateMixin, DeleteMixin, FetchMixin):
+class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
     """SQLAlchemy-based database object.
 
     Bundles functionality required to setup and interact with various
@@ -45,15 +45,13 @@ class ChanjoDB(Manager, CalculateMixin, DeleteMixin, FetchMixin):
     """
 
     def __init__(self, uri=None, debug=False, base=BASE):
-        self.Model = base
-        self.uri = uri
+        self.model_class = base
         if uri:
             self.connect(uri, debug=debug)
 
+
     def connect(self, db_uri, debug=False):
         """Configure connection to a SQL database.
-
-        .. versionadded:: 2.1.0
 
         Args:
             db_uri (str): path/URI to the database to connect to
@@ -66,12 +64,9 @@ class ChanjoDB(Manager, CalculateMixin, DeleteMixin, FetchMixin):
             # expect only a path to a sqlite database
             db_path = os.path.abspath(os.path.expanduser(db_uri))
             db_uri = "sqlite:///{}".format(db_path)
-            self.uri = db_uri
 
         config['SQLALCHEMY_DATABASE_URI'] = db_uri
-
-        # connect to the SQL database
-        super(ChanjoDB, self).__init__(config=config, Model=self.Model)
+        super(ChanjoDB, self).__init__(db_uri, model_class=BASE)
 
     @property
     def dialect(self):
@@ -92,8 +87,8 @@ class ChanjoDB(Manager, CalculateMixin, DeleteMixin, FetchMixin):
         """
         # create the tables
         self.create_all()
-        tables = self.Model.metadata.tables.keys()
-        log.info("created tables: %s", ', '.join(tables))
+        tables = self.model_class.metadata.tables.keys()
+        LOG.info("created tables: %s", ', '.join(tables))
         return self
 
     def tear_down(self):
@@ -104,22 +99,4 @@ class ChanjoDB(Manager, CalculateMixin, DeleteMixin, FetchMixin):
         """
         # drop/delete the tables
         self.drop_all()
-        return self
-
-    def save(self):
-        """Manually persist changes made to various elements. Chainable.
-
-        .. versionchanged:: 2.1.2
-            Flush session before commit.
-
-        Returns:
-            Store: ``self`` for chainability
-        """
-        try:
-            # commit/persist dirty changes to the database
-            self.commit()
-        except Exception as error:
-            log.debug('rolling back failed transaction')
-            self.session.rollback()
-            raise error
         return self

@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Replace ruamel.yaml with pyyaml lib
 - Updated GitHub actions
+- Replaced alchy lib with sqlservice
+- Unfreeze SQLAlchemy
 ### Fixed
 - Add missing brew path to GitHub action. It has been removed from PATH variable in Ubuntu
 - Badges on README page

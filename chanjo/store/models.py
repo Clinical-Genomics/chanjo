@@ -2,14 +2,13 @@
 from collections import namedtuple
 from datetime import datetime
 
-from alchy import ModelBase, make_declarative_base
+from sqlservice import declarative_base
 from sqlalchemy import Column, types, ForeignKey, UniqueConstraint, orm
 
 Exon = namedtuple('Exon', ['chrom', 'start', 'end', 'completeness'])
 
 # base for declaring a mapping
-BASE = make_declarative_base(Base=ModelBase)
-
+BASE = declarative_base()
 
 class Transcript(BASE):
 
@@ -59,7 +58,6 @@ class Sample(BASE):
     sample = orm.relationship('TranscriptStat', cascade='all,delete',
                               backref='sample')
 
-
 class TranscriptStat(BASE):
 
     """Statistics on transcript level, related to sample and transcript.
@@ -89,7 +87,7 @@ class TranscriptStat(BASE):
     threshold = Column(types.Integer)
     _incomplete_exons = Column(types.Text)
 
-    sample_id = Column(types.String(32), ForeignKey('sample.id'),
+    sample_id = Column(types.String(32), ForeignKey('sample.id', ondelete='CASCADE'),
                        nullable=False)
     transcript_id = Column(types.String(32), ForeignKey('transcript.id'),
                            nullable=False)
