@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [x.x.x] -
+## [4.7] - 2024-05-22
 ### Added
 - github actions to publish the repo to PyPI and publish mkdocs on new release event
 ### Changed
