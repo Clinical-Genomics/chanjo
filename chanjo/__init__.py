@@ -8,7 +8,10 @@ Coverage analysis for clinical sequencing.
 :licence: MIT, see LICENCE for more details
 """
 import logging
-from importlib.metadata import version
+try:
+    from importlib.metadata import version
+except ImportError:  # Backport support for importlib metadata on Python 3.7
+    from importlib_metadata import version
 
 
 __banner__ = r"""

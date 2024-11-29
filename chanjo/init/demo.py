@@ -3,7 +3,12 @@ from errno import EEXIST
 import logging
 import shutil
 from pathlib import Path
-from importlib.resources import files
+
+try:
+    from importlib.resources import files
+except ImportError:  # Backport support for importlib metadata on Python 3.7
+    from importlib_resources import files
+
 
 DEMO_BED_NAME = 'hgnc.min.bed'
 log = logging.getLogger(__name__)

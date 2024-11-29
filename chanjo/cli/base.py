@@ -6,7 +6,10 @@ Command line interface (console entry points). Based on Click_.
 """
 import logging
 import os
-from importlib.metadata import entry_points
+try:
+    from importlib.metadata import entry_points
+except ImportError:  # Backport support for importlib metadata on Python 3.7
+    from importlib_metadata import entry_points
 
 import click
 import coloredlogs
