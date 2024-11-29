@@ -8,7 +8,8 @@ Coverage analysis for clinical sequencing.
 :licence: MIT, see LICENCE for more details
 """
 import logging
-from pkg_resources import get_distribution
+from importlib.metadata import version
+
 
 __banner__ = r"""
        ______               ________
@@ -23,7 +24,7 @@ __title__ = 'chanjo'
 __summary__ = 'coverage analysis tool for clinical sequencing'
 __uri__ = 'http://www.chanjo.co/'
 
-__version__ = get_distribution(__title__).version
+__version__ = version(__title__)
 __codename__ = 'Optimistic Otter'
 
 __author__ = 'Robin Andeer'
