@@ -53,7 +53,7 @@ def init(context, force, demo, auto, root_dir):
         is_bootstrapped = True
 
     # setup config file
-    root_path.makedirs_p()
+    root_path.mkdir(parents=True, exist_ok=True)
     conf_path = root_path.joinpath('chanjo.yaml')
     with open(conf_path, 'w') as conf_handle:
         data = {'database': db_uri}
