@@ -4,7 +4,7 @@ from distutils.spawn import find_executable
 import logging
 
 import click
-from path import Path
+from pathlib import Path
 import yaml
 
 from chanjo.store.api import ChanjoDB
@@ -27,7 +27,7 @@ def init(context, force, demo, auto, root_dir):
 
     LOG.info("setting up chanjo under: %s", root_path)
     db_uri = context.obj.get('database')
-    db_uri = db_uri or "sqlite:///{}".format(root_path.joinpath(DB_NAME).abspath())
+    db_uri = db_uri or "sqlite:///{}".format(root_path.joinpath(DB_NAME).resolve())
 
     # test setup of sambamba
     sambamba_bin = find_executable('sambamba')
