@@ -19,6 +19,7 @@ from chanjo import __version__, __title__
 
 LOG = logging.getLogger(__name__)
 
+COMMAND_GROUP_KEY = 'chanjo.subcommands.4'
 
 class EntryPointsCLI(click.MultiCommand):
     """Add sub-commands dynamically to a CLI via entry points."""
@@ -26,7 +27,11 @@ class EntryPointsCLI(click.MultiCommand):
     def _iter_commands(self):
         """Iterate over all sub-commands as defined by the entry point."""
         # Get all entry points for the specified group
-        eps = entry_points(group='chanjo.subcommands.4')
+        if hasattr(entry_points(), 'select'):
+            # Python >3.10, importlib
+            eps = entry_points(group=COMMAND_GROUP_KEY)
+        else:
+            eps = entry_points().get(COMMAND_GROUP_KEY, [])
         return {ep.name: ep for ep in eps}
 
     def list_commands(self, ctx):
