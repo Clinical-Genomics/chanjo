@@ -38,14 +38,14 @@ def init(context, force, demo, auto, root_dir):
 
     if demo:
         LOG.info("copying demo files: %s", root_dir)
-        setup_demo(root_dir, force=force)
+        setup_demo(root_dir.resolve(), force=force)
 
         LOG.info("configure new chanjo database: %s", db_uri)
         chanjo_db = ChanjoDB(db_uri)
         chanjo_db.set_up()
         is_bootstrapped = True
     elif auto or click.confirm('Bootstrap HGNC transcript BED?'):
-        pull(root_dir, force=force)
+        pull(root_dir.resolve(), force=force)
 
         LOG.info("configure new chanjo database: %s", db_uri)
         chanjo_db = ChanjoDB(db_uri)
