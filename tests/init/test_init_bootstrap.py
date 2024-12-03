@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from pathlib import Path
-
 from mock import patch
 
 from chanjo.init import bootstrap
@@ -17,7 +15,7 @@ def test_pull(tmp_path):
     # THEN BED resource should be in place
     out_bed = tmp_path.joinpath(bootstrap.BED_NAME)
     assert out_bed.exists()
-    assert len([tmp_path.iterdir()]) == 1
+    assert len(list(tmp_path.iterdir())) == 1
 
     # GIVEN the resources already exists
     bootstrap.pull(target_dir)
