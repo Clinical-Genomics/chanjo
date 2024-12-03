@@ -1,7 +1,6 @@
 coloredlogs
 click
 cryptography
-path.py
 toolz
 pyyaml
 importlib_metadata

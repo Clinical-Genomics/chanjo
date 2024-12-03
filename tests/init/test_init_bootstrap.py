@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os
+from pathlib import Path
 
 from mock import patch
 
@@ -9,15 +9,15 @@ from chanjo.testutils import FakeZipFile, fake_urlretrieve
 
 @patch('urllib.request.urlretrieve', fake_urlretrieve)
 @patch('zipfile.ZipFile', FakeZipFile)
-def test_pull(tmpdir):
+def test_pull(tmp_path):
     # GIVEN a target directory
-    target_dir = str(tmpdir)
+    target_dir = str(tmp_path)
     # WHEN downloading resources
     bootstrap.pull(target_dir)
     # THEN BED resource should be in place
-    out_bed = str(tmpdir.join(bootstrap.BED_NAME))
-    assert os.path.exists(out_bed)
-    assert len(tmpdir.listdir()) == 1
+    out_bed = tmp_path.joinpath(bootstrap.BED_NAME)
+    assert out_bed.exists()
+    assert len([tmp_path.iterdir()]) == 1
 
     # GIVEN the resources already exists
     bootstrap.pull(target_dir)
