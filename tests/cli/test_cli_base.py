@@ -4,14 +4,14 @@ import os
 import yaml
 
 
-def test_logging_to_file(tmpdir, invoke_cli):
+def test_logging_to_file(tmp_path, invoke_cli):
     # GIVEN an empty directory
-    assert tmpdir.listdir() == []
+    assert not list(tmp_path.iterdir())
     # WHEN running the CLI to display some help for a subcommand
-    log_path = tmpdir.join('stderr.log')
+    log_path = tmp_path.joinpath('stderr.log')
     result = invoke_cli(['--log-file', str(log_path), 'db'])
     assert result.exit_code == 0
-    assert tmpdir.listdir() == [log_path]
+    assert list(tmp_path.iterdir()) == [log_path]
 
 
 def test_list_commands(invoke_cli):
