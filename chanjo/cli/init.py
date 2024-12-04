@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import codecs
-from distutils.spawn import find_executable
+from shutil import which
 import logging
 
 import click
@@ -30,7 +30,7 @@ def init(context, force, demo, auto, root_dir):
     db_uri = db_uri or "sqlite:///{}".format(root_path.joinpath(DB_NAME).resolve())
 
     # test setup of sambamba
-    sambamba_bin = find_executable('sambamba')
+    sambamba_bin = which('sambamba')
     if sambamba_bin is None:  # pragma: no cover
         LOG.warning("'sambamba' command not found")
     else:
