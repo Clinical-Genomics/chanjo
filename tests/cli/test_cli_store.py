@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
-
 import json
 
 from chanjo.cli import root
 from chanjo.store.models import Sample, TranscriptStat
 
 
-def test_setup(cli_runner, tmpdir):
+def test_setup(cli_runner, tmp_path):
     # GIVEN an empty directory
-    assert tmpdir.listdir() == []
+    assert not list(tmp_path.iterdir())
     # WHEN setting up a new database
     db_name = "coverage.sqlite"
-    db_path = tmpdir.join(db_name)
+    db_path = tmp_path.joinpath(db_name)
     cli_runner.invoke(root, ["--database", str(db_path), "db", "setup"])
     # THEN the file is created
-    assert tmpdir.listdir() == [db_path]
+    assert list(tmp_path.iterdir()) == [db_path]
 
 
 def test_setup_reset(cli_runner, popexist_db):

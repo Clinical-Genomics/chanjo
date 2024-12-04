@@ -3,12 +3,14 @@ import logging
 import zipfile
 import sys
 
+from pathlib import Path
+
 if sys.version_info[0] >=3:
     from urllib.request import urlretrieve
 else:
     from urllib import urlretrieve
 
-from path import Path
+
 
 DB_NAME = 'chanjo.coverage.sqlite3'
 BED_NAME = 'hgnc.grch37p13.exons.bed'
@@ -26,7 +28,7 @@ def pull(target_dir, force=False):  # pragma: no cover
     """
     logger.debug('ensure target directory exists')
     target_path = Path(target_dir)
-    target_path.makedirs_p()
+    target_path.mkdir(parents=True, exist_ok=True)
 
     bed_zip_path = target_path.joinpath("{}.zip".format(BED_NAME))
     final_bed = target_path.joinpath(BED_NAME)
@@ -40,6 +42,6 @@ def pull(target_dir, force=False):  # pragma: no cover
         zip_ref.extractall(target_dir)
 
         logger.info('removing BED archive...')
-        bed_zip_path.remove_p()
+        bed_zip_path.unlink()
     else:
         logger.warn('file already exists, skipping: %s', final_bed)

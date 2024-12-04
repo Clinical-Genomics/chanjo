@@ -1,17 +1,13 @@
-FROM frolvlad/alpine-miniconda3
+FROM clinicalgenomics/python3.11-miniconda
 
-LABEL base_image="frolvlad/alpine-miniconda3"
+LABEL base_image="clinicalgenomics/python3.11-miniconda"
 LABEL about.home="https://github.com/Clinical-Genomics/chanjo"
 LABEL about.documentation="https://clinical-genomics.github.io/chanjo/"
-LABEL about.tags="chanjo,bam,NGS,coverage,sambamba,alpine,python,python3.7"
+LABEL about.tags="chanjo,bam,NGS,MPS,WES,WGS,coverage,sambamba,alpine,python"
 LABEL about.license="MIT License (MIT)"
 
 # Install Sambamba using conda
-RUN conda update -n base -c defaults conda && conda install -c bioconda sambamba
-
-# Install required libs
-RUN apk update \
-	&& apk --no-cache add bash python3
+RUN conda install -c bioconda sambamba
 
 WORKDIR /home/worker/app
 COPY . /home/worker/app
@@ -23,6 +19,6 @@ RUN pip install -r requirements.txt
 RUN pip install -e .
 
 # Run commands as non-root user
-RUN adduser -D worker
+RUN adduser --disabled-login worker
 RUN chown worker:worker -R /home/worker
 USER worker

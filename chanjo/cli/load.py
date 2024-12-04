@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-import os.path
 import logging
 import sys
+
+from pathlib import Path
 
 import click
 from sqlalchemy.exc import IntegrityError
@@ -11,7 +12,6 @@ from chanjo.load.link import link_elements
 from chanjo.load.sambamba import load_transcripts
 
 LOG = logging.getLogger(__name__)
-
 
 def validate_stdin(context, param, value):
     """Validate piped input contains some data.
@@ -39,7 +39,7 @@ def validate_stdin(context, param, value):
 def load(context, sample, group, name, group_name, threshold, bed_stream):
     """Load Sambamba output into the database for a sample."""
     chanjo_db = ChanjoDB(uri=context.obj['database'])
-    source = os.path.abspath(bed_stream.name)
+    source = str(Path(bed_stream.name).resolve())
 
     result = load_transcripts(bed_stream, sample_id=sample, group_id=group,
                               source=source, threshold=threshold)

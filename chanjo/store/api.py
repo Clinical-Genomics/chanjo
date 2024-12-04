@@ -3,6 +3,8 @@ from __future__ import division
 import logging
 import os
 
+from pathlib import Path
+
 from sqlservice import Database
 from chanjo.calculate import CalculateMixin
 from .models import BASE
@@ -11,6 +13,11 @@ from .delete import DeleteMixin
 
 LOG = logging.getLogger(__name__)
 
+def get_absolute_path(db_uri):
+    """Get the absolute path of the database URI."""
+    # Use Path for handling paths
+    db_path = Path(db_uri).expanduser().resolve()
+    return db_path
 
 class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
     """SQLAlchemy-based database object.
@@ -62,7 +69,7 @@ class ChanjoDB(Database, CalculateMixin, DeleteMixin, FetchMixin):
             config['SQLALCHEMY_POOL_RECYCLE'] = 3600
         elif '://' not in db_uri:
             # expect only a path to a sqlite database
-            db_path = os.path.abspath(os.path.expanduser(db_uri))
+            db_path = get_absolute_path(db_uri)
             db_uri = "sqlite:///{}".format(db_path)
 
         config['SQLALCHEMY_DATABASE_URI'] = db_uri

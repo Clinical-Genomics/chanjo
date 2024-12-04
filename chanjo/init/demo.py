@@ -1,37 +1,49 @@
 # -*- coding: utf-8 -*-
 from errno import EEXIST
 import logging
-from pkg_resources import resource_filename, resource_listdir
+import shutil
+from pathlib import Path
 
-from path import Path
+try:
+    from importlib.resources import files
+except ImportError:  # Backport support for importlib metadata on Python 3.7
+    from importlib_resources import files
+
 
 DEMO_BED_NAME = 'hgnc.min.bed'
 log = logging.getLogger(__name__)
 
-
 def setup_demo(location, force=False):
     """Copy demo files to a directory.
 
-    \b
-    LOCATION: directory to add demofiles to (default: ./chanjo-demo)
+    LOCATION: directory to add demo files to (default: ./chanjo-demo)
     """
     target_dir = Path(location)
     pkg_dir = __name__.rpartition('.')[0]
-    demo_dir = Path(resource_filename(pkg_dir, 'demo-files'))
 
-    # make sure we don't overwrite exiting files
-    for demo_file in resource_listdir(pkg_dir, 'demo-files'):
-        target_file_path = target_dir.joinpath(demo_file)
+    # Get the demo-files directory path using importlib.resources
+    demo_dir = files(pkg_dir) / 'demo-files'
+
+    if not demo_dir.is_dir():
+        log.error("Demo files directory does not exist")
+        raise FileNotFoundError(f"'demo-files' directory not found in package {pkg_dir}")
+
+    # Check for existing files and avoid overwriting unless `force` is True
+    for demo_file in demo_dir.iterdir():
+        target_file_path = target_dir / demo_file.name
         if not force and target_file_path.exists():
             log.error("%s exists, pick a different location", target_file_path)
             raise OSError(EEXIST, 'file already exists', target_file_path)
 
     try:
-        # we can copy the directory(tree)
-        demo_dir.copytree(target_dir)
+        # Copy the directory tree
+        shutil.copytree(demo_dir, target_dir)
+    except FileExistsError:
+        log.warning('Location must be a non-existing directory')
+        raise
     except OSError as error:
-        log.warn('location must be a non-existing directory')
-        raise error
+        log.error('An error occurred during file copying: %s', error)
+        raise
 
-    # inform the user
-    log.info("successfully copied demo files to %s", target_dir)
+    # Inform the user
+    log.info("Successfully copied demo files to %s", target_dir)

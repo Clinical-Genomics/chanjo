@@ -1,10 +1,10 @@
 coloredlogs
 click
 cryptography
-path.py
 toolz
 pyyaml
 importlib_metadata
+importlib_resources
 pymysql
 sqlalchemy>=2.0
 sqlservice>=3.0

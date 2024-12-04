@@ -1,5 +1,8 @@
-import os
+from pathlib import Path
 
+import logging
+
+LOG = logging.getLogger(__name__)
 
 def fake_urlretrieve(url, target):
     open(target, 'a').close()
@@ -11,5 +14,5 @@ class FakeZipFile(object):
         self.in_path = in_path
 
     def extractall(self, target_dir):
-        out_path = os.path.join(target_dir, self.in_path.replace('.zip', ''))
+        out_path = Path(target_dir).joinpath(self.in_path.name.replace('.zip', ''))
         open(out_path, 'a').close()

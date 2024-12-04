@@ -6,7 +6,10 @@ Command line interface (console entry points). Based on Click_.
 """
 import logging
 import os
-import pkg_resources
+try:
+    from importlib.metadata import entry_points
+except ImportError:  # Backport support for importlib metadata on Python 3.7
+    from importlib_metadata import entry_points
 
 import click
 import coloredlogs
@@ -16,14 +19,20 @@ from chanjo import __version__, __title__
 
 LOG = logging.getLogger(__name__)
 
+COMMAND_GROUP_KEY = 'chanjo.subcommands.4'
 
 class EntryPointsCLI(click.MultiCommand):
     """Add sub-commands dynamically to a CLI via entry points."""
 
     def _iter_commands(self):
         """Iterate over all sub-commands as defined by the entry point."""
-        return {entry_point.name: entry_point for entry_point in
-                pkg_resources.iter_entry_points('chanjo.subcommands.4')}
+        # Get all entry points for the specified group
+        if hasattr(entry_points(), 'select'):
+            # Python >3.10, importlib
+            eps = entry_points(group=COMMAND_GROUP_KEY)
+        else:
+            eps = entry_points().get(COMMAND_GROUP_KEY, [])
+        return {ep.name: ep for ep in eps}
 
     def list_commands(self, ctx):
         """List the available commands."""
@@ -34,7 +43,7 @@ class EntryPointsCLI(click.MultiCommand):
         """Load one of the available commands."""
         commands = self._iter_commands()
         if name not in commands:
-            click.echo("no such command: {}".format(name))
+            click.echo(f"no such command: {name}")
             ctx.abort()
         return commands[name].load()
 
@@ -51,9 +60,9 @@ def root(context, config, database, log_level, log_file):
     """Clinical sequencing coverage analysis tool."""
     logout = log_file or click.get_text_stream('stderr')
     coloredlogs.install(level=log_level, stream=logout)
-    LOG.debug("version {0}".format(__version__))
+    LOG.debug("version %s", __version__)
 
-    # avoid setting global defaults in Click options, do it below when
+    # Load configuration from the provided file
     if os.path.exists(config):
         with open(config) as conf_handle:
             context.obj = yaml.safe_load(conf_handle)
@@ -61,5 +70,5 @@ def root(context, config, database, log_level, log_file):
         context.obj = {}
     context.obj['database'] = (database or context.obj.get('database'))
 
-    # update the context with new defaults from the config file
+    # Update the context with new defaults from the config file
     context.default_map = context.obj

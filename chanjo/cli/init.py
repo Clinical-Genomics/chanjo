@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import codecs
-from distutils.spawn import find_executable
+from shutil import which
 import logging
 
 import click
-from path import Path
+from pathlib import Path
 import yaml
 
 from chanjo.store.api import ChanjoDB
@@ -27,10 +27,10 @@ def init(context, force, demo, auto, root_dir):
 
     LOG.info("setting up chanjo under: %s", root_path)
     db_uri = context.obj.get('database')
-    db_uri = db_uri or "sqlite:///{}".format(root_path.joinpath(DB_NAME).abspath())
+    db_uri = db_uri or "sqlite:///{}".format(root_path.joinpath(DB_NAME).resolve())
 
     # test setup of sambamba
-    sambamba_bin = find_executable('sambamba')
+    sambamba_bin = which('sambamba')
     if sambamba_bin is None:  # pragma: no cover
         LOG.warning("'sambamba' command not found")
     else:
@@ -53,7 +53,7 @@ def init(context, force, demo, auto, root_dir):
         is_bootstrapped = True
 
     # setup config file
-    root_path.makedirs_p()
+    root_path.mkdir(parents=True, exist_ok=True)
     conf_path = root_path.joinpath('chanjo.yaml')
     with open(conf_path, 'w') as conf_handle:
         data = {'database': db_uri}
