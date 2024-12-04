@@ -39,7 +39,7 @@ def validate_stdin(context, param, value):
 def load(context, sample, group, name, group_name, threshold, bed_stream):
     """Load Sambamba output into the database for a sample."""
     chanjo_db = ChanjoDB(uri=context.obj['database'])
-    source = Path(bed_stream.name).resolve()
+    source = str(Path(bed_stream.name).resolve())
 
     result = load_transcripts(bed_stream, sample_id=sample, group_id=group,
                               source=source, threshold=threshold)
