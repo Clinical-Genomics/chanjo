@@ -14,6 +14,5 @@ class FakeZipFile(object):
         self.in_path = in_path
 
     def extractall(self, target_dir):
-        LOG.info(f"fake zip target dir : {target_dir} path {self.in_path}")
         out_path = Path(target_dir).joinpath(self.in_path.name.replace('.zip', ''))
         open(out_path, 'a').close()
