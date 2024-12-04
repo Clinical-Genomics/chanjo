@@ -68,7 +68,7 @@ setup(
     license='MIT',
 
     # The project's main homepage
-    url='http://www.chanjo.co/',
+    url='https://clinical-genomics.github.io/chanjo/',
 
     packages=find_packages(exclude=('tests*', 'docs', 'examples')),
 
