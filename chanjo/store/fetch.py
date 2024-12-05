@@ -4,12 +4,11 @@ from chanjo.store.models import Sample, TranscriptStat
 
 
 class FetchMixin:
-
     """Methods for fetching from database"""
 
     def fetch_samples(self, sample_id=None, group_id=None):
         """
-            Fetch samples from database
+        Fetch samples from database
         """
         with self.begin() as session:
             query = session.query(Sample)
@@ -21,10 +20,8 @@ class FetchMixin:
 
     def fetch_transcripts(self, sample_id):
         """
-            Fetch transcripts from database
+        Fetch transcripts from database
         """
         with self.begin() as session:
-            query = session.query(TranscriptStat).filter(
-                TranscriptStat.sample_id == sample_id
-            )
+            query = session.query(TranscriptStat).filter(TranscriptStat.sample_id == sample_id)
             return query
