@@ -36,7 +36,10 @@ def test_remove(cli_runner, popexist_db):
         cli_runner.invoke(root, ["--database", popexist_db.uri, "db", "remove", sample_id])
         # THEN the sample should be deleted along with annotations
         assert session.first(Sample.select()) is None
-        assert len(session.all(TranscriptStat.select().where(TranscriptStat.sample_id == sample_id))) == 0
+        assert (
+            len(session.all(TranscriptStat.select().where(TranscriptStat.sample_id == sample_id)))
+            == 0
+        )
         # WHEN removing a sample with non-existing id
         result = cli_runner.invoke(
             root, ["--database", popexist_db.uri, "db", "remove", "no-sample-id"]

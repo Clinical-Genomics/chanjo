@@ -1,6 +1,7 @@
 """
     Tests for store
 """
+
 from datetime import datetime
 
 import pytest
@@ -105,7 +106,7 @@ def test_delete_sample(populated_db):
     sample_id = "sample"
     with populated_db.begin() as session:
         assert len(list(store.fetch_samples(sample_id=sample_id))) != 0
-        assert  session.all(TranscriptStat.select().where(TranscriptStat.sample_id == sample_id))
+        assert session.all(TranscriptStat.select().where(TranscriptStat.sample_id == sample_id))
         assert len(list(store.fetch_transcripts(sample_id=sample_id))) != 0
 
         # WHEN deleting a sample
@@ -113,7 +114,10 @@ def test_delete_sample(populated_db):
 
         # THEN that sample and all its transcripts are deleted from the database
         assert len(list(store.fetch_samples(sample_id=sample_id))) == 0
-        assert len(session.all(TranscriptStat.select().where(TranscriptStat.sample_id == sample_id))) == 0
+        assert (
+            len(session.all(TranscriptStat.select().where(TranscriptStat.sample_id == sample_id)))
+            == 0
+        )
         assert len(list(store.fetch_transcripts(sample_id=sample_id))) == 0
 
 

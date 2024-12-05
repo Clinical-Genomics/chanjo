@@ -12,8 +12,8 @@ def chanjo(handle):
     Yields:
         dict: representation of row in BED file
     """
-    lines = (line.strip() for line in handle if not line.startswith('#'))
-    rows = (line.split('\t') for line in lines)
+    lines = (line.strip() for line in handle if not line.startswith("#"))
+    rows = (line.split("\t") for line in lines)
     for row in rows:
         yield expand_row(row)
 
@@ -31,20 +31,16 @@ def expand_row(row):
         BedFormattingError: failure to parse first three columns
     """
     try:
-        data = {
-            'chrom': row[0],
-            'chromStart': int(row[1]),
-            'chromEnd': int(row[2])
-        }
+        data = {"chrom": row[0], "chromStart": int(row[1]), "chromEnd": int(row[2])}
     except IndexError:
-        raise BedFormattingError('make sure fields are tab-separated')
+        raise BedFormattingError("make sure fields are tab-separated")
     except ValueError:
         raise BedFormattingError("positions malformatted: {}".format(row))
 
-    data['name'] = list_get(row, 3)
+    data["name"] = list_get(row, 3)
     element_combos = extra_fields(row[4:7])
-    data['elements'] = element_combos
-    data['extra_fields'] = row[7:]
+    data["elements"] = element_combos
+    data["extra_fields"] = row[7:]
     return data
 
 
@@ -60,9 +56,9 @@ def extra_fields(columns):
         List[tuple]: list of tuples with paired elements
     """
     try:
-        transcripts = columns[0].split(',')
-        genes = columns[1].split(',')
-        symbols = columns[2].split(',')
+        transcripts = columns[0].split(",")
+        genes = columns[1].split(",")
+        symbols = columns[2].split(",")
     except IndexError:
         return []
     return zip(transcripts, genes, symbols)

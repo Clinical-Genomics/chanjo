@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [4.7.1] - 2024-06-05
 ### Fixed
 - Added `cryptography` module among the dependencies
+- Refactored to allow later python versions than 3.8 (pkg_resources to importlib, os.path and path.py to pathlib, distutils to shutil) [#262](https://github.com/Clinical-Genomics/chanjo/pull/262)
+- Updated actions to use python 3.11, add changelog reminder, add linting, format for linters
 
 ## [4.7] - 2024-05-22
 ### Added

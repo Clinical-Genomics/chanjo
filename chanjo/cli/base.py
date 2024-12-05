@@ -6,6 +6,7 @@ Command line interface (console entry points). Based on Click_.
 """
 import logging
 import os
+
 try:
     from importlib.metadata import entry_points
 except ImportError:  # Backport support for importlib metadata on Python 3.7
@@ -15,11 +16,12 @@ import click
 import coloredlogs
 import yaml
 
-from chanjo import __version__, __title__
+from chanjo import __title__, __version__
 
 LOG = logging.getLogger(__name__)
 
-COMMAND_GROUP_KEY = 'chanjo.subcommands.4'
+COMMAND_GROUP_KEY = "chanjo.subcommands.4"
+
 
 class EntryPointsCLI(click.MultiCommand):
     """Add sub-commands dynamically to a CLI via entry points."""
@@ -27,7 +29,7 @@ class EntryPointsCLI(click.MultiCommand):
     def _iter_commands(self):
         """Iterate over all sub-commands as defined by the entry point."""
         # Get all entry points for the specified group
-        if hasattr(entry_points(), 'select'):
+        if hasattr(entry_points(), "select"):
             # Python >3.10, importlib
             eps = entry_points(group=COMMAND_GROUP_KEY)
         else:
@@ -49,16 +51,17 @@ class EntryPointsCLI(click.MultiCommand):
 
 
 @click.group(cls=EntryPointsCLI)
-@click.option('-c', '--config', default='./chanjo.yaml',
-              type=click.Path(), help='path to config file')
-@click.option('-d', '--database', help='path/URI of the SQL database')
-@click.option('-l', '--log-level', default='INFO')
-@click.option('--log-file', type=click.File('a'))
+@click.option(
+    "-c", "--config", default="./chanjo.yaml", type=click.Path(), help="path to config file"
+)
+@click.option("-d", "--database", help="path/URI of the SQL database")
+@click.option("-l", "--log-level", default="INFO")
+@click.option("--log-file", type=click.File("a"))
 @click.version_option(__version__, prog_name=__title__)
 @click.pass_context
 def root(context, config, database, log_level, log_file):
     """Clinical sequencing coverage analysis tool."""
-    logout = log_file or click.get_text_stream('stderr')
+    logout = log_file or click.get_text_stream("stderr")
     coloredlogs.install(level=log_level, stream=logout)
     LOG.debug("version %s", __version__)
 
@@ -68,7 +71,7 @@ def root(context, config, database, log_level, log_file):
             context.obj = yaml.safe_load(conf_handle)
     else:
         context.obj = {}
-    context.obj['database'] = (database or context.obj.get('database'))
+    context.obj["database"] = database or context.obj.get("database")
 
     # Update the context with new defaults from the config file
     context.default_map = context.obj

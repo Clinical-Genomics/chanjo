@@ -18,11 +18,11 @@ def depth_output(handle):
         BedFormattingError: if the BED file doesn't contain enough columns
     """
     lines = (line.strip() for line in handle)
-    rows = (line.split('\t') for line in lines)
+    rows = (line.split("\t") for line in lines)
     # expect only a single header row
     header_row = next(rows)
     if len(header_row) < 6:
-        raise BedFormattingError('make sure fields are tab-separated')
+        raise BedFormattingError("make sure fields are tab-separated")
     header_data = expand_header(header_row)
     # parse rows
     for row in rows:
@@ -39,17 +39,18 @@ def expand_header(row):
         dict: name/index combos for fields
     """
     # figure out where the sambamba output begins
-    sambamba_start = row.index('readCount')
-    sambamba_end = row.index('sampleName')
-    coverage_columns = row[sambamba_start + 2:sambamba_end]
-    thresholds = {int(column.replace('percentage', '')): row.index(column)
-                  for column in coverage_columns}
+    sambamba_start = row.index("readCount")
+    sambamba_end = row.index("sampleName")
+    coverage_columns = row[sambamba_start + 2 : sambamba_end]
+    thresholds = {
+        int(column.replace("percentage", "")): row.index(column) for column in coverage_columns
+    }
     keys = {
-        'readCount': sambamba_start,
-        'meanCoverage': sambamba_start + 1,
-        'thresholds': thresholds,
-        'sampleName': sambamba_end,
-        'extraFields': slice(3, sambamba_start)
+        "readCount": sambamba_start,
+        "meanCoverage": sambamba_start + 1,
+        "thresholds": thresholds,
+        "sampleName": sambamba_end,
+        "extraFields": slice(3, sambamba_start),
     }
     return keys
 
@@ -64,16 +65,15 @@ def expand_row(header, row):
     Returns:
         dict: parsed sambamba output row
     """
-    thresholds = {threshold: float(row[key])
-                  for threshold, key in header['thresholds'].items()}
+    thresholds = {threshold: float(row[key]) for threshold, key in header["thresholds"].items()}
     data = {
-        'chrom': row[0],
-        'chromStart': int(row[1]),
-        'chromEnd': int(row[2]),
-        'sampleName': row[header['sampleName']],
-        'readCount': int(row[header['readCount']]),
-        'meanCoverage': float(row[header['meanCoverage']]),
-        'thresholds': thresholds,
-        'extraFields': row[header['extraFields']]
+        "chrom": row[0],
+        "chromStart": int(row[1]),
+        "chromEnd": int(row[2]),
+        "sampleName": row[header["sampleName"]],
+        "readCount": int(row[header["readCount"]]),
+        "meanCoverage": float(row[header["meanCoverage"]]),
+        "thresholds": thresholds,
+        "extraFields": row[header["extraFields"]],
     }
     return data

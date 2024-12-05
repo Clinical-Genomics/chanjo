@@ -1,13 +1,13 @@
 """Module for deleting from database"""
 
 import logging
+
 from chanjo.store.models import Sample
 
 LOG = logging.getLogger(__name__)
 
 
 class DeleteMixin:
-
     """Methods for deleting samples from database"""
 
     def delete_sample(self, sample_id):

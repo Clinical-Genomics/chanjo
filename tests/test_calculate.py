@@ -14,7 +14,7 @@ def test_mean(populated_db):
         results = query.all()
         assert len(results) == 2
         sample_ids = set(result[0] for result in results)
-        assert sample_ids == set(['sample', 'sample2'])  # sample id
+        assert sample_ids == set(["sample", "sample2"])  # sample id
         result = results[0]
         for metric in filter(None, result[1:]):
             assert isinstance(metric, float)
@@ -26,7 +26,7 @@ def test_mean_with_samples(populated_db):
         # GIVEN a database loaded with 2 samples
         assert len(session.all(Sample.select())) == 2
         # WHEN calculating mean values across metrics for a particular sample
-        sample_id = 'sample'
+        sample_id = "sample"
         query = populated_db.mean(sample_ids=[sample_id])
         # THEN the results should be limited to that sample
         results = query.all()
@@ -47,7 +47,7 @@ def test_gene(populated_db):
         results = query.all()
         assert len(results) == 2
         result = results[0]
-        assert result[0] == 'sample'
+        assert result[0] == "sample"
         assert result[-1] == gene_id
 
 
@@ -56,7 +56,7 @@ def test_sample_coverage(populated_db):
     with populated_db.begin() as session:
         # GIVEN a database loaded with 2 samples
         assert len(session.all(Sample.select())) == 2
-        sample_ids = ('sample', 'sample2')
+        sample_ids = ("sample", "sample2")
         gene_ids = (14825, 28706)
         # WHEN calculating coverage for sample 'sample' on gene 14825
         query = populated_db.sample_coverage(sample_ids=sample_ids, genes=gene_ids)
@@ -64,4 +64,4 @@ def test_sample_coverage(populated_db):
         # is a dict with keys mean_coverage and mean completeness
         assert set(query.keys()) == set(sample_ids)
         for _, value in query.items():
-            assert set(value.keys()) == set(['mean_coverage', 'mean_completeness'])
+            assert set(value.keys()) == set(["mean_coverage", "mean_completeness"])

@@ -6,13 +6,14 @@ Based on the ratio between the average coverage across chromosomes it
 makes a simple sex prediction.
 """
 from __future__ import division
-from collections import namedtuple
+
 import logging
 import subprocess
+from collections import namedtuple
 
 LOG = logging.getLogger(__name__)
 
-SexGuess = namedtuple('SexGuess', ['x_coverage', 'y_coverage', 'sex'])
+SexGuess = namedtuple("SexGuess", ["x_coverage", "y_coverage", "sex"])
 
 
 def predict_sex(x_coverage, y_coverage):
@@ -30,20 +31,20 @@ def predict_sex(x_coverage, y_coverage):
         str: prediction, ['male', 'female', 'unknown']
     """
     if y_coverage == 0:
-        return 'female'
+        return "female"
     else:
         ratio = x_coverage / y_coverage
         if x_coverage == 0 or (ratio > 12 and ratio < 100):
-            return 'unknown'
+            return "unknown"
         elif ratio <= 12:
             # this is the entire prediction, it's usually very obvious
-            return 'male'
+            return "male"
         else:
             # the few reads mapping to the Y chromosomes are artifacts
-            return 'female'
+            return "female"
 
 
-def sex_from_bam(bam_path, prefix=''):
+def sex_from_bam(bam_path, prefix=""):
     """Predict the sex from a BAM alignment file.
 
     Args:
@@ -63,15 +64,14 @@ def sex_from_bam(bam_path, prefix=''):
     for region in regions:
         command = ["sambamba depth region -L {} {}".format(region, bam_path)]
         LOG.debug("calling: %s", command)
-        bed_out = subprocess.check_output(command, shell=True).decode('utf-8')
-        bed_rows = [line.split() for line in bed_out.splitlines()
-                    if not line.startswith('#')]
+        bed_out = subprocess.check_output(command, shell=True).decode("utf-8")
+        bed_rows = [line.split() for line in bed_out.splitlines() if not line.startswith("#")]
         if len(bed_rows) == 1:
             averages.append(float(bed_rows[0][4]))
         else:
-            chromosome = region.split(':')[0]
+            chromosome = region.split(":")[0]
             LOG.warning("couldn't find any reads on %s-chromosome", chromosome)
-            averages.append(0.)
+            averages.append(0.0)
 
     # make the guess
     x_coverage, y_coverage = list(averages)

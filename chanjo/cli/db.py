@@ -59,9 +59,7 @@ def samples(context, group_id, sample_id, pretty):
     indent = None
     if pretty:
         indent = 4
-    click.echo(
-        json.dumps([dict(result) for result in query], default=str, indent=indent)
-    )
+    click.echo(json.dumps([dict(result) for result in query], default=str, indent=indent))
 
 
 @db_cmd.command()
@@ -75,9 +73,7 @@ def transcripts(context, sample_id, pretty):
     indent = None
     if pretty:
         indent = 4
-    click.echo(
-        json.dumps([dict(result) for result in query], default=str, indent=indent)
-    )
+    click.echo(json.dumps([dict(result) for result in query], default=str, indent=indent))
 
 
 @db_cmd.command()

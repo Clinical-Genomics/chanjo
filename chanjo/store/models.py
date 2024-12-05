@@ -2,16 +2,16 @@
 from collections import namedtuple
 from datetime import datetime
 
+from sqlalchemy import Column, ForeignKey, UniqueConstraint, orm, types
 from sqlservice import declarative_base
-from sqlalchemy import Column, types, ForeignKey, UniqueConstraint, orm
 
-Exon = namedtuple('Exon', ['chrom', 'start', 'end', 'completeness'])
+Exon = namedtuple("Exon", ["chrom", "start", "end", "completeness"])
 
 # base for declaring a mapping
 BASE = declarative_base()
 
-class Transcript(BASE):
 
+class Transcript(BASE):
     """Set of non-overlapping exons.
 
     A :class:`Transcript` can *only* be related to a single gene.
@@ -23,7 +23,7 @@ class Transcript(BASE):
         lenght (int): number of exon bases in transcript
     """
 
-    __tablename__ = 'transcript'
+    __tablename__ = "transcript"
 
     id = Column(types.String(32), primary_key=True)
     gene_id = Column(types.Integer, index=True, nullable=False)
@@ -31,11 +31,10 @@ class Transcript(BASE):
     chromosome = Column(types.String(10))
     length = Column(types.Integer)
 
-    stats = orm.relationship('TranscriptStat', backref='transcript')
+    stats = orm.relationship("TranscriptStat", backref="transcript")
 
 
 class Sample(BASE):
-
     """Metadata for a single sample.
 
     Args:
@@ -45,7 +44,7 @@ class Sample(BASE):
         created_at (DateTime): date of addition to database
     """
 
-    __tablename__ = 'sample'
+    __tablename__ = "sample"
 
     id = Column(types.String(32), primary_key=True)
     group_id = Column(types.String(128), index=True)
@@ -55,11 +54,10 @@ class Sample(BASE):
     name = Column(types.String(128))
     group_name = Column(types.String(128))
 
-    sample = orm.relationship('TranscriptStat', cascade='all,delete',
-                              backref='sample')
+    sample = orm.relationship("TranscriptStat", cascade="all,delete", backref="sample")
+
 
 class TranscriptStat(BASE):
-
     """Statistics on transcript level, related to sample and transcript.
 
     Args:
@@ -72,9 +70,8 @@ class TranscriptStat(BASE):
         _incomplete_exons (str): comma separated list of exon ids
     """
 
-    __tablename__ = 'transcript_stat'
-    __table_args__ = (UniqueConstraint('sample_id', 'transcript_id',
-                                       name='_sample_transcript_uc'),)
+    __tablename__ = "transcript_stat"
+    __table_args__ = (UniqueConstraint("sample_id", "transcript_id", name="_sample_transcript_uc"),)
 
     id = Column(types.Integer, primary_key=True)
     mean_coverage = Column(types.Float, nullable=False)
@@ -87,22 +84,22 @@ class TranscriptStat(BASE):
     threshold = Column(types.Integer)
     _incomplete_exons = Column(types.Text)
 
-    sample_id = Column(types.String(32), ForeignKey('sample.id', ondelete='CASCADE'),
-                       nullable=False)
-    transcript_id = Column(types.String(32), ForeignKey('transcript.id'),
-                           nullable=False)
+    sample_id = Column(
+        types.String(32), ForeignKey("sample.id", ondelete="CASCADE"), nullable=False
+    )
+    transcript_id = Column(types.String(32), ForeignKey("transcript.id"), nullable=False)
 
     @property
     def incomplete_exons(self):
         """Return a list of exons ids."""
-        raw_exons = (self._incomplete_exons.split(',') if
-                     self._incomplete_exons else [])
+        raw_exons = self._incomplete_exons.split(",") if self._incomplete_exons else []
         for raw_exon in raw_exons:
-            data = raw_exon.split('|')
-            yield Exon(chrom=data[0], start=int(data[1]), end=int(data[2]),
-                       completeness=float(data[3]))
+            data = raw_exon.split("|")
+            yield Exon(
+                chrom=data[0], start=int(data[1]), end=int(data[2]), completeness=float(data[3])
+            )
 
     @incomplete_exons.setter
     def incomplete_exons(self, exon_list):
-        raw_exons = ['|'.join(map(str, exon)) for exon in exon_list]
-        self._incomplete_exons = ','.join(raw_exons) if raw_exons else None
+        raw_exons = ["|".join(map(str, exon)) for exon in exon_list]
+        self._incomplete_exons = ",".join(raw_exons) if raw_exons else None

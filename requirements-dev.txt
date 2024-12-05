@@ -11,3 +11,5 @@ docutils
 html-linter
 mkdocs
 markdown-include
+black
+isort
