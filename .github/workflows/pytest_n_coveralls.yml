@@ -8,7 +8,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: 3.8
+        python-version: 3.11
     - run: echo "/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
     - name: Install Sambamba
       run: |

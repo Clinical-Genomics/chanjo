@@ -8,6 +8,7 @@ Coverage analysis for clinical sequencing.
 :licence: MIT, see LICENCE for more details
 """
 import logging
+
 try:
     from importlib.metadata import version
 except ImportError:  # Backport support for importlib metadata on Python 3.7
@@ -23,18 +24,18 @@ __banner__ = r"""
                             /___/
 """
 
-__title__ = 'chanjo'
-__summary__ = 'coverage analysis tool for clinical sequencing'
-__uri__ = 'http://www.chanjo.co/'
+__title__ = "chanjo"
+__summary__ = "coverage analysis tool for clinical sequencing"
+__uri__ = "http://www.chanjo.co/"
 
 __version__ = version(__title__)
-__codename__ = 'Optimistic Otter'
+__codename__ = "Optimistic Otter"
 
-__author__ = 'Robin Andeer'
-__email__ = 'robin.andeer@gmail.com'
+__author__ = "Robin Andeer"
+__email__ = "robin.andeer@gmail.com"
 
-__license__ = 'MIT'
-__copyright__ = 'Copyright 2016 Robin Andeer'
+__license__ = "MIT"
+__copyright__ = "Copyright 2016 Robin Andeer"
 
 # the user should dictate what happens when a logging event occurs
 logging.getLogger(__name__).addHandler(logging.NullHandler())
