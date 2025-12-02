@@ -18,9 +18,17 @@ LOG = logging.getLogger(__name__)
 @click.option("-f", "--force", is_flag=True, help="overwrite existing files")
 @click.option("-d", "--demo", is_flag=True, help="copy demo files")
 @click.option("-a", "--auto", is_flag=True)
+@click.option(
+    "-b",
+    "--build",
+    type=click.Choice(["37", "38"]),
+    default="37",
+    show_default=True,
+    help="Genome version to use.",
+)
 @click.argument("root_dir", default=".", required=False)
 @click.pass_context
-def init(context, force, demo, auto, root_dir):
+def init(context, force, demo, auto, build, root_dir):
     """Bootstrap a new chanjo setup."""
     is_bootstrapped = False
     root_path = Path(root_dir)
@@ -45,7 +53,7 @@ def init(context, force, demo, auto, root_dir):
         chanjo_db.set_up()
         is_bootstrapped = True
     elif auto or click.confirm("Bootstrap HGNC transcript BED?"):
-        pull(root_dir, force=force)
+        pull(root_dir, force=force, build=build)
 
         LOG.info("configure new chanjo database: %s", db_uri)
         chanjo_db = ChanjoDB(db_uri)
@@ -62,5 +70,5 @@ def init(context, force, demo, auto, root_dir):
 
     if is_bootstrapped:
         click.echo("Chanjo bootstrap successful! Now run: ")
-        bed_path = root_path.joinpath(DEMO_BED_NAME if demo else BED_NAME)
+        bed_path = root_path.joinpath(DEMO_BED_NAME[build] if demo else BED_NAME[build])
         click.echo("chanjo --config {} link {}".format(conf_path, bed_path))

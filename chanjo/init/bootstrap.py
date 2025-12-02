@@ -11,13 +11,16 @@ else:
 
 
 DB_NAME = "chanjo.coverage.sqlite3"
-BED_NAME = "hgnc.grch37p13.exons.bed"
-BED_URL = "https://s3.eu-central-1.amazonaws.com/clinical-assets/hgnc.grch37p13.exons.bed.zip"
+BED_NAME = {"37": "hgnc.grch37p13.exons.bed", "38": "hgnc.grch38p14.exons.bed"}
+BED_URL = {
+    "37": "https://s3.eu-central-1.amazonaws.com/clinical-assets/hgnc.grch37p13.exons.bed.zip",
+    "38": "https://figshare.com/ndownloader/files/60037697",
+}
 
 logger = logging.getLogger(__name__)
 
 
-def pull(target_dir, force=False):  # pragma: no cover
+def pull(target_dir, force=False, build=37):  # pragma: no cover
     """Download precompiled resources into a folder.
 
     Args:
@@ -28,12 +31,12 @@ def pull(target_dir, force=False):  # pragma: no cover
     target_path = Path(target_dir)
     target_path.mkdir(parents=True, exist_ok=True)
 
-    bed_zip_path = target_path.joinpath("{}.zip".format(BED_NAME))
-    final_bed = target_path.joinpath(BED_NAME)
+    bed_zip_path = target_path.joinpath("{}.zip".format(BED_NAME[build]))
+    final_bed = target_path.joinpath(BED_NAME[build])
 
     if not final_bed.exists() or force:
-        logger.info("downloading... [%s]", BED_URL)
-        urlretrieve(BED_URL, bed_zip_path)
+        logger.info("downloading... [%s]", BED_URL[build])
+        urlretrieve(BED_URL[build], bed_zip_path)
 
         logger.info("extracting BED file...")
         zip_ref = zipfile.ZipFile(bed_zip_path, "r")
