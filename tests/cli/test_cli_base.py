@@ -15,8 +15,10 @@ def test_logging_to_file(tmp_path, invoke_cli):
 
 
 def test_list_commands(invoke_cli):
-    result = invoke_cli(["--help"])  # no subcommand needed
+    # WHEN using simplest command 'chanjo'
+    result = invoke_cli(["--help"])
     assert result.exit_code == 0
+    # THEN it should show command options
     assert "db" in result.output
 
 
