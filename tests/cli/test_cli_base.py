@@ -9,16 +9,15 @@ def test_logging_to_file(tmp_path, invoke_cli):
     assert not list(tmp_path.iterdir())
     # WHEN running the CLI to display some help for a subcommand
     log_path = tmp_path.joinpath("stderr.log")
-    result = invoke_cli(["--log-file", str(log_path), "db"])
+    result = invoke_cli(["--log-file", str(log_path), "db", "delete"])
     assert result.exit_code == 0
     assert list(tmp_path.iterdir()) == [log_path]
 
 
 def test_list_commands(invoke_cli):
-    # WHEN using simplest command 'chanjo'
-    result = invoke_cli()
-    # THEN it should just work ;-)
+    result = invoke_cli(["--help"])  # no subcommand needed
     assert result.exit_code == 0
+    assert "db" in result.output
 
 
 def test_missing_command(invoke_cli):
