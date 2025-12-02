@@ -20,7 +20,7 @@ BED_URL = {
 logger = logging.getLogger(__name__)
 
 
-def pull(target_dir, force=False, build=37):  # pragma: no cover
+def pull(target_dir, force=False, build="37"):  # pragma: no cover
     """Download precompiled resources into a folder.
 
     Args:
