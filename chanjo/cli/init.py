@@ -70,5 +70,5 @@ def init(context, force, demo, auto, build, root_dir):
 
     if is_bootstrapped:
         click.echo("Chanjo bootstrap successful! Now run: ")
-        bed_path = root_path.joinpath(DEMO_BED_NAME[build] if demo else BED_NAME[build])
+        bed_path = root_path.joinpath(DEMO_BED_NAME if demo else BED_NAME[build])
         click.echo("chanjo --config {} link {}".format(conf_path, bed_path))
