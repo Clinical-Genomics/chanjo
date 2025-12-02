@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [unreleased]
 ### Added
 - A `--build` option to the init command, to be able to automatically bootstrap a database in genome build 38
+### Fixed
+- Broken tests and failing linting
 
 ## [4.7.2] - 2024-12-10
 - Refactored to allow later python versions than 3.8 (pkg_resources to importlib, os.path and path.py to pathlib, distutils to shutil) [#262](https://github.com/Clinical-Genomics/chanjo/pull/262)
