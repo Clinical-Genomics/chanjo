@@ -1,5 +1,5 @@
 """
-    Tests for store
+Tests for store
 """
 
 from datetime import datetime
