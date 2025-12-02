@@ -24,7 +24,7 @@ COMMAND_GROUP_KEY = "chanjo.subcommands.4"
 
 
 class EntryPointsCLI(click.MultiCommand):
-    """This is a test."""
+    """Add sub-commands dynamically to a CLI via entry points."""
 
     def _iter_commands(self):
         """Iterate over all sub-commands as defined by the entry point."""
