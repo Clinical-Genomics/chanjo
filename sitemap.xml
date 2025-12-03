@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://clinical-genomics.github.io/chanjo/</loc>
+         <lastmod>2025-12-03</lastmod>
+    </url>
+    <url>
+         <loc>https://clinical-genomics.github.io/chanjo/topics/demo/</loc>
+         <lastmod>2025-12-03</lastmod>
+    </url>
+    <url>
+         <loc>https://clinical-genomics.github.io/chanjo/topics/developer/</loc>
+         <lastmod>2025-12-03</lastmod>
+    </url>
+    <url>
+         <loc>https://clinical-genomics.github.io/chanjo/topics/installation/</loc>
+         <lastmod>2025-12-03</lastmod>
+    </url>
+</urlset>
