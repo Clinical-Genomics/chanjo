@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [unreleased]
+### Fixed
+- Deployment instructions, given that `master` branch was renamed to `main` ()
+
 ## [4.8] - 2025-12-03
 ### Added
 - A `--build` option to the init command, to be able to automatically bootstrap a database in genome build 38
