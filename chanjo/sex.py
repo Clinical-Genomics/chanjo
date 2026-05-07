@@ -44,7 +44,7 @@ def predict_sex(x_coverage, y_coverage):
             return "female"
 
 
-def sex_from_bam(bam_path, prefix=""):
+def sex_from_bam(bam_path, prefix="", build="37"):
     """Predict the sex from a BAM alignment file.
 
     Args:
@@ -59,7 +59,12 @@ def sex_from_bam(bam_path, prefix=""):
         SexGuess(x_coverage=123.31, y_coverage=0.13, sex='female')
     """
     # make up some sex chromosome regions
-    regions = ["{}X:1-59373566".format(prefix), "{}Y:69362-11375310".format(prefix)]
+    if build == "37":
+        regions = ["{}X:1-59373566".format(prefix), "{}Y:69362-11375310".format(prefix)]
+    else:
+        # build 38
+        regions = ["{}X:2781481-155701382".format(prefix), "{}Y:2791481-56887903".format(prefix)]
+
     averages = []
     for region in regions:
         command = ["sambamba depth region -L {} {}".format(region, bam_path)]
