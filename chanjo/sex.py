@@ -35,7 +35,7 @@ def predict_sex(x_coverage, y_coverage):
         return "female"
     else:
         ratio = x_coverage / y_coverage
-        if x_coverage == 0 or (ratio > 12 and ratio < 100):
+        if x_coverage == 0 or (ratio > 12 and ratio < 24):
             return "unknown"
         elif ratio <= 12:
             # this is the entire prediction, it's usually very obvious
@@ -63,7 +63,7 @@ def sex_from_bam(bam_path, prefix="", build="37"):
     if build == "37":
         regions = ["{}X:1-59373566".format(prefix), "{}Y:69362-11375310".format(prefix)]
     else:
-        # build 38
+        # build 38 - use non-PAR regions
         regions = ["{}X:2781481-155701382".format(prefix), "{}Y:2791481-56887903".format(prefix)]
 
     averages = []

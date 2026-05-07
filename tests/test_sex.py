@@ -13,7 +13,9 @@ def test_SexGuess():
 
 def test_predict_sex():
     assert predict_sex(x_coverage=10.2, y_coverage=8.1) == "male"
+    assert predict_sex(x_coverage=26.2, y_coverage=16.9) == "male"
     assert predict_sex(x_coverage=20.9, y_coverage=0.01) == "female"
+    assert predict_sex(x_coverage=37.95, y_coverage=1.09) == "female"
     # shouldn't raise ``ZeroDivisionError``
     assert predict_sex(x_coverage=5.12, y_coverage=0) == "female"
     # what does this even mean?
@@ -23,5 +25,11 @@ def test_predict_sex():
 def test_sex_from_bam(bam_path):
     # use fixtures bam - doesn't have coverage on Y chromosome
     result = sex_from_bam(bam_path)
+    assert result.x_coverage > result.y_coverage
+    assert result.sex == "female"
+
+def test_sex_from_bam_38(bam_path):
+    # use fixtures bam - doesn't have coverage on Y chromosome
+    result = sex_from_bam(bam_path, build="38")
     assert result.x_coverage > result.y_coverage
     assert result.sex == "female"
