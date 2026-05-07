@@ -5,6 +5,7 @@ The component reads coverage for subsections of each sex chromosome.
 Based on the ratio between the average coverage across chromosomes it
 makes a simple sex prediction.
 """
+
 from __future__ import division
 
 import logging
