@@ -28,6 +28,7 @@ def test_sex_from_bam(bam_path):
     assert result.x_coverage > result.y_coverage
     assert result.sex == "female"
 
+
 def test_sex_from_bam_38(bam_path):
     # use fixtures bam - doesn't have coverage on Y chromosome
     result = sex_from_bam(bam_path, build="38")
