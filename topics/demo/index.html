@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Clinical Genomics bioinfo team" /><link rel="canonical" href="https://clinical-genomics.github.io/chanjo/topics/demo/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Demo - Chanjo Docs</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Demo";
+        var mkdocs_page_input_path = "topics/demo.md";
+        var mkdocs_page_url = "/chanjo/topics/demo/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../..">
+          <img src="../../assets/logo.png" class="logo" alt="Logo"/>
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Introduction</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Demo</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#demo-files">Demo files</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#linking-exonstranscriptsgenes">Linking exons/transcripts/genes</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#loading-annotations">Loading annotations</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#extracting-information">Extracting information</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#whats-next">What's next?</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../developer/">Developer's Guide]</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Chanjo Docs</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Demo</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/Clinical-Genomics/chanjo/edit/master/docs/topics/demo.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="demo">Demo</h1>
+<p>Chanjo comes bundled with a set of demo files that let's you familiarize yourself with the command line interface. This guide assumed you've followed the <a href="topics/installation.md">installation guide</a>.</p>
+<h2 id="demo-files">Demo files</h2>
+<p>First we need some files to work with. Chanjo comes with some pre-installed demo files we can use:</p>
+<pre><code class="language-bash">$ chanjo init --demo ./chanjo-demo
+</code></pre>
+<p>This will create a new folder (<code>./chanjo-demo</code>) in your current working directory and fill it with example files.</p>
+<blockquote>
+<p>You can name the new folder anything you like but it must not already exist!</p>
+</blockquote>
+<h2 id="configuration">Configuration</h2>
+<p>Chanjo went ahead and pre-filled a config-file for you under: <code>./chanjo-demo/chanjo.yaml</code>. For now it just references the SQLite database we will use. But since Chanjo will look for this file in the current working directory when you run the command we don't need to reference the database every time.</p>
+<blockquote>
+<p>You can optionally point to a config file in a different location by using the <code>--config</code> flag like: <code>chanjo --config /path/to/chanjo.yaml</code>.</p>
+</blockquote>
+<h2 id="linking-exonstranscriptsgenes">Linking exons/transcripts/genes</h2>
+<p>Chanjo doesn't subscribe to any particular definition of exons/transcripts etc. You can take a look at the how exons/transcripts/genes are linked in: <code>hgnc.min.bed</code>. Let's tell Chanjo which transcripts belong to which genes. You only need to run this command once.</p>
+<pre><code class="language-bash">$ cd chanjo-demo
+$ chanjo link ./hgnc.min.bed
+</code></pre>
+<h2 id="loading-annotations">Loading annotations</h2>
+<p>After running <code>sambamba depth region</code> for a BED-file you can take the output and load it into the database. Let's also add a group identifier to indicate that the sample are related.</p>
+<pre><code class="language-bash">$ for file in *.coverage.bed; do echo &quot;${file}&quot;; chanjo load --group group1 &quot;${file}&quot;; done
+</code></pre>
+<h2 id="extracting-information">Extracting information</h2>
+<p>Chanjo can do some rudimentary metrics from the loaded data. You can start exploring what coverage looks like for the samples. Let's take a look at the mean values for our coverage metrics:</p>
+<pre><code>$ chanjo calculate mean --pretty
+</code></pre>
+<blockquote>
+<p>So what is this "completeness"? Well, it’s pretty simple; the percentage of bases with at least "sufficient" (say; 10x) coverage.</p>
+</blockquote>
+<h2 id="whats-next">What's next?</h2>
+<p>The SQL schema has been designed to be a powerful tool on it’s own for studying coverage. It let's you quickly aggregate metrics across multiple samples and can be used as a general coverage API for accompanying tools.</p>
+<p>One example of such a tool is <a href="https://github.com/robinandeer/Chanjo-Report">Chanjo-Report</a>, a coverage report generator for Chanjo output. A report could look something like this.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../installation/" class="btn btn-neutral float-left" title="Installation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../developer/" class="btn btn-neutral float-right" title="Developer's Guide]">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/Clinical-Genomics/chanjo" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../installation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../developer/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
