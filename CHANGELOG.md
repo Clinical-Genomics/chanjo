@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Fixed
+- Copy paste error in Docker publishing automation
+
 ## [4.9.0] - 2026-05-08
 ### Added
 - Add a `--build` option to the sex command, to use different regions on X and Y for genome build 38
