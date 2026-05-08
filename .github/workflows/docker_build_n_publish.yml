@@ -24,7 +24,7 @@ jobs:
      uses: docker/build-push-action@v6
      with:
        context: ./
-       file: ./Dockerfile-server
+       file: ./Dockerfile
        push: true
        provenance: mode=max
        sbom: true
