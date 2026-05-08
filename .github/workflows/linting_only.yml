@@ -16,11 +16,11 @@ jobs:
 
     # Check out Scout code
     - name: Check out git repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     # Set up python
     - name: Set up Python ${{ matrix.python-version}}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version}}
 

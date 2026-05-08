@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Add a `--build` option to the sex command, to use different regions on X and Y for genome build 38
 ### Changed
 - Narrow sex chromosome ratios that give an `unknown` sex call
+### Fixed
+- Update GitHub actions to current versions, switched docker publish action to have full provenance
 
 ## [4.8] - 2025-12-03
 ### Added
