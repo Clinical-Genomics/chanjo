@@ -7,7 +7,7 @@ from chanjo.testutils import FakeZipFile, fake_urlretrieve
 
 
 @pytest.mark.parametrize("build", ["37", "38"])
-@patch("chanjo.init.bootstrap.urlretrieve", fake_urlretrieve)
+@patch("urllib.request.urlretrieve", fake_urlretrieve)
 @patch("zipfile.ZipFile", FakeZipFile)
 def test_pull(tmp_path, build):
     target_dir = str(tmp_path)

@@ -1,0 +1,6 @@
+2025-12-02 13:33:37 n137-p23.local chanjo.cli.init[4135] INFO setting up chanjo under: demodata
+2025-12-02 13:33:37 n137-p23.local chanjo.init.bootstrap[4135] WARNING file already exists, skipping: demodata/hgnc.grch37p13.exons.bed
+2025-12-02 13:33:37 n137-p23.local chanjo.cli.init[4135] INFO configure new chanjo database: sqlite:////Users/chiararasi/Documents/work/GITs/chanjo/demodata/chanjo.coverage.sqlite3
+2025-12-02 13:33:37 n137-p23.local chanjo.store.api[4135] INFO created tables: transcript, sample, transcript_stat
+2025-12-02 13:33:37 n137-p23.local chanjo.cli.init[4135] INFO writing config file: demodata/chanjo.yaml
+2025-12-02 14:26:02 n137-p23.local chanjo.cli.base[5500] DEBUG version 4.7.2
