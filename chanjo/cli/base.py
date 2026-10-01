@@ -4,6 +4,7 @@ Command line interface (console entry points). Based on Click_.
 
 .. _Click: http://click.pocoo.org/
 """
+
 import logging
 import os
 

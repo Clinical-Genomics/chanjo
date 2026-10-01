@@ -6,6 +6,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Add the SQLAlchemy asyncio extra to ensure greenlet is installed with SQLAlchemy 2.1.
 
+## [4.9.1] - 2026-05-08
+### Fixed
+- Copy paste error in Docker publishing automation
+
+## [4.9.0] - 2026-05-08
+### Added
+- Add a `--build` option to the sex command, to use different regions on X and Y for genome build 38
+### Changed
+- Narrow sex chromosome ratios that give an `unknown` sex call
+### Fixed
+- Update GitHub actions to current versions, switched docker publish action to have full provenance
+
 ## [4.8] - 2025-12-03
 ### Added
 - A `--build` option to the init command, to be able to automatically bootstrap a database in genome build 38
