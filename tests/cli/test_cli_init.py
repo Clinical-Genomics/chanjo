@@ -19,7 +19,7 @@ def test_init_demo(tmp_path, invoke_cli):
     assert len(list(target_dir.iterdir())) == (4 + 1 + 1)
 
 
-@patch("chanjo.init.bootstrap.urlretrieve", fake_urlretrieve)
+@patch("urllib.request.urlretrieve", fake_urlretrieve)
 @patch("zipfile.ZipFile", FakeZipFile)
 @patch("click.confirm", lambda param: True)
 def test_init_bootstrap(tmp_path, invoke_cli):
