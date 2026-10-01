@@ -11,9 +11,9 @@ else:
 
 
 DB_NAME = "chanjo.coverage.sqlite3"
-BED_NAME = {"37": "hgnc.grch37p13.exons.bed", "38": "hgnc.grch38p14.exons.bed"}
+BED_NAME = {"37": "hgnc.grch37.exons.bed", "38": "hgnc.grch38p14.exons.bed"}
 BED_URL = {
-    "37": "https://s3.eu-central-1.amazonaws.com/clinical-assets/hgnc.grch37p13.exons.bed.zip",
+    "37": "https://figshare.com/ndownloader/files/69541758",
     "38": "https://figshare.com/ndownloader/files/60037697",
 }
 

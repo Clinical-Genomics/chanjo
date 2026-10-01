@@ -4,7 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 ### Fixed
-- Add the SQLAlchemy asyncio extra to ensure greenlet is installed with SQLAlchemy 2.1.
+- Link to download the exons file in build 37 used to bootstrap the database (#288)
+- Add the SQLAlchemy asyncio extra to ensure greenlet is installed with SQLAlchemy 2.1 (#286)
 
 ## [4.9.1] - 2026-05-08
 ### Fixed
