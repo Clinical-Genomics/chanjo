@@ -2,9 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [unreleased]
+## [unreleased] - 2026-10-02
 ### Fixed
 - Add the SQLAlchemy asyncio extra to ensure greenlet is installed with SQLAlchemy 2.1.
+- Update GitHub actions to current versions.
 
 ## [4.9.1] - 2026-05-08
 ### Fixed
