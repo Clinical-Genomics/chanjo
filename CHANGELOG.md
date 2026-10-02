@@ -4,7 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 ### Fixed
+
+## [unreleased] - 2026-10-02
+### Fixed
 - Deployment instructions, given that `master` branch was renamed to `main` (#277)
+- Add the SQLAlchemy asyncio extra to ensure greenlet is installed with SQLAlchemy 2.1. (#286)
+- Update GitHub actions to current versions. (#289)
 
 ## [4.9.1] - 2026-05-08
 ### Fixed
